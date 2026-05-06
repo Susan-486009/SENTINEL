@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShieldCheck, Mail, Lock, User, 
-  ArrowRight, CheckCircle2, UserCircle,
-  GraduationCap, Building2, AlertCircle, Eye, EyeOff
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Mail, Lock, User, ArrowRight, UserCircle, ShieldCheck, GraduationCap, Building2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { authService } from '../services/api';
 
@@ -15,14 +11,24 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student', // default
+    role: 'student',
     matricNumber: '',
     staffId: ''
   });
 
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let processedValue = value;
+
+    // Smart Input Handling
+    if (name === 'email') processedValue = value.trim();
+    if (name === 'matricNumber' || name === 'staffId') processedValue = value.toUpperCase(); // Auto-format ID
+
+    setFormData({ ...formData, [name]: processedValue });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +39,7 @@ const Register = () => {
     setLoading(true);
     try {
       await authService.register(formData);
-      toast.success('Account created successfully! Please login.');
+      toast.success('Registration successful. Please sign in.');
       navigate('/login');
     } catch (err) {
       toast.error(err.message || 'Registration failed');
@@ -43,179 +49,151 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden font-sans py-20">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans p-4 py-20">
       
-      {/* Background Decor */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:40px_40px] opacity-30 pointer-events-none" />
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-50" />
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-50" />
+      {/* Refined Background Decor */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:32px_32px] opacity-40 pointer-events-none" />
 
-      <div className="max-w-7xl w-full mx-auto px-4 relative z-10 flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
+      <div className="max-w-4xl w-full flex bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative z-10">
         
-        {/* Left Side: Educational Branding */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex-1 text-center lg:text-left hidden lg:block"
-        >
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-blue-100/50 border border-blue-200 mb-10 shadow-sm">
-            <Building2 className="w-5 h-5 text-blue-600" />
-            <span className="text-[11px] font-bold text-blue-700 uppercase tracking-widest">Join the LASUSTECH Community</span>
-          </div>
+        {/* Left Side: Branding */}
+        <div className="hidden lg:flex flex-1 bg-slate-900 p-12 flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-full h-full bg-blue-600/5 -skew-x-12 translate-x-1/2 pointer-events-none" />
           
-          <h1 className="text-6xl lg:text-8xl font-black text-slate-900 tracking-tighter leading-[0.95] mb-10">
-            Create <br />
-            <span className="text-blue-600">Account.</span>
-          </h1>
-          
-          <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-lg mb-12">
-            Register your official LASUSTECH profile to access the support portal and report issues directly to the university administration.
-          </p>
-
-          <div className="space-y-6">
-             {[
-               "Official University Verification",
-               "Real-time Tracking of Reports",
-               "Direct Access to Support Teams"
-             ].map((text, i) => (
-               <div key={i} className="flex items-center gap-4 text-slate-600 font-bold text-xs uppercase tracking-widest">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                  {text}
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-10">
+               <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white">
+                  <ShieldCheck className="w-5 h-5" />
                </div>
-             ))}
+               <span className="text-white font-bold tracking-tight">LASUSTECH</span>
+            </div>
+            
+            <h1 className="text-4xl font-bold text-white tracking-tight leading-tight mb-6">
+              Create Your <br />Profile
+            </h1>
+            <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-xs">
+              Register with your official institutional identity to access support services.
+            </p>
           </div>
-        </motion.div>
+
+          <div className="relative z-10 pt-10 border-t border-white/10 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+            Identity Verification Required
+          </div>
+        </div>
 
         {/* Right Side: Register Form */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-2xl"
-        >
-          <div className="bg-white p-10 lg:p-16 rounded-[4rem] shadow-2xl shadow-blue-900/5 border border-slate-100">
-            
-            <div className="mb-12">
-              <div className="flex items-center gap-4 mb-4">
-                 <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
-                    <UserCircle className="w-7 h-7" />
-                 </div>
-                 <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Sign Up</h2>
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-md mx-auto">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                 <UserCircle className="w-5 h-5 text-blue-600" />
+                 <h2 className="text-xl font-bold text-slate-900 tracking-tight">Account Registration</h2>
               </div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Fill out the form below to register.</p>
+              <p className="text-slate-400 text-[10px] font-medium uppercase tracking-widest">Lagos State University of Science and Technology</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
               
-              {/* Role Switcher */}
-              <div className="flex p-1.5 bg-slate-100 rounded-full mb-10">
+              {/* Role Toggle - Professional Style */}
+              <div className="flex p-1 bg-slate-100 rounded-lg mb-6">
                 {['student', 'staff'].map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setFormData({ ...formData, role: r })}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
                       formData.role === r 
                         ? 'bg-white text-blue-600 shadow-sm' 
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-slate-500 hover:text-slate-700'
                     }`}
                   >
-                    {r === 'student' ? <GraduationCap className="w-4 h-4" /> : <Building2 className="w-4 h-4" />}
-                    {r} account
+                    {r === 'student' ? <GraduationCap className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
+                    {r}
                   </button>
                 ))}
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-6">Full Name</label>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
                   <div className="relative group">
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
-                      <User className="w-5 h-5" />
-                    </div>
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
                       type="text"
+                      name="name"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="input-premium pl-16"
+                      onChange={handleInputChange}
+                      className="input-professional pl-11"
                       placeholder="JOHN DOE"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-6">Email Address</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Official Email</label>
                   <div className="relative group">
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
-                      <Mail className="w-5 h-5" />
-                    </div>
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
                       type="email"
+                      name="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="input-premium pl-16"
-                      placeholder="NAME@EXAMPLE.COM"
+                      onChange={handleInputChange}
+                      className="input-professional pl-11"
+                      placeholder="name@example.com"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-6">
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
                     {formData.role === 'student' ? 'Matric Number' : 'Staff ID'}
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
                       type="text"
+                      name={formData.role === 'student' ? 'matricNumber' : 'staffId'}
                       required
                       value={formData.role === 'student' ? formData.matricNumber : formData.staffId}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        [formData.role === 'student' ? 'matricNumber' : 'staffId']: e.target.value 
-                      })}
-                      className="input-premium pl-16"
+                      onChange={handleInputChange}
+                      className="input-professional pl-11"
                       placeholder={formData.role === 'student' ? '2021/XXX/XXXX' : 'LAS/ST/XXXX'}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-6">Password</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
                   <div className="relative group">
-                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
-                      <Lock className="w-5 h-5" />
-                    </div>
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type="password"
+                      name="password"
                       required
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="input-premium pl-16 pr-16"
+                      onChange={handleInputChange}
+                      className="input-professional pl-11"
                       placeholder="••••••••"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-6">Confirm Password</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Confirm Password</label>
                 <div className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
-                    <Lock className="w-5 h-5" />
-                  </div>
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type="password"
+                    name="confirmPassword"
                     required
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="input-premium pl-16"
+                    onChange={handleInputChange}
+                    className="input-professional pl-11"
                     placeholder="••••••••"
                   />
                 </div>
@@ -224,28 +202,27 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-100 transition-all hover:-translate-y-1 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-4 mt-4"
+                className="w-full btn-primary py-3 flex items-center justify-center gap-3 mt-4"
               >
-                {loading ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : (
+                {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : (
                   <>
-                    Create My Account
+                    Create My Profile
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="mt-12 text-center">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                Already have an official account?{' '}
-                <Link to="/login" className="text-blue-600 font-black hover:text-blue-700 ml-2">
+            <div className="mt-8 text-center">
+              <p className="text-xs font-medium text-slate-500">
+                Already have an account?{' '}
+                <Link to="/login" className="text-blue-600 font-bold hover:text-blue-700 ml-1">
                   Sign In
                 </Link>
               </p>
             </div>
           </div>
-          
-        </motion.div>
+        </div>
       </div>
     </div>
   );

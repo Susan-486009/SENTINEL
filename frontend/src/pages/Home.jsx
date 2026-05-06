@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
-import FeatureCards from '../components/FeatureCards';
 import ReportModal from '../components/ReportModal';
 import { motion } from 'framer-motion';
 import { 
-  ShieldCheck, Target, TrendingUp, Users, 
-  ArrowRight, Shield, Heart, Flag, CheckCircle2,
-  BookOpen, HelpCircle, UserPlus
+  CheckCircle2, BookOpen, HelpCircle, UserPlus,
+  ArrowRight, Flag, Heart
 } from 'lucide-react';
 import campusImg from '../assets/lasustech_campus_scene.png';
 
@@ -19,53 +17,53 @@ const Home = () => {
       {/* Hero Section */}
       <Hero onReportClick={() => setIsReportModalOpen(true)} />
 
-      {/* About Us & Mission Section */}
-      <section id="about" className="py-16 lg:py-20 bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+      {/* About Us & Mission - High Density Layout */}
+      <section id="about" className="py-16 lg:py-24 bg-white border-b border-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -10 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="absolute -top-12 -left-12 w-48 h-48 bg-blue-50 rounded-full blur-3xl opacity-60" />
               <img 
                 src={campusImg} 
-                alt="LASUSTECH Campus life" 
-                className="relative z-10 w-full h-[500px] object-cover rounded-[3rem] shadow-2xl border-8 border-white"
+                alt="Campus life" 
+                className="relative z-10 w-full h-[440px] object-cover rounded-2xl border border-slate-100 shadow-sm"
               />
-              <div className="absolute -bottom-10 -right-10 bg-blue-600 p-10 rounded-[2.5rem] text-white shadow-2xl hidden md:block">
-                 <Heart className="w-10 h-10 mb-4" />
-                 <p className="text-2xl font-black italic">Student-First<br />Support.</p>
+              <div className="absolute -bottom-6 -right-6 bg-white border border-slate-200 p-6 rounded-2xl shadow-md hidden md:block max-w-[200px]">
+                 <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
+                   <Heart className="w-5 h-5 text-blue-600" />
+                 </div>
+                 <p className="text-sm font-bold text-slate-900 leading-tight">Student-First Approach to Support.</p>
               </div>
             </motion.div>
 
             <div>
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 mb-8">
-                <Flag className="w-4 h-4 text-blue-600" />
-                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Our Official Mission</span>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-100 mb-6">
+                <Flag className="w-3.5 h-3.5 text-blue-600" />
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Institutional Mission</span>
               </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-8">
-                Providing a <span className="text-blue-600">Secure Voice</span> for Every LASUSTECH Student.
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight mb-6">
+                A Secure Voice for Every <span className="text-blue-600">Student.</span>
               </h2>
-              <p className="text-lg text-slate-600 font-medium leading-relaxed mb-10">
-                At LASUSTECH, we believe that every student's concern deserves professional and timely attention. This portal was built to bridge the gap between students and the university administration, ensuring that help is always just a few clicks away.
+              <p className="text-base text-slate-500 font-medium leading-relaxed mb-8">
+                Lagos State University of Science and Technology is committed to transparency and student welfare. This portal provides an official, secure channel for you to report concerns directly to administration.
               </p>
               
-              <div className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 {[
-                  { title: "Our Vision", desc: "To create a campus environment where transparency and mutual respect thrive." },
-                  { title: "Our Commitment", desc: "We guarantee that every valid report is reviewed by official authorities." },
-                  { title: "Your Privacy", desc: "Your identity is protected through our secure reporting protocols." }
+                  { title: "Transparency", desc: "Open communication between campus and authority." },
+                  { title: "Accountability", desc: "Every valid report is officially reviewed." },
+                  { title: "Privacy", desc: "Secure encryption for all student interactions." },
+                  { title: "Efficiency", desc: "Rapid response times for critical campus issues." }
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-5">
-                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center shrink-0 mt-1">
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    </div>
+                  <div key={i} className="flex gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-black text-slate-900 uppercase tracking-wide mb-1">{item.title}</h4>
-                      <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">{item.title}</h4>
+                      <p className="text-xs text-slate-500 leading-normal">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -75,79 +73,70 @@ const Home = () => {
         </div>
       </section>
 
-      {/* How It Works - Breakdown */}
-      <section className="py-16 lg:py-20 bg-slate-50">
+      {/* Process Breakdown - Professional Compact Grid */}
+      <section className="py-16 lg:py-24 bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.4em] mb-6">Simple 3-Step Process</h2>
-            <h3 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-              How the Support <br />Portal Works.
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-4">Official Workflow</h2>
+            <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Professional Resolution Process.
             </h3>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: BookOpen, step: "01", title: "Document Issue", desc: "Fill out our simple form with details of your concern. You can also upload photos or documents." },
-              { icon: HelpCircle, step: "02", title: "Expert Review", desc: "Our specialized teams review your case and coordinate with the necessary university departments." },
-              { icon: UserPlus, step: "03", title: "Resolution", desc: "Receive real-time updates and an official response once your case has been addressed." }
+              { icon: BookOpen, step: "01", title: "Documentation", desc: "Provide details of your concern via our secure form. Evidence uploads are supported." },
+              { icon: HelpCircle, step: "02", title: "Review Cycle", desc: "Authorized teams evaluate the report and coordinate with relevant departments." },
+              { icon: UserPlus, step: "03", title: "Resolution", desc: "Receive an official response and track the progress in real-time on your dashboard." }
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 8 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-xl shadow-blue-900/5 relative group hover:-translate-y-2 transition-all duration-500"
+                transition={{ delay: i * 0.1 }}
+                className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm group hover:border-blue-600/30 transition-all duration-200"
               >
-                <div className="text-7xl font-black text-blue-50 absolute top-8 right-8 group-hover:text-blue-100 transition-colors">
-                  {item.step}
+                <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white mb-6">
+                  <item.icon className="w-6 h-6" />
                 </div>
-                <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white mb-8 shadow-lg shadow-blue-100">
-                  <item.icon className="w-8 h-8" />
-                </div>
-                <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-4">{item.title}</h4>
-                <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">{item.step}. {item.title}</h4>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="bg-blue-600 rounded-[4rem] p-12 lg:p-24 relative overflow-hidden shadow-2xl shadow-blue-200">
-             {/* Decorative Background */}
-             <div className="absolute inset-0 opacity-20 mix-blend-overlay">
-                <img src="/university_portal_login_1778104480103.png" alt="Overlay" className="w-full h-full object-cover" />
-             </div>
-             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-900/50 to-transparent" />
-
-             <div className="relative z-10 max-w-2xl">
-                <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tighter leading-tight mb-8">
-                   Ready to Speak Up <br />for LASUSTECH?
+      {/* CTA - High Density */}
+      <section className="py-16 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-slate-900 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-600/10 -skew-x-12 translate-x-1/4 pointer-events-none" />
+             
+             <div className="relative z-10 max-w-xl">
+                <h2 className="text-3xl lg:text-5xl font-bold text-white tracking-tight leading-tight mb-6">
+                   Ready to Make <br />a Difference?
                 </h2>
-                <p className="text-blue-50 text-xl font-medium leading-relaxed mb-12 opacity-90">
-                   Your feedback helps us make our university better for everyone. Create an account or send a report today.
+                <p className="text-slate-400 text-base font-medium leading-relaxed mb-10">
+                   Join the official LASUSTECH support network today. Your feedback is essential for continuous campus improvement.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-5">
+                <div className="flex flex-col sm:flex-row gap-3">
                    <button 
                      onClick={() => setIsReportModalOpen(true)}
-                     className="bg-white text-blue-600 px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-50 hover:-translate-y-1 transition-all shadow-xl active:scale-95"
+                     className="btn-primary py-3 px-8"
                    >
-                     Submit a Report Now
+                     Submit a Report
                    </button>
                    <Link 
                      to="/register" 
-                     className="flex items-center justify-center gap-3 bg-blue-800 text-white px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-900 hover:-translate-y-1 transition-all"
+                     className="flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-white/20 text-white text-xs font-semibold hover:bg-white/10 transition-all"
                    >
-                     Join Our Community
+                     Create Account
                      <ArrowRight className="w-4 h-4" />
                    </Link>
                 </div>
              </div>
-
-             <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           </div>
         </div>
       </section>
