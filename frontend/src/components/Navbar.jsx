@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { to: '/',       label: 'Home' },
   { to: '/submit', label: 'Report Issue' },
   { to: '/track',  label: 'Track Status' },
-  { to: '#about',  label: 'About' },
+  { to: '/about',  label: 'About' },
 ];
 
 const Navbar = () => {

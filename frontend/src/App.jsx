@@ -18,6 +18,7 @@ import TrackComplaint from './pages/TrackComplaint';
 import AdminDashboard from './pages/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
+import About from './pages/About';
 import Chatbot from './components/Chatbot';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/track"   element={<TrackComplaint />} />
+              <Route path="/about"   element={<About />} />
 
               {/* Protected Routes */}
               <Route path="/submit" element={
