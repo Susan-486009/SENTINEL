@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send } from 'lucide-react';
+import { X, Send, ShieldCheck, User, MessageSquare } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const ReportModal = ({ isOpen, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    toast.success("Complaint submitted successfully! We'll track it from here.");
+    toast.success("Your report has been received. We'll handle it from here.");
     onClose();
   };
 
@@ -19,77 +19,97 @@ const ReportModal = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100"
           >
-            <div className="bg-primary px-8 py-6 text-white flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold">Submit a Complaint</h3>
-                <p className="text-primary-light text-xs mt-1">Please provide accurate details for rapid resolution.</p>
+            <div className="bg-blue-600 px-10 py-10 text-white flex justify-between items-start relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                 <ShieldCheck size={120} />
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <X className="w-6 h-6" />
+              <div className="relative z-10">
+                <h3 className="text-3xl font-black uppercase tracking-tighter">Submit Report</h3>
+                <p className="text-blue-100 text-xs font-bold mt-3 uppercase tracking-widest">Lagos State University of Science and Technology</p>
+              </div>
+              <button onClick={onClose} className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl transition-all relative z-10 group">
+                <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Full Name</label>
-                  <input 
-                    required
-                    type="text" 
-                    placeholder="John Doe" 
-                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                  />
+            <form onSubmit={handleSubmit} className="p-10 lg:p-12 space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Full Name</label>
+                  <div className="relative group">
+                    <User className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="JOHN DOE" 
+                      className="input-premium pl-14 py-3.5 text-xs"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Matric/Staff ID</label>
-                  <input 
-                    required
-                    type="text" 
-                    placeholder="2024/0001" 
-                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                  />
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Matric/Staff ID</label>
+                  <div className="relative group">
+                    <ShieldCheck className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="2024/XXX/XXXX" 
+                      className="input-premium pl-14 py-3.5 text-xs"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Complaint Type</label>
-                <select className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm">
-                  <option>Academic Issue</option>
-                  <option>Facility Maintenance</option>
-                  <option>Security Concern</option>
-                  <option>Administrative/Staff Relation</option>
-                  <option>Other</option>
-                </select>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Category</label>
+                <div className="relative group">
+                  <select className="input-premium py-3.5 text-xs appearance-none">
+                    <option>ACADEMIC ISSUES</option>
+                    <option>FACILITY MAINTENANCE</option>
+                    <option>SECURITY CONCERN</option>
+                    <option>STAFF RELATIONS</option>
+                    <option>OTHER</option>
+                  </select>
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none group-focus-within:text-blue-600 transition-colors" />
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-700">Detailed Description</label>
-                <textarea 
-                  required
-                  rows="4" 
-                  placeholder="Tell us exactly what happened..."
-                  className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm resize-none"
-                />
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-6">Description</label>
+                <div className="relative group">
+                   <MessageSquare className="absolute left-6 top-6 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                   <textarea 
+                    required
+                    rows="4" 
+                    placeholder="TELL US EXACTLY WHAT HAPPENED..."
+                    className="input-premium pl-14 py-5 text-xs min-h-[140px] resize-none rounded-[2rem]"
+                  />
+                </div>
               </div>
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full btn-primary flex items-center justify-center gap-2 py-3.5 mt-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-100 transition-all active:scale-[0.98] flex items-center justify-center gap-4 mt-4"
               >
+                Submit Now
                 <Send className="w-4 h-4" />
-                Submit Report
               </motion.button>
+              
+              <p className="text-center text-[9px] font-bold text-slate-300 uppercase tracking-widest pt-4">
+                Official LASUSTECH Support Node
+              </p>
             </form>
           </motion.div>
         </div>

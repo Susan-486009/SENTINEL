@@ -4,15 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, LayoutDashboard,
   Settings, ChevronDown, User, ClipboardList,
-  Search, Shield, ShieldCheck
+  Search, ShieldCheck, GraduationCap, Building2,
+  Info
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const NAV_LINKS = [
   { to: '/',       label: 'Home' },
-  { to: '/submit', label: 'Report Issue', icon: ClipboardList },
-  { to: '/track',  label: 'Track Status',   icon: Search },
+  { to: '/submit', label: 'Report Issue' },
+  { to: '/track',  label: 'Track Status' },
+  { to: '#about',  label: 'About' },
 ];
 
 const Navbar = () => {
@@ -43,48 +45,58 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.info('Session Terminated');
+    toast.info('Logged Out');
     navigate('/login');
+  };
+
+  const handleNavClick = (to) => {
+    if (to.startsWith('#')) {
+      const el = document.getElementById(to.substring(1));
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else if (location.pathname !== '/') {
+        navigate('/', { state: { scrollTo: to.substring(1) } });
+      }
+    }
+    setIsOpen(false);
   };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
-      scrolled ? 'bg-white/80 backdrop-blur-xl border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-5'
+      scrolled ? 'bg-white/90 backdrop-blur-xl border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-6'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              scrolled ? 'bg-blue-600 shadow-blue-200 shadow-lg' : 'bg-white shadow-sm'
+            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+              scrolled ? 'bg-blue-600 shadow-blue-200 shadow-xl' : 'bg-white shadow-md'
             }`}>
               <ShieldCheck className={`w-6 h-6 transition-colors ${scrolled ? 'text-white' : 'text-blue-600'}`} />
             </div>
             <div>
-              <span className={`block text-xl font-black tracking-tighter uppercase leading-none transition-colors ${
-                scrolled ? 'text-slate-900' : 'text-slate-900'
-              }`}>SENTINEL</span>
-              <span className={`text-[8px] font-black uppercase tracking-[0.3em] transition-colors ${
+              <span className="block text-xl font-black tracking-tighter uppercase leading-none text-slate-900">LASUSTECH</span>
+              <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-colors ${
                 scrolled ? 'text-blue-600' : 'text-blue-500'
-              }`}>University_Support</span>
+              }`}>Support Portal</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-2">
             {NAV_LINKS.map((link) => (
-              <Link
+              <button
                 key={link.to}
-                to={link.to}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                onClick={() => handleNavClick(link.to)}
+                className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                   location.pathname === link.to
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-slate-500 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
                 {link.label}
-              </Link>
+              </button>
             ))}
 
             <div className="w-px h-6 bg-slate-100 mx-4" />
@@ -93,13 +105,13 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 transition-all shadow-sm"
+                  className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full bg-white border border-slate-100 hover:border-blue-200 transition-all shadow-sm group"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs">
+                  <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-100 group-hover:scale-105 transition-transform">
                     {user?.name?.[0]}
                   </div>
-                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{user?.name?.split(' ')[0]}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${showUserMenu ? 'rotate-180' : ''}`} />
+                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{user?.name?.split(' ')[0]}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-500 ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -108,30 +120,32 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 overflow-hidden"
+                      className="absolute right-0 mt-3 w-64 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-3 overflow-hidden"
                     >
-                      <div className="px-4 py-3 border-b border-slate-50 mb-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Authenticated Identity</p>
+                      <div className="px-5 py-4 border-b border-slate-50 mb-3 bg-slate-50/50 rounded-2xl">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Signed In As</p>
                         <p className="text-[11px] font-bold text-slate-900 truncate uppercase">{user?.email}</p>
                       </div>
                       
-                      <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
-                        <LayoutDashboard className="w-4 h-4" />
-                        Dashboard
-                      </Link>
-                      <Link to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
-                        <Settings className="w-4 h-4" />
-                        Preferences
-                      </Link>
+                      <div className="space-y-1">
+                        <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-[11px] font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all group">
+                          <LayoutDashboard className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          Control Panel
+                        </Link>
+                        <Link to="/settings" className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-[11px] font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all group">
+                          <Settings className="w-4 h-4 group-hover:rotate-45 transition-transform" />
+                          Account Settings
+                        </Link>
+                      </div>
                       
-                      <div className="h-px bg-slate-50 my-2" />
+                      <div className="h-px bg-slate-50 my-3" />
                       
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-[11px] font-black text-red-500 hover:bg-red-50 transition-all uppercase tracking-widest"
                       >
                         <LogOut className="w-4 h-4" />
-                        Terminate Session
+                        Log Out
                       </button>
                     </motion.div>
                   )}
@@ -142,8 +156,8 @@ const Navbar = () => {
                 <Link to="/login" className="px-6 py-2.5 text-xs font-bold text-slate-600 hover:text-blue-600 uppercase tracking-widest transition-colors">
                   Login
                 </Link>
-                <Link to="/register" className="px-6 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
-                  Register
+                <Link to="/register" className="px-8 py-3 rounded-full bg-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-1 transition-all">
+                  Get Started
                 </Link>
               </div>
             )}
@@ -152,7 +166,7 @@ const Navbar = () => {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 rounded-xl bg-slate-50 text-slate-600"
+            className="lg:hidden p-3 rounded-2xl bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -163,45 +177,43 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             className="lg:hidden bg-white border-b border-slate-100 overflow-hidden"
           >
-            <div className="px-4 py-8 space-y-3">
+            <div className="px-4 py-10 space-y-4">
               {NAV_LINKS.map((link) => (
-                <Link
+                <button
                   key={link.to}
-                  to={link.to}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  onClick={() => handleNavClick(link.to)}
+                  className="flex items-center gap-5 w-full px-6 py-5 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all"
                 >
-                  {link.icon && <link.icon className="w-5 h-5" />}
                   {link.label}
-                </Link>
+                </button>
               ))}
               
-              <div className="pt-4 border-t border-slate-50 space-y-3">
+              <div className="pt-6 border-t border-slate-50 space-y-4">
                 {isAuthenticated ? (
                   <>
-                    <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50">
+                    <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsOpen(false)} className="flex items-center gap-5 px-6 py-5 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50">
                       <LayoutDashboard className="w-5 h-5" />
                       Dashboard
                     </Link>
-                    <button onClick={handleLogout} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-5 px-6 py-5 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50">
                       <LogOut className="w-5 h-5" />
                       Logout
                     </button>
                   </>
                 ) : (
-                  <>
-                    <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center py-4 rounded-2xl text-sm font-bold text-slate-600 border border-slate-100">
+                  <div className="grid grid-cols-2 gap-4 pt-2">
+                    <Link to="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center py-5 rounded-2xl text-sm font-bold text-slate-600 border-2 border-slate-100">
                       Login
                     </Link>
-                    <Link to="/register" onClick={() => setIsOpen(false)} className="block w-full text-center py-4 rounded-2xl text-sm font-bold bg-blue-600 text-white shadow-lg">
+                    <Link to="/register" onClick={() => setIsOpen(false)} className="flex items-center justify-center py-5 rounded-2xl text-sm font-bold bg-blue-600 text-white shadow-xl shadow-blue-100">
                       Register
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
