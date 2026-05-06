@@ -28,8 +28,16 @@ const ALLOWED_ORIGINS = [
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    // 1. Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return cb(null, true);
+
+    // 2. Allow exact matches from ALLOWED_ORIGINS
+    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+
+    // 3. Allow any Vercel deployment URL (e.g., preview deployments)
+    if (origin.endsWith('.vercel.app')) return cb(null, true);
+
+    // Otherwise, block
     cb(new Error(`CORS: origin ${origin} is not allowed`));
   },
   credentials: true,
