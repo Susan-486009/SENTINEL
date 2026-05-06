@@ -23,7 +23,11 @@ const request = async (endpoint, options = {}) => {
     headers,
   };
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
+  // Ensure BASE_URL doesn't end with a slash and endpoint starts with one
+  const baseUrlClean = BASE_URL.replace(/\/$/, '');
+  const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const response = await fetch(`${baseUrlClean}${endpointClean}`, config);
   
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An unexpected error occurred' }));
