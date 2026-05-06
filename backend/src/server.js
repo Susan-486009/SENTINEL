@@ -17,17 +17,19 @@ const app = express();
    1.  CORS
    ════════════════════════════════════════════════════════════ */
 const ALLOWED_ORIGINS = [
-  'http://localhost:5173',   // Vite dev default
-  'http://localhost:5174',   // Vite dev secondary
-  'http://localhost:5175',   // Vite dev tertiary
-  'http://localhost:4173',   // Vite preview
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:4173',
   'https://lasustech.edu.ng',
 ];
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    // Allow requests with no origin, allowed origins, or vercel subdomains
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.vercel.app')) {
+      return cb(null, true);
+    }
     cb(new Error(`CORS: origin ${origin} is not allowed`));
   },
   credentials: true,
