@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, UserCircle, ShieldCheck, GraduationCap, Building2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { authService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,11 +12,11 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     role: 'student',
-    matricNumber: '',
-    staffId: ''
+    matric: '',
   });
 
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -25,7 +25,7 @@ const Register = () => {
 
     // Smart Input Handling
     if (name === 'email') processedValue = value.trim();
-    if (name === 'matricNumber' || name === 'staffId') processedValue = value.toUpperCase(); // Auto-format ID
+    if (name === 'matric') processedValue = value.toUpperCase(); // Auto-format ID
 
     setFormData({ ...formData, [name]: processedValue });
   };
@@ -38,11 +38,10 @@ const Register = () => {
     
     setLoading(true);
     try {
-      await authService.register(formData);
-      toast.success('Registration successful. Please sign in.');
-      navigate('/login');
+      await register(formData);
+      navigate('/dashboard');
     } catch (err) {
-      toast.error(err.message || 'Registration failed');
+      // toast.error handled in context
     } finally {
       setLoading(false);
     }
@@ -156,9 +155,9 @@ const Register = () => {
                     <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                     <input
                       type="text"
-                      name={formData.role === 'student' ? 'matricNumber' : 'staffId'}
+                      name="matric"
                       required
-                      value={formData.role === 'student' ? formData.matricNumber : formData.staffId}
+                      value={formData.matric}
                       onChange={handleInputChange}
                       className="input-professional pl-11"
                       placeholder={formData.role === 'student' ? '2021/XXX/XXXX' : 'LAS/ST/XXXX'}

@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login({ identifier: formData.email, password: formData.password });
       toast.success('Authentication successful');
       const from = location.state?.from?.pathname || (result.user.role === 'admin' ? '/admin' : '/dashboard');
       navigate(from, { replace: true });

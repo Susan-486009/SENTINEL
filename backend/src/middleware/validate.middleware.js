@@ -21,10 +21,10 @@ const rules = {
   uppercase: (v, label) => (!/[A-Z]/.test(v) ? `${label} must contain at least one uppercase letter.` : null),
   digit:     (v, label) => (!/[0-9]/.test(v) ? `${label} must contain at least one number.` : null),
   matricFormat: (v, label, body) => {
-    // Only enforce this strict numeric format for students. Staff might have IDs like 'STAFF001'
+    // Relaxed to allow institutional formats (digits, slashes, letters, hyphens)
     if (!body.role || body.role === 'student') {
-      if (!/^\d{10,15}$/.test(v)) {
-        return `${label} must be 10-15 digits starting with your admission year (e.g., 24...).`;
+      if (!/^[A-Z0-9\/-]{3,20}$/i.test(v)) {
+        return `${label} must be a valid institutional identifier (e.g., 2021/XXX/XXXX).`;
       }
     }
     return null;
