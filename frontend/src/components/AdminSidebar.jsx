@@ -10,68 +10,95 @@ const AdminSidebar = () => {
   const { logout, user } = useAuth();
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
-    { icon: ClipboardList, label: 'Complaints', path: '/admin/reports' },
-    { icon: Users, label: 'User Management', path: '/admin/users' },
-    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-    { icon: Settings, label: 'System Settings', path: '/admin/settings' },
+    { icon: LayoutDashboard, label: 'Control Center', path: '/admin' },
+    { icon: ClipboardList, label: 'Audit Logs', path: '/admin/reports' },
+    { icon: Users, label: 'Authority Management', path: '/admin/users' },
+    { icon: BarChart3, label: 'Intelligence', path: '/admin/analytics' },
+    { icon: Settings, label: 'Core Configuration', path: '/admin/settings' },
   ];
 
   return (
-    <div className="w-72 min-h-screen bg-[#0F172A] flex flex-col border-r border-slate-800">
+    <div className="w-64 min-h-screen bg-[#0B1120] flex flex-col border-r border-slate-800/60 sticky top-0 h-screen">
       {/* Brand */}
-      <div className="p-8 border-b border-slate-800/50">
+      <div className="p-7">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-blue-900/40">
-            <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
+            <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-white tracking-tighter uppercase italic">Sentinel</h1>
-            <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] leading-none">Admin Core</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Small */}
-      <div className="p-6">
-        <div className="bg-slate-800/30 rounded-2xl p-4 flex items-center gap-3 border border-slate-700/30">
-          <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center font-black text-white text-xs">
-            {user?.name?.charAt(0)}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-black text-white truncate">{user?.name}</p>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Super Admin</p>
+            <h1 className="text-lg font-black text-white tracking-tight uppercase italic leading-none">Sentinel</h1>
+            <p className="text-[8px] font-black text-blue-500/80 uppercase tracking-[0.3em] mt-1.5">Command Core</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-1 mt-4">
+      <nav className="flex-1 px-3 space-y-1 mt-4">
+        <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Operations</p>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) => `
-              flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group
+              relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group
               ${isActive 
-                ? 'bg-primary text-white shadow-xl shadow-blue-900/20' 
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}
+                ? 'text-blue-400 bg-blue-500/5' 
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'}
             `}
           >
-            <item.icon className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-white'}`} />
-            <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-pill"
+                    className="absolute left-0 w-1 h-5 bg-blue-600 rounded-r-full"
+                  />
+                )}
+                <item.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-blue-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="text-[10px] font-bold tracking-wide">{item.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="p-6 border-t border-slate-800/50">
+      {/* System Status & Profile */}
+      <div className="p-4 mt-auto">
+        <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 mb-4">
+           <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-slate-300 text-[10px] border border-slate-700">
+                {user?.name?.charAt(0)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black text-white truncate uppercase tracking-tight">{user?.name}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Clearance: Level 4</p>
+                </div>
+              </div>
+           </div>
+           
+           <div className="pt-3 border-t border-slate-800/50 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Network Status</span>
+                <span className="text-[8px] font-black text-green-500 uppercase tracking-widest">Protected</span>
+              </div>
+              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  className="bg-blue-600 h-full"
+                />
+              </div>
+           </div>
+        </div>
+
         <button 
           onClick={logout}
-          className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 group"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200 group"
         >
-          <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Secure Logout</span>
+          <LogOut className="w-4 h-4" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Deactivate Session</span>
         </button>
       </div>
     </div>
