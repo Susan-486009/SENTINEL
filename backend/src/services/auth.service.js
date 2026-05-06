@@ -51,37 +51,42 @@ export const authService = {
      LOGIN
   ══════════════════════════════════════════════════════ */
   async login({ identifier, password }) {
-    const norm = identifier.trim().toLowerCase();
-    const normMatric = identifier.trim().toUpperCase();
+    try {
+      const norm = identifier.trim().toLowerCase();
+      const normMatric = identifier.trim().toUpperCase();
 
-    // Look up by email first, then by matric (case-insensitive)
-    const user = await User.findOne({
-      $or: [
-        { email: norm },
-        { matric: normMatric }
-      ]
-    }).lean();
+      // Look up by email first, then by matric (case-insensitive)
+      const user = await User.findOne({
+        $or: [
+          { email: norm },
+          { matric: normMatric }
+        ]
+      }).lean();
 
-    // Use a constant-time path for both "not found" and "wrong password"
-    const dummy = '$2b$12$L6T3vW6qRkY9vP5uI2a7O.xW1yZ8aK6m5Qv9L3tG2H4j7K8m9N0Pq'; 
-    await verifyPassword(password, user ? user.password : dummy);
+      // Use a constant-time path for both "not found" and "wrong password"
+      const dummy = '$2b$12$L6T3vW6qRkY9vP5uI2a7O.xW1yZ8aK6m5Qv9L3tG2H4j7K8m9N0Pq'; 
+      await verifyPassword(password, user ? user.password : dummy);
 
-    if (!user) throw new AppError('Invalid credentials.', 401);
+      if (!user) throw new AppError('Invalid credentials.', 401);
 
-    const passwordMatch = await verifyPassword(password, user.password);
-    if (!passwordMatch) throw new AppError('Invalid credentials.', 401);
+      const passwordMatch = await verifyPassword(password, user.password);
+      if (!passwordMatch) throw new AppError('Invalid credentials.', 401);
 
-    // Issue tokens
-    const tokenPayload = { id: user._id.toString(), role: user.role, name: user.name };
-    const accessToken  = signAccessToken(tokenPayload);
-    const refreshToken = signRefreshToken(user._id.toString());
+      // Issue tokens
+      const tokenPayload = { id: user._id.toString(), role: user.role, name: user.name };
+      const accessToken  = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(user._id.toString());
 
-    // Strip sensitive fields
-    const { password: _pw, ...safeUser } = user;
-    safeUser.id = safeUser._id.toString();
-    delete safeUser._id;
+      // Strip sensitive fields
+      const { password: _pw, ...safeUser } = user;
+      safeUser.id = safeUser._id.toString();
+      delete safeUser._id;
 
-    return { accessToken, refreshToken, user: safeUser };
+      return { accessToken, refreshToken, user: safeUser };
+    } catch (error) {
+      console.error('❌ Login Service Error:', error);
+      throw error;
+    }
   },
 
   /* ══════════════════════════════════════════════════════
