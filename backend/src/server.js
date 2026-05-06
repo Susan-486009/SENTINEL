@@ -22,14 +22,13 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5175',
   'http://localhost:4173',
   'https://lasustech.edu.ng',
-];
+  process.env.FRONTEND_URL, // Allow production URL from environment
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin, allowed origins, or vercel subdomains
-    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.vercel.app')) {
-      return cb(null, true);
-    }
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
     cb(new Error(`CORS: origin ${origin} is not allowed`));
   },
   credentials: true,
