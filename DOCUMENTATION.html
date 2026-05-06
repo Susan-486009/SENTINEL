@@ -1,0 +1,463 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>LASUSTECH Complaint Portal - Documentation</title>
+<style>
+  body { font-family: Calibri, Arial, sans-serif; max-width: 900px; margin: 40px auto; line-height: 1.7; color: #222; font-size: 12pt; }
+  h1 { color: #1a3c6e; border-bottom: 3px solid #1a3c6e; padding-bottom: 8px; font-size: 22pt; }
+  h2 { color: #1a5276; border-bottom: 1px solid #ccc; margin-top: 30px; font-size: 16pt; }
+  h3 { color: #1f618d; font-size: 13pt; margin-top: 20px; }
+  h4 { color: #2874a6; font-size: 12pt; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  th, td { border: 1px solid #bbb; padding: 8px 12px; text-align: left; font-size: 11pt; }
+  th { background: #1a3c6e; color: white; font-weight: bold; }
+  tr:nth-child(even) { background: #f4f6f8; }
+  code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 10pt; }
+  pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 10pt; }
+  pre code { background: none; color: inherit; }
+  hr { border: none; border-top: 2px solid #ddd; margin: 30px 0; }
+  li { margin: 4px 0; }
+  strong { color: #1a3c6e; }
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 3px solid #1a3c6e; margin-bottom: 40px; }
+  .cover h1 { border: none; font-size: 28pt; }
+  .cover p { font-size: 14pt; color: #555; }
+</style>
+</head>
+<body>
+<div class='cover'>
+  <h1>LASUSTECH COMPLAINT PORTAL</h1>
+  <p>Project Documentation</p>
+  <p><strong>Version 1.0.0</strong> &nbsp;|&nbsp; <strong>May 2026</strong></p>
+  <p>Stack: React + Node.js + Express + MongoDB Atlas + Groq AI</p>
+</div><h1>LASUSTECH COMPLAINT PORTAL â€” PROJECT DOCUMENTATION</h1>
+<br/>
+<hr/>
+<br/>
+<h2>TABLE OF CONTENTS</h2>
+<br/>
+<p>1. Project Overview</p>
+<p>2. Technologies Used</p>
+<p>3. Project Structure</p>
+<p>4. How to Start the Servers</p>
+<p>5. Database Setup & Switching (MongoDB / MySQL)</p>
+<p>6. Backend API Endpoints</p>
+<p>7. Frontend Pages & Routes</p>
+<p>8. All Seeded Users & Credentials</p>
+<p>9. Project Summary</p>
+<br/>
+<hr/>
+<br/>
+<h2>1. PROJECT OVERVIEW</h2>
+<br/>
+<p>The <strong>LASUSTECH Complaint Portal</strong> is a full-stack web application built for Lagos State University of Science and Technology (LASUSTECH). It allows students and staff to submit, track, and manage complaints related to academic, facility, financial, security, and IT issues.</p>
+<br/>
+<p>The system supports:</p>
+<li>Student/Staff registration and login (via email OR matric number)</li>
+<li>Anonymous complaint submission with file attachments (images, PDFs, documents)</li>
+<li>AI-powered complaint analysis (using Groq / Llama 3.1)</li>
+<li>Admin dashboard for reviewing and updating complaint statuses</li>
+<li>Public complaint tracking by reference ID (no login required)</li>
+<li>Image compression using Sharp before storing uploads</li>
+<li>JWT-based authentication with access and refresh tokens</li>
+<br/>
+<hr/>
+<br/>
+<h2>2. TECHNOLOGIES USED</h2>
+<br/>
+<h3>Frontend</h3>
+<table style='width:100%'></td><td> Technology </td><td> Purpose </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>React.js</strong> </td><td> UI framework â€” all pages and components </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Vite</strong> </td><td> Fast frontend build tool and dev server </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Vanilla CSS</strong> </td><td> Styling (no Tailwind/Bootstrap) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>React Router</strong> </td><td> Client-side page routing </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Context API</strong> </td><td> Global auth state management </td><td></td></tr></table>
+<br/>
+<h3>Backend</h3>
+<table style='width:100%'></td><td> Technology </td><td> Purpose </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Node.js</strong> </td><td> JavaScript runtime for the server </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Express.js</strong> </td><td> HTTP server and routing framework </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Mongoose</strong> </td><td> MongoDB ODM (Object Document Mapper) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>MySQL2</strong> </td><td> MySQL driver (kept as backup, not active) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>JWT (jsonwebtoken)</strong> </td><td> Authentication tokens (access + refresh) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Bcrypt</strong> </td><td> Password hashing </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Multer</strong> </td><td> Handling multipart file uploads </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Sharp</strong> </td><td> Image compression and resizing (max 800px wide) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Groq API</strong> </td><td> AI complaint analysis using Llama 3.1-8b-instant </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>XSS</strong> </td><td> Input sanitization to prevent cross-site scripting </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>CORS</strong> </td><td> Cross-origin request handling </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Dotenv</strong> </td><td> Environment variable loading </td><td></td></tr></table>
+<br/>
+<h3>Database</h3>
+<table style='width:100%'></td><td> Database </td><td> Status </td><td> Purpose </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>MongoDB Atlas</strong> </td><td> âœ… ACTIVE </td><td> Primary cloud database (NoSQL) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>MySQL</strong> </td><td> ðŸ’¤ BACKUP </td><td> Legacy relational DB (kept in <code>src/mysqldb/</code>) </td><td></td></tr></table>
+<br/>
+<hr/>
+<br/>
+<h2>3. PROJECT STRUCTURE</h2>
+<br/>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h2>4. HOW TO START THE SERVERS</h2>
+<br/>
+<h3>Prerequisites</h3>
+<li>Node.js v18 or higher installed</li>
+<li>A terminal / command prompt</li>
+<br/>
+<h3>Step 1 â€” Install Dependencies</h3>
+<br/>
+<p>Open two terminals:</p>
+<br/>
+<p><strong>Terminal 1 â€” Backend:</strong></p>
+<pre><code></pre>
+<br/>
+<p><strong>Terminal 2 â€” Frontend:</strong></p>
+<pre><code></pre>
+<br/>
+<h3>Step 2 â€” Environment Variables</h3>
+<br/>
+<p>The <code>.env</code> files are already configured. The key variables are:</p>
+<br/>
+<p><strong><code>backend/.env</code>:</strong></p>
+<pre><code></pre>
+<br/>
+<p><strong><code>susan-project/.env</code> (frontend):</strong></p>
+<pre><code></pre>
+<br/>
+<h3>Step 3 â€” Start the Servers</h3>
+<br/>
+<p><strong>Backend (runs on port 5000):</strong></p>
+<pre><code></pre>
+<br/>
+<p><strong>Frontend (runs on port 5173):</strong></p>
+<pre><code></pre>
+<br/>
+<h3>Step 4 â€” Access the App</h3>
+<br/>
+<table style='width:100%'></td><td> Service </td><td> URL </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> Frontend </td><td> http://localhost:5173 </td><td></td></tr></table>
+<table style='width:100%'></td><td> Backend Root </td><td> http://localhost:5000 </td><td></td></tr></table>
+<table style='width:100%'></td><td> API Base </td><td> http://localhost:5000/api/v1 </td><td></td></tr></table>
+<table style='width:100%'></td><td> Health Check </td><td> http://localhost:5000/api/v1/health </td><td></td></tr></table>
+<br/>
+<h3>(Optional) Seed the Database</h3>
+<pre><code></pre>
+<p>This creates 3 admins + 50 students in the database.</p>
+<br/>
+<hr/>
+<br/>
+<h2>5. DATABASE SETUP & SWITCHING</h2>
+<br/>
+<h3>Currently Active: MongoDB Atlas</h3>
+<br/>
+<p>The project currently uses <strong>MongoDB Atlas</strong> (cloud NoSQL database). Data is stored in the <code>LASUSTECH-MONITOR</code> database on the <code>susan-project</code> Atlas cluster.</p>
+<br/>
+<p>MongoDB models are defined using <strong>Mongoose</strong> in <code>backend/src/models/</code>:</p>
+<li><code>User</code> â€” stores user accounts</li>
+<li><code>Complaint</code> â€” stores complaints with embedded file metadata</li>
+<li><code>SuspiciousActivity</code> â€” logs suspicious behaviour for admin review</li>
+<br/>
+<h3>Switching to MySQL</h3>
+<br/>
+<p>The original MySQL code is <strong>fully preserved</strong> in <code>backend/src/mysqldb/</code>. To switch back to MySQL:</p>
+<br/>
+<p><strong>Step 1</strong> â€” Open <code>backend/.env</code> and swap the <code>DATABASE_URI</code>:</p>
+<pre><code></pre>
+<br/>
+<p><strong>Step 2</strong> â€” Replace the active service files with the MySQL versions from <code>src/mysqldb/</code>:</p>
+<li>Copy <code>src/mysqldb/db.js</code> â†’ <code>src/config/db.js</code></li>
+<li>Copy <code>src/mysqldb/auth.service.js</code> â†’ <code>src/services/auth.service.js</code></li>
+<li>Copy <code>src/mysqldb/complaint.service.js</code> â†’ <code>src/services/complaint.service.js</code></li>
+<li>Copy <code>src/mysqldb/file.service.js</code> â†’ <code>src/services/file.service.js</code></li>
+<br/>
+<p><strong>Step 3</strong> â€” Set up your local MySQL database and run the schema SQL to create the required tables (<code>users</code>, <code>complaints</code>, <code>complaint_files</code>, <code>suspicious_activities</code>).</p>
+<br/>
+<hr/>
+<br/>
+<h2>6. BACKEND API ENDPOINTS</h2>
+<br/>
+<p><strong>Base URL:</strong> <code>http://localhost:5000/api/v1</code></p>
+<br/>
+<p>All responses follow this structure:</p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h3>ðŸ”“ PUBLIC ENDPOINTS (No login required)</h3>
+<br/>
+<h4>GET /</h4>
+<p><strong>URL:</strong> <code>http://localhost:5000</code></p>
+<p><strong>Description:</strong> Root info â€” shows API name, version, status, and available endpoints.</p>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/health</h4>
+<p><strong>Description:</strong> Health check. Returns server status and database connection state.</p>
+<p><strong>Response:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/auth/register</h4>
+<p><strong>Description:</strong> Register a new student or staff account.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<p><strong>Rules:</strong></p>
+<li>Matric must be 10â€“15 digits starting with admission year (e.g., 24...)</li>
+<li>Password must be 8+ characters, with at least 1 uppercase and 1 number</li>
+<li>Email is optional for students; if provided, must be a valid format</li>
+<li>Admins cannot be created via API (admin role is seeded only)</li>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/auth/login</h4>
+<p><strong>Description:</strong> Log in using email OR matric number plus password.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<p><strong>Response:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/auth/refresh</h4>
+<p><strong>Description:</strong> Get a new access token using a valid refresh token.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/complaints/track/:refId</h4>
+<p><strong>Description:</strong> Publicly track a complaint status using its reference ID (no login needed).</p>
+<p><strong>Example:</strong> <code>GET /api/v1/complaints/track/CMP-LZF8K4-A3BX</code></p>
+<p><strong>Response:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h3>ðŸ” PROTECTED ENDPOINTS (Requires Bearer Token)</h3>
+<br/>
+<p>Add this header to all protected requests:</p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/auth/me</h4>
+<p><strong>Description:</strong> Get the currently logged-in user's profile.</p>
+<p><strong>Response:</strong> User object (no password).</p>
+<br/>
+<hr/>
+<br/>
+<h4>PATCH /api/v1/auth/me</h4>
+<p><strong>Description:</strong> Update your own profile (name and/or email).</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/auth/change-password</h4>
+<p><strong>Description:</strong> Change your password.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/complaints</h4>
+<p><strong>Description:</strong> Submit a new complaint. Supports file attachments.</p>
+<p><strong>Content-Type:</strong> <code>multipart/form-data</code></p>
+<p><strong>Fields:</strong></p>
+<table style='width:100%'></td><td> Field </td><td> Type </td><td> Required </td><td> Description </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> category </td><td> string </td><td> âœ… </td><td> One of: academic-result, academic-lecturer, facility-maint, facility-hostel, admin-staff, security, financial, it-service, other </td><td></td></tr></table>
+<table style='width:100%'></td><td> title </td><td> string </td><td> âœ… </td><td> Complaint title (5â€“200 characters) </td><td></td></tr></table>
+<table style='width:100%'></td><td> description </td><td> string </td><td> âœ… </td><td> Full complaint details (20â€“5000 characters) </td><td></td></tr></table>
+<table style='width:100%'></td><td> anonymous </td><td> boolean </td><td> âŒ </td><td> Set to true to hide your identity </td><td></td></tr></table>
+<table style='width:100%'></td><td> files </td><td> file[] </td><td> âŒ </td><td> Up to 5 files (images, PDFs, DOCX â€” max 5MB each) </td><td></td></tr></table>
+<br/>
+<p><strong>Rate Limit:</strong> Max 3 complaints per hour per user.</p>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/complaints/mine</h4>
+<p><strong>Description:</strong> Get all complaints submitted by the logged-in user.</p>
+<p><strong>Response:</strong> Array of complaint summaries with file count.</p>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/complaints/:id</h4>
+<p><strong>Description:</strong> Get full details of a single complaint.</p>
+<li><code>:id</code> can be numeric ID or reference ID (CMP-...)</li>
+<li>Students can only view their own complaints</li>
+<br/>
+<hr/>
+<br/>
+<h4>DELETE /api/v1/complaints/files/:fileId</h4>
+<p><strong>Description:</strong> Delete an attached evidence file. Owner or admin only.</p>
+<br/>
+<hr/>
+<br/>
+<h4>POST /api/v1/ai/analyze</h4>
+<p><strong>Description:</strong> Use AI (Groq Llama 3.1) to analyze complaint text and suggest category, priority, and recommendation.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<p><strong>Response:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h3>ðŸ‘‘ ADMIN-ONLY ENDPOINTS</h3>
+<br/>
+<p>These require a JWT from an admin account.</p>
+<br/>
+<hr/>
+<br/>
+<h4>GET /api/v1/complaints</h4>
+<p><strong>Description:</strong> Get all complaints (paginated) with optional filters.</p>
+<p><strong>Query Params:</strong></p>
+<pre><code></pre>
+<br/>
+<hr/>
+<br/>
+<h4>PATCH /api/v1/complaints/:id/status</h4>
+<p><strong>Description:</strong> Update the status of any complaint.</p>
+<p><strong>Body:</strong></p>
+<pre><code></pre>
+<p><strong>Valid Statuses:</strong> <code>pending</code> | <code>in_review</code> | <code>resolved</code> | <code>rejected</code></p>
+<br/>
+<hr/>
+<br/>
+<h2>7. FRONTEND PAGES & ROUTES</h2>
+<br/>
+<p><strong>Base URL:</strong> <code>http://localhost:5173</code></p>
+<br/>
+<table style='width:100%'></td><td> Page </td><td> Route </td><td> Access </td><td> Description </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Home</strong> </td><td> <code>/</code> </td><td> Public </td><td> Landing page with project intro and links </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Login</strong> </td><td> <code>/login</code> </td><td> Public </td><td> Login form (email or matric + password) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Register</strong> </td><td> <code>/register</code> </td><td> Public </td><td> Student/staff registration form </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Track Complaint</strong> </td><td> <code>/track</code> </td><td> Public </td><td> Enter a reference ID to check complaint status </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Student Dashboard</strong> </td><td> <code>/dashboard</code> </td><td> ðŸ” Student </td><td> View submitted complaints, see statuses </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Submit Complaint</strong> </td><td> <code>/submit</code> </td><td> ðŸ” Student </td><td> Multi-step form to file a new complaint </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Admin Dashboard</strong> </td><td> <code>/admin</code> </td><td> ðŸ‘‘ Admin </td><td> Manage all complaints, update statuses </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Settings</strong> </td><td> <code>/settings</code> </td><td> ðŸ” Any </td><td> Update profile name/email, change password </td><td></td></tr></table>
+<br/>
+<hr/>
+<br/>
+<h2>8. ALL SEEDED USERS & CREDENTIALS</h2>
+<br/>
+<p>> <strong>All accounts share the same password:</strong> <code>Password123!</code></p>
+<br/>
+<h3>Admin Accounts</h3>
+<br/>
+<table style='width:100%'></td><td> Name </td><td> Email </td><td> Matric </td><td> Role </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> Super Admin </td><td> superadmin@lasustech.edu.ng </td><td> ADMIN001 </td><td> admin </td><td></td></tr></table>
+<table style='width:100%'></td><td> Feedback Reviewer </td><td> feedback@lasustech.edu.ng </td><td> ADMIN002 </td><td> admin </td><td></td></tr></table>
+<table style='width:100%'></td><td> Support Head </td><td> support@lasustech.edu.ng </td><td> ADMIN003 </td><td> admin </td><td></td></tr></table>
+<br/>
+<h3>Student Accounts (50 students)</h3>
+<br/>
+<table style='width:100%'></td><td> Email </td><td> Matric </td><td> Role </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> student1@lasustech.edu.ng </td><td> 230303010001 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student2@lasustech.edu.ng </td><td> 230303010002 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student3@lasustech.edu.ng </td><td> 250303010003 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student4@lasustech.edu.ng </td><td> 240303010004 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student5@lasustech.edu.ng </td><td> 220303010005 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student6@lasustech.edu.ng </td><td> 240303010006 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student7@lasustech.edu.ng </td><td> 250303010007 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student8@lasustech.edu.ng </td><td> 230303010008 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student9@lasustech.edu.ng </td><td> 220303010009 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student10@lasustech.edu.ng </td><td> 240303010010 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student11@lasustech.edu.ng </td><td> 250303010011 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student12@lasustech.edu.ng </td><td> 230303010012 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student13@lasustech.edu.ng </td><td> 220303010013 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student14@lasustech.edu.ng </td><td> 240303010014 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student15@lasustech.edu.ng </td><td> 250303010015 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student16@lasustech.edu.ng </td><td> 230303010016 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student17@lasustech.edu.ng </td><td> 220303010017 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student18@lasustech.edu.ng </td><td> 240303010018 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student19@lasustech.edu.ng </td><td> 250303010019 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student20@lasustech.edu.ng </td><td> 230303010020 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student21@lasustech.edu.ng </td><td> 220303010021 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student22@lasustech.edu.ng </td><td> 240303010022 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student23@lasustech.edu.ng </td><td> 250303010023 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student24@lasustech.edu.ng </td><td> 230303010024 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student25@lasustech.edu.ng </td><td> 220303010025 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student26@lasustech.edu.ng </td><td> 240303010026 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student27@lasustech.edu.ng </td><td> 250303010027 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student28@lasustech.edu.ng </td><td> 230303010028 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student29@lasustech.edu.ng </td><td> 220303010029 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student30@lasustech.edu.ng </td><td> 240303010030 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student31@lasustech.edu.ng </td><td> 250303010031 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student32@lasustech.edu.ng </td><td> 230303010032 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student33@lasustech.edu.ng </td><td> 220303010033 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student34@lasustech.edu.ng </td><td> 240303010034 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student35@lasustech.edu.ng </td><td> 250303010035 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student36@lasustech.edu.ng </td><td> 230303010036 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student37@lasustech.edu.ng </td><td> 220303010037 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student38@lasustech.edu.ng </td><td> 240303010038 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student39@lasustech.edu.ng </td><td> 250303010039 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student40@lasustech.edu.ng </td><td> 230303010040 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student41@lasustech.edu.ng </td><td> 220303010041 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student42@lasustech.edu.ng </td><td> 240303010042 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student43@lasustech.edu.ng </td><td> 250303010043 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student44@lasustech.edu.ng </td><td> 230303010044 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student45@lasustech.edu.ng </td><td> 220303010045 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student46@lasustech.edu.ng </td><td> 240303010046 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student47@lasustech.edu.ng </td><td> 250303010047 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student48@lasustech.edu.ng </td><td> 230303010048 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student49@lasustech.edu.ng </td><td> 220303010049 </td><td> student </td><td></td></tr></table>
+<table style='width:100%'></td><td> student50@lasustech.edu.ng </td><td> 230303010050 </td><td> student </td><td></td></tr></table>
+<br/>
+<p><strong>Matric format breakdown:</strong> <code>[YY][030301][XXXX]</code></p>
+<li><code>YY</code> = Last 2 digits of admission year (22=2022, 23=2023, 24=2024, 25=2025)</li>
+<li><code>030301</code> = Department code for Computer Science</li>
+<li><code>XXXX</code> = 4-digit student counter</li>
+<br/>
+<p><strong>Login with email OR matric number â€” both work.</strong></p>
+<br/>
+<hr/>
+<br/>
+<h2>9. PROJECT SUMMARY</h2>
+<br/>
+<p>The LASUSTECH Complaint Portal is a full-stack web application that digitizes and streamlines the complaint management process for LASUSTECH students, staff, and administrators.</p>
+<br/>
+<h3>Key Features</h3>
+<br/>
+<table style='width:100%'></td><td> Feature </td><td> Details </td><td></td></tr></table>
+<table style='width:100%'></td><td>---</td><td>---</td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Multi-role Auth</strong> </td><td> Students, Staff, and Admin roles with JWT tokens </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Flexible Login</strong> </td><td> Students log in with email OR matric number </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Complaint Submission</strong> </td><td> Multi-category, multi-file complaint form with drag-and-drop </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Anonymous Mode</strong> </td><td> Students can submit complaints without revealing identity </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>AI Analysis</strong> </td><td> Groq-powered AI suggests complaint category, priority & recommendations </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>File Compression</strong> </td><td> All uploaded images are auto-compressed with Sharp (max 800px) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Public Tracking</strong> </td><td> Anyone can track a complaint status with its reference ID </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Admin Controls</strong> </td><td> Admins review, filter, paginate, and update complaint statuses </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Rate Limiting</strong> </td><td> Max 3 complaints per hour per user (anti-spam) </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Security</strong> </td><td> XSS sanitization, CORS, bcrypt password hashing, JWT auth </td><td></td></tr></table>
+<table style='width:100%'></td><td> <strong>Dual DB Support</strong> </td><td> MongoDB Atlas (active) + MySQL (backup, switchable) </td><td></td></tr></table>
+<br/>
+<h3>Architecture</h3>
+<br/>
+<pre><code></pre>
+<br/>
+<h3>Reference ID Format</h3>
+<br/>
+<p>Every complaint gets a unique reference ID:</p>
+<p><code>CMP-[BASE36_TIMESTAMP]-[RANDOM]</code></p>
+<p>Example: <code>CMP-LZF8K4TQ-A3BX</code></p>
+<br/>
+<hr/>
+<br/>
+<p>*Documentation generated: May 2026*</p>
+<p>*Project: LASUSTECH Complaint Portal v1.0.0*</p>
+<p>*Stack: React + Node.js + Express + MongoDB Atlas + Mongoose + Groq AI*</p>
+</body></html>

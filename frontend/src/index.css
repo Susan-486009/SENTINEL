@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1E3A8A;
+  --color-primary-dark: #172E6D;
+  --color-primary-light: #3B82F6;
+  --color-accent: #6366F1;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+  
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 10px -2px rgba(0, 0, 0, 0.02);
+  --shadow-premium: 0 20px 40px -15px rgba(30, 58, 138, 0.12), 0 10px 20px -10px rgba(30, 58, 138, 0.08);
+  --shadow-vibrant: 0 20px 25px -5px rgba(99, 102, 241, 0.15), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased selection:bg-[#1E3A8A]/10 selection:text-[#1E3A8A];
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] hover:from-[#172E6D] hover:to-[#1E3A8A] text-white px-8 py-4.5 rounded-[2.2rem] font-black uppercase tracking-[0.15em] text-[10px] transition-all duration-500 shadow-2xl shadow-blue-900/30 active:scale-[0.96] hover:-translate-y-1 hover:shadow-blue-900/40;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-slate-100 bg-white/80 backdrop-blur-md text-slate-600 hover:border-primary hover:text-primary px-8 py-4.5 rounded-[2.2rem] font-black uppercase tracking-[0.15em] text-[10px] transition-all duration-500 active:scale-[0.96] hover:shadow-lg hover:shadow-slate-200;
+  }
+
+  .card-premium {
+    @apply bg-white rounded-[2.8rem] shadow-premium border border-white/50 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1;
+  }
+
+  .input-premium {
+    @apply w-full px-7 py-5 rounded-3xl bg-slate-50/50 border border-slate-100/50 focus:bg-white focus:border-primary focus:ring-[6px] focus:ring-primary/5 transition-all duration-300 outline-none text-sm font-bold placeholder:text-slate-300 placeholder:font-medium shadow-inner;
+  }
+
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-2xl border border-white/40 shadow-premium;
+  }
+
+  .badge-status {
+    @apply px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.15em] rounded-full border shadow-sm transition-all duration-300;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 hover:bg-slate-300 border-2 border-solid border-slate-50 rounded-full transition-colors;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  @apply bg-slate-100 animate-pulse rounded-2xl;
+}
