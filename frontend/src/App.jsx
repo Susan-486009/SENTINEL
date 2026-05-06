@@ -19,6 +19,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import About from './pages/About';
+import Legal from './pages/Legal';
+import Help from './pages/Help';
 import Chatbot from './components/Chatbot';
 
 function App() {
@@ -42,6 +44,9 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/track"   element={<TrackComplaint />} />
               <Route path="/about"   element={<About />} />
+              <Route path="/terms"   element={<Legal />} />
+              <Route path="/privacy" element={<Legal />} />
+              <Route path="/help"    element={<Help />} />
 
               {/* Protected Routes */}
               <Route path="/submit" element={
