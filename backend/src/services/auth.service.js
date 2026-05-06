@@ -63,7 +63,7 @@ export const authService = {
     }).lean();
 
     // Use a constant-time path for both "not found" and "wrong password"
-    const dummy = '$2b$12$invalidhashpaddingtomakeconsistenttime';
+    const dummy = '$2b$12$L6T3vW6qRkY9vP5uI2a7O.xW1yZ8aK6m5Qv9L3tG2H4j7K8m9N0Pq'; 
     await verifyPassword(password, user ? user.password : dummy);
 
     if (!user) throw new AppError('Invalid credentials.', 401);
