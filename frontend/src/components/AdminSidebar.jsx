@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, ClipboardList, Users, 
-  Settings, LogOut, ShieldCheck, BarChart3 
+  Settings, LogOut, ShieldCheck, BarChart3, 
+  Shield, Activity, Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,44 +20,45 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <div className="w-64 min-h-screen bg-[#0B1120] flex flex-col border-r border-slate-800/60 sticky top-0 h-screen">
+    <div className="w-64 min-h-screen bg-white flex flex-col border-r border-slate-100 sticky top-0 h-screen z-50">
+      
       {/* Brand */}
-      <div className="p-7">
+      <div className="p-8">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100">
+            <ShieldCheck className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-white tracking-tight uppercase italic leading-none">Sentinel</h1>
-            <p className="text-[8px] font-black text-blue-500/80 uppercase tracking-[0.3em] mt-1.5">Command Core</p>
+            <h1 className="text-lg font-black text-slate-900 tracking-tighter uppercase leading-none">Sentinel</h1>
+            <p className="text-[8px] font-black text-blue-600 uppercase tracking-[0.3em] mt-1.5">Command Core</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1 mt-4">
-        <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Operations</p>
+      <nav className="flex-1 px-4 space-y-2 mt-6">
+        <p className="px-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Operations Terminal</p>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) => `
-              relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group
+              relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group
               ${isActive 
-                ? 'text-blue-400 bg-blue-500/5' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'}
+                ? 'text-blue-600 bg-blue-50 shadow-sm' 
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}
             `}
           >
             {({ isActive }) => (
               <>
                 {isActive && (
                   <motion.div 
-                    layoutId="active-pill"
-                    className="absolute left-0 w-1 h-5 bg-blue-600 rounded-r-full"
+                    layoutId="active-pill-admin"
+                    className="absolute left-0 w-1.5 h-6 bg-blue-600 rounded-r-full"
                   />
                 )}
-                <item.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-blue-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
-                <span className="text-[10px] font-bold tracking-wide">{item.label}</span>
+                <item.icon className={`w-5 h-5 transition-colors ${isActive ? 'text-blue-600' : 'text-slate-300 group-hover:text-slate-400'}`} />
+                <span className="text-[11px] font-black uppercase tracking-widest">{item.label}</span>
               </>
             )}
           </NavLink>
@@ -63,27 +66,27 @@ const AdminSidebar = () => {
       </nav>
 
       {/* System Status & Profile */}
-      <div className="p-4 mt-auto">
-        <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50 mb-4">
-           <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-slate-300 text-[10px] border border-slate-700">
+      <div className="p-6 mt-auto">
+        <div className="bg-slate-50 rounded-[2rem] p-6 border border-slate-100 mb-6 shadow-inner">
+           <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center font-black text-blue-600 text-[11px] shadow-sm">
                 {user?.name?.charAt(0)}
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-black text-white truncate uppercase tracking-tight">{user?.name}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Clearance: Level 4</p>
+                <p className="text-[11px] font-black text-slate-900 truncate uppercase tracking-tight">{user?.name}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Clearance: Level 4</p>
                 </div>
               </div>
            </div>
            
-           <div className="pt-3 border-t border-slate-800/50 space-y-2">
+           <div className="pt-4 border-t border-slate-100 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Network Status</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Global Status</span>
                 <span className="text-[8px] font-black text-green-500 uppercase tracking-widest">Protected</span>
               </div>
-              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
@@ -95,10 +98,10 @@ const AdminSidebar = () => {
 
         <button 
           onClick={logout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200 group"
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300 group font-black text-[10px] uppercase tracking-widest"
         >
           <LogOut className="w-4 h-4" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Deactivate Session</span>
+          Terminate Session
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import FeatureCards from '../components/FeatureCards';
 import ReportModal from '../components/ReportModal';
