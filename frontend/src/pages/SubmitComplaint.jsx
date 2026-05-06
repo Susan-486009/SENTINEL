@@ -477,10 +477,12 @@ const SubmitComplaint = () => {
                   {step < totalSteps ? (
                     <button
                       type="button"
+                      disabled={analyzing}
                       onClick={() => setStep(s => s + 1)}
-                      className="flex-[2] py-5 px-10 rounded-full bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4"
+                      className="flex-[2] py-5 px-10 rounded-full bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-50"
                     >
-                      Next Step <ArrowRight className="w-5 h-5" />
+                      {analyzing ? 'Reviewing Details...' : 'Next Step'}
+                      {!analyzing && <ArrowRight className="w-5 h-5" />}
                     </button>
                   ) : (
                     <motion.button

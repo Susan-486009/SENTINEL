@@ -160,9 +160,6 @@ const Login = () => {
             </div>
           </div>
           
-          <p className="text-center mt-10 text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-            Lagos State University of Science and Technology
-          </p>
         </motion.div>
       </div>
     </div>

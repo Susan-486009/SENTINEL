@@ -20,7 +20,7 @@ const Home = () => {
       <Hero onReportClick={() => setIsReportModalOpen(true)} />
 
       {/* About Us & Mission Section */}
-      <section id="about" className="py-24 lg:py-32 bg-white relative overflow-hidden">
+      <section id="about" className="py-16 lg:py-20 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <motion.div
@@ -76,7 +76,7 @@ const Home = () => {
       </section>
 
       {/* How It Works - Breakdown */}
-      <section className="py-24 lg:py-32 bg-slate-50">
+      <section className="py-16 lg:py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.4em] mb-6">Simple 3-Step Process</h2>
@@ -114,7 +114,7 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden bg-white">
+      <section className="py-20 relative overflow-hidden bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="bg-blue-600 rounded-[4rem] p-12 lg:p-24 relative overflow-hidden shadow-2xl shadow-blue-200">
              {/* Decorative Background */}
