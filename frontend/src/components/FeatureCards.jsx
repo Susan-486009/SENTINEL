@@ -1,3 +1,5 @@
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Shield, Activity, Lock, ArrowUpRight } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (

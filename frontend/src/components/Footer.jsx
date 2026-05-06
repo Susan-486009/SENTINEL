@@ -1,3 +1,7 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Mail, MapPin, Phone, Globe, Share2, ExternalLink, Shield } from 'lucide-react';
+
 const FooterLink = ({ to, children }) => (
   <li>
     <Link
