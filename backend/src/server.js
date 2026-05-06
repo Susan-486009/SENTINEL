@@ -9,6 +9,7 @@ import { testConnection }            from './config/db.js';
 import apiRoutes                     from './routes/index.js';
 import { errorHandler, notFound }    from './middleware/error.middleware.js';
 import { sanitizeInputs }           from './middleware/security.middleware.js';
+import { startKeepAlive }          from './utils/keepAlive.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -121,6 +122,11 @@ const start = async () => {
       console.log('└─────────────────────────────────────────┘');
       console.log('');
     });
+
+    // 10. KEEP-ALIVE (Render Free Tier)
+    if (process.env.RENDER_EXTERNAL_URL) {
+      startKeepAlive(process.env.RENDER_EXTERNAL_URL);
+    }
 
     /* ── Graceful shutdown ──────────────────────────────── */
     const shutdown = (signal) => {
