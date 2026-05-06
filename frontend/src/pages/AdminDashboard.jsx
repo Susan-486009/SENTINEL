@@ -40,13 +40,14 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data } = await complaintService.getAll();
-      setComplaints(data);
+      const data = await complaintService.getAll();
+      const complaintsArray = Array.isArray(data) ? data : [];
+      setComplaints(complaintsArray);
       
       setStats({
-        total: data.length,
-        pending: data.filter(c => c.status === 'pending').length,
-        resolved: data.filter(c => c.status === 'resolved').length,
+        total: complaintsArray.length,
+        pending: complaintsArray.filter(c => c.status === 'pending').length,
+        resolved: complaintsArray.filter(c => c.status === 'resolved').length,
         suspicious: 0 
       });
     } catch (err) {
@@ -75,7 +76,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const filtered = complaints.filter((c) => {
+  const filtered = (complaints || []).filter((c) => {
     const matchesFilter = filter === 'all' || c.status === filter;
     const matchesQuery = 
       c.title.toLowerCase().includes(query.toLowerCase()) || 

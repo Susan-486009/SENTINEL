@@ -26,7 +26,7 @@ const TrackComplaint = () => {
     setLoading(true);
     try {
       // Find by reference ID
-      const { data } = await complaintService.track(query.trim());
+      const data = await complaintService.track(query.trim());
       setResults(data ? [data] : []);
       if (!data) toast.info('No complaint found with that ID.');
     } catch (err) {

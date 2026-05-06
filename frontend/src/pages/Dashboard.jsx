@@ -44,8 +44,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchMyComplaints = async () => {
       try {
-        const { data } = await complaintService.getMine();
-        setComplaints(data);
+        const data = await complaintService.getMine();
+        setComplaints(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to load dashboard data');
       } finally {
@@ -56,10 +56,10 @@ const Dashboard = () => {
   }, []);
 
   const stats = {
-    total: complaints.length,
-    pending: complaints.filter(c => c.status === 'pending').length,
-    resolved: complaints.filter(c => c.status === 'resolved').length,
-    reviewing: complaints.filter(c => c.status === 'in_review' || c.status === 'reviewing').length,
+    total: (complaints || []).length,
+    pending: (complaints || []).filter(c => c.status === 'pending').length,
+    resolved: (complaints || []).filter(c => c.status === 'resolved').length,
+    reviewing: (complaints || []).filter(c => c.status === 'in_review' || c.status === 'reviewing').length,
   };
 
   return (
