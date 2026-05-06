@@ -23,7 +23,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5175',
   'http://localhost:4173',
   'https://lasustech.edu.ng',
-  process.env.FRONTEND_URL, // Allow production URL from environment
+  process.env.FRONTEND_URL?.replace(/\/$/, ''), // Allow production URL, sanitised
 ].filter(Boolean);
 
 app.use(cors({
