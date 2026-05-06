@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const { data } = await authService.me();
+        const data = await authService.me();
         setUser(data);
       } catch (err) {
         console.error('Session initialization failed:', err.message);
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const { data } = await authService.login(credentials);
+      const data = await authService.login(credentials);
       
       // Save tokens
       localStorage.setItem('as_access_token',  data.accessToken);
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const { data } = await authService.register(userData);
+      const data = await authService.register(userData);
       
       // Save tokens
       localStorage.setItem('as_access_token',  data.accessToken);
