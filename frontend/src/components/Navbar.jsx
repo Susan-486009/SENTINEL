@@ -57,6 +57,8 @@ const Navbar = () => {
       } else if (location.pathname !== '/') {
         navigate('/', { state: { scrollTo: to.substring(1) } });
       }
+    } else {
+      navigate(to);
     }
     setIsOpen(false);
   };
