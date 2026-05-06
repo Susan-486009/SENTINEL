@@ -4,236 +4,204 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, LogOut, LayoutDashboard,
   Settings, ChevronDown, User, ClipboardList,
-  Search, Shield,
+  Search, Shield, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const NAV_LINKS = [
   { to: '/',       label: 'Home' },
-  { to: '/submit', label: 'Send Report', icon: ClipboardList },
-  { to: '/track',  label: 'Follow up',   icon: Search },
+  { to: '/submit', label: 'Report Issue', icon: ClipboardList },
+  { to: '/track',  label: 'Track Status',   icon: Search },
 ];
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  
+  const [isOpen, setIsOpen]     = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
 
   useEffect(() => {
-    const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); setDropdownOpen(false); }, [location.pathname]);
-
-  const isActive = (path) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
-    setDropdownOpen(false);
-    toast.info('Session Terminated.');
+    toast.info('Session Terminated');
     navigate('/login');
   };
 
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'U';
-
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0B1120]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+      scrolled ? 'bg-white/80 backdrop-blur-xl border-b border-slate-100 py-3 shadow-sm' : 'bg-transparent py-5'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-
+        <div className="flex justify-between items-center">
+          
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3.5 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-transform group-hover:scale-105">
-              <Shield className="w-6 h-6 text-white" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              scrolled ? 'bg-blue-600 shadow-blue-200 shadow-lg' : 'bg-white shadow-sm'
+            }`}>
+              <ShieldCheck className={`w-6 h-6 transition-colors ${scrolled ? 'text-white' : 'text-blue-600'}`} />
             </div>
-            <div className="flex flex-col">
-               <span className="text-lg font-black text-white tracking-tighter uppercase italic leading-none group-hover:text-blue-500 transition-colors">
-                 Sentinel
-               </span>
-               <span className="text-[7px] font-black text-slate-700 tracking-[0.4em] uppercase italic mt-1">Core_Infrastructure</span>
+            <div>
+              <span className={`block text-xl font-black tracking-tighter uppercase leading-none transition-colors ${
+                scrolled ? 'text-slate-900' : 'text-slate-900'
+              }`}>SENTINEL</span>
+              <span className={`text-[8px] font-black uppercase tracking-[0.3em] transition-colors ${
+                scrolled ? 'text-blue-600' : 'text-blue-500'
+              }`}>University_Support</span>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-2">
-            {NAV_LINKS.map(({ to, label }) => (
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {NAV_LINKS.map((link) => (
               <Link
-                key={to}
-                to={to}
-                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all duration-300 border ${
-                  isActive(to)
-                    ? 'bg-blue-600/10 border-blue-500/20 text-blue-500 shadow-inner'
-                    : 'text-slate-500 border-transparent hover:text-white hover:bg-slate-800/40'
+                key={link.to}
+                to={link.to}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                  location.pathname === link.to
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-500 hover:text-blue-600 hover:bg-slate-50'
                 }`}
               >
-                {label}
+                {link.label}
               </Link>
             ))}
-            {isAuthenticated && user?.role === 'admin' && (
-              <Link
-                to="/admin"
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all duration-300 border ${
-                  isActive('/admin')
-                    ? 'bg-blue-600/10 border-blue-500/20 text-blue-500'
-                    : 'text-slate-500 border-transparent hover:text-white hover:bg-slate-800/40'
-                }`}
-              >
-                <Shield className="w-3 h-3" />
-                Admin_Gate
-              </Link>
-            )}
-          </div>
 
-          {/* Auth Area */}
-          <div className="hidden md:flex items-center gap-5">
+            <div className="w-px h-6 bg-slate-100 mx-4" />
+
             {isAuthenticated ? (
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={() => setDropdownOpen((o) => !o)}
-                  className={`flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-2xl transition-all duration-300 border ${dropdownOpen ? 'bg-slate-900 border-slate-700 shadow-2xl' : 'bg-transparent border-transparent hover:bg-slate-900 hover:border-slate-800'}`}
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 transition-all shadow-sm"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-500 text-[10px] font-black flex items-center justify-center">
-                    {initials}
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs">
+                    {user?.name?.[0]}
                   </div>
-                  <div className="text-left hidden lg:block">
-                     <p className="text-[10px] font-black text-white uppercase italic tracking-tight">{user?.name?.split(' ')[0]}</p>
-                     <p className="text-[7px] font-black text-slate-700 uppercase tracking-widest">{user?.role?.toUpperCase()}_LEVEL</p>
-                  </div>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-700 transition-transform duration-300 ${dropdownOpen ? 'rotate-180 text-blue-500' : ''}`} />
+                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{user?.name?.split(' ')[0]}</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>
 
                 <AnimatePresence>
-                  {dropdownOpen && (
+                  {showUserMenu && (
                     <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 5 }}
-                      className="absolute right-0 top-full mt-3 w-56 bg-[#0B1120] rounded-2xl shadow-2xl border border-slate-800 overflow-hidden py-2 z-50"
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 overflow-hidden"
                     >
-                      <div className="px-5 py-4 border-b border-slate-800/60 bg-slate-950/40 mb-2">
-                        <p className="text-[9px] font-black text-white uppercase italic tracking-widest truncate">{user?.name}</p>
-                        <p className="text-[7px] text-slate-700 font-black uppercase tracking-[0.3em] mt-1 italic">ID: {user?.id?.toUpperCase()}</p>
+                      <div className="px-4 py-3 border-b border-slate-50 mb-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Authenticated Identity</p>
+                        <p className="text-[11px] font-bold text-slate-900 truncate uppercase">{user?.email}</p>
                       </div>
-
-                      <Link to="/dashboard" className="flex items-center gap-3 px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest italic hover:text-white hover:bg-slate-800/40 transition-colors">
-                        <LayoutDashboard className="w-3.5 h-3.5" />
-                        Dashboard_Node
+                      
+                      <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
                       </Link>
-                      <Link to="/settings" className="flex items-center gap-3 px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest italic hover:text-white hover:bg-slate-800/40 transition-colors">
-                        <Settings className="w-3.5 h-3.5" />
-                        System_Config
+                      <Link to="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
+                        <Settings className="w-4 h-4" />
+                        Preferences
                       </Link>
-
-                      <div className="border-t border-slate-800/60 mt-2 pt-2">
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-5 py-3 text-[9px] font-black text-red-500 uppercase tracking-widest italic hover:bg-red-500/5 transition-colors"
-                        >
-                          <LogOut className="w-3.5 h-3.5" />
-                          Term_Session
-                        </button>
-                      </div>
+                      
+                      <div className="h-px bg-slate-50 my-2" />
+                      
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Terminate Session
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="flex items-center gap-4">
-                <Link
-                  to="/login"
-                  className="px-6 py-2.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] italic border border-slate-800 rounded-xl hover:text-white hover:border-slate-600 transition-all"
-                >
-                  Auth_Login
+              <div className="flex items-center gap-3">
+                <Link to="/login" className="px-6 py-2.5 text-xs font-bold text-slate-600 hover:text-blue-600 uppercase tracking-widest transition-colors">
+                  Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="px-6 py-2.5 text-[9px] font-black text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all uppercase tracking-[0.2em] italic"
-                >
-                  Join_Network
+                <Link to="/register" className="px-6 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+                  Register
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Hamburguer */}
+          {/* Mobile Menu Toggle */}
           <button
-            onClick={() => setMenuOpen((o) => !o)}
-            className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-900/50 transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+            className="lg:hidden p-2 rounded-xl bg-slate-50 text-slate-600"
           >
-            {menuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5" />}
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Navigation */}
       <AnimatePresence>
-        {menuOpen && (
+        {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="md:hidden bg-[#0B1120] border-t border-slate-800 shadow-2xl"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-b border-slate-100 overflow-hidden"
           >
-            <div className="px-4 py-6 space-y-2">
-              {NAV_LINKS.map(({ to, label, icon: Icon }) => (
+            <div className="px-4 py-8 space-y-3">
+              {NAV_LINKS.map((link) => (
                 <Link
-                  key={to}
-                  to={to}
-                  className={`flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-colors ${
-                    isActive(to)
-                      ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20'
-                      : 'text-slate-500 hover:bg-slate-900 hover:text-white'
-                  }`}
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                 >
-                  {Icon && <Icon className="w-4 h-4" />}
-                  {label}
+                  {link.icon && <link.icon className="w-5 h-5" />}
+                  {link.label}
                 </Link>
               ))}
-
-              <div className="border-t border-slate-800 pt-6 mt-4">
+              
+              <div className="pt-4 border-t border-slate-50 space-y-3">
                 {isAuthenticated ? (
                   <>
-                    <div className="flex items-center gap-4 px-5 py-4 mb-4 bg-slate-900/40 rounded-2xl border border-slate-800">
-                      <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs">
-                        {initials}
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black text-white uppercase italic">{user?.name}</p>
-                        <p className="text-[7px] text-slate-700 font-black uppercase tracking-[0.3em] mt-0.5">{user?.role}_LEVEL</p>
-                      </div>
-                    </div>
-                    <Link to="/dashboard" className="flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-slate-500 uppercase italic hover:bg-slate-900">
-                      <LayoutDashboard className="w-4 h-4" /> Dashboard_Node
+                    <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50">
+                      <LayoutDashboard className="w-5 h-5" />
+                      Dashboard
                     </Link>
-                    <Link to="/settings" className="flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-slate-500 uppercase italic hover:bg-slate-900">
-                      <Settings className="w-4 h-4" /> System_Config
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-red-500 uppercase italic hover:bg-red-500/5 mt-2"
-                    >
-                      <LogOut className="w-4 h-4" /> Term_Session
+                    <button onClick={handleLogout} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50">
+                      <LogOut className="w-5 h-5" />
+                      Logout
                     </button>
                   </>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    <Link to="/login"    className="text-center px-5 py-4 bg-slate-900 border border-slate-800 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:text-white transition-all">Auth_Login</Link>
-                    <Link to="/register" className="text-center px-5 py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic shadow-lg shadow-blue-900/20">Join_Network</Link>
-                  </div>
+                  <>
+                    <Link to="/login" onClick={() => setIsOpen(false)} className="block w-full text-center py-4 rounded-2xl text-sm font-bold text-slate-600 border border-slate-100">
+                      Login
+                    </Link>
+                    <Link to="/register" onClick={() => setIsOpen(false)} className="block w-full text-center py-4 rounded-2xl text-sm font-bold bg-blue-600 text-white shadow-lg">
+                      Register
+                    </Link>
+                  </>
                 )}
               </div>
             </div>

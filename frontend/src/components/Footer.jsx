@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone, Globe, Share2, ExternalLink, Shield } from 'lucide-react';
+import { Mail, MapPin, Phone, Globe, Share2, ExternalLink, Shield, ShieldCheck } from 'lucide-react';
 
 const FooterLink = ({ to, children }) => (
   <li>
     <Link
       to={to}
-      className="text-slate-500 hover:text-blue-500 text-[10px] font-black uppercase tracking-widest italic transition-colors duration-200"
+      className="text-slate-500 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors duration-200"
     >
       {children}
     </Link>
@@ -17,38 +17,28 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0B1120] text-white border-t border-slate-900/60 pt-20">
+    <footer className="bg-slate-50 text-slate-900 border-t border-slate-100 pt-24 pb-12">
       {/* Main Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
 
         {/* Brand */}
-        <div className="lg:col-span-2">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
-              <Shield className="w-6 h-6 text-white" />
+        <div className="lg:col-span-1">
+          <Link to="/" className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-100">
+              <ShieldCheck className="w-7 h-7 text-white" />
             </div>
             <div>
-              <span className="block text-2xl font-black tracking-tighter uppercase italic leading-none">SENTINEL</span>
-              <span className="text-[8px] text-slate-700 font-black uppercase tracking-[0.4em] mt-1 italic">Authorized_Monitoring_Network</span>
+              <span className="block text-2xl font-black tracking-tighter uppercase leading-none">SENTINEL</span>
+              <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mt-1">EST. 2024</span>
             </div>
-          </div>
-          <p className="text-slate-500 text-[11px] font-bold leading-relaxed max-w-sm uppercase tracking-tight italic opacity-80">
-            LASUSTECH INSTITUTIONAL INTEGRITY SYSTEM. REPLICATED MONITORING NODES ACROSS CAMPUS INFRASTRUCTURE. DATA INTEGRITY GUARANTEED UNDER PROTOCOL 401-B.
+          </Link>
+          <p className="text-slate-500 text-sm font-medium leading-relaxed mb-10 max-w-xs">
+            LASUSTECH's primary accountability framework. Empowering students through transparent and effective issue resolution.
           </p>
-
-          {/* Social Icons */}
-          <div className="flex gap-4 mt-8">
-            {[
-              { icon: Globe,       label: 'Website' },
-              { icon: Share2,      label: 'Share'   },
-              { icon: ExternalLink, label: 'Links'  },
-            ].map(({ icon: Icon, label }) => (
-              <button
-                key={label}
-                aria-label={label}
-                className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center transition-all hover:border-blue-500/30 hover:bg-slate-900 group"
-              >
-                <Icon className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
+          <div className="flex gap-4">
+            {[Globe, Share2, ExternalLink].map((Icon, i) => (
+              <button key={i} className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all">
+                <Icon className="w-4 h-4" />
               </button>
             ))}
           </div>
@@ -56,60 +46,63 @@ const Footer = () => {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-8 italic">
-            Network_Nodes
-          </h4>
+          <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] mb-10">Platform Nodes</h4>
           <ul className="space-y-4">
-            <FooterLink to="/">Core_Terminal</FooterLink>
-            <FooterLink to="/submit">Report_Ingress</FooterLink>
-            <FooterLink to="/track">Audit_Query</FooterLink>
-            <FooterLink to="/dashboard">System_Metrics</FooterLink>
-            <FooterLink to="/login">Protocol_Auth</FooterLink>
+            <FooterLink to="/">Home Interface</FooterLink>
+            <FooterLink to="/submit">Report Portal</FooterLink>
+            <FooterLink to="/track">Case Tracker</FooterLink>
+            <FooterLink to="/login">Authorized Access</FooterLink>
           </ul>
         </div>
 
-        {/* Legal + Contact */}
+        {/* Resources */}
         <div>
-          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-8 italic">
-            Support_Protocols
-          </h4>
-          <ul className="space-y-4 mb-10">
-            <FooterLink to="/about">System_History</FooterLink>
-            <FooterLink to="/contact">Admin_Contact</FooterLink>
-            <FooterLink to="/privacy">Data_Policy</FooterLink>
+          <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] mb-10">Institutional</h4>
+          <ul className="space-y-4">
+            <FooterLink to="/terms">Terms of Protocol</FooterLink>
+            <FooterLink to="/privacy">Data Privacy</FooterLink>
+            <FooterLink to="/help">Support Node</FooterLink>
+            <FooterLink to="/admin">Admin Core</FooterLink>
           </ul>
+        </div>
 
-          <div className="space-y-4 text-[9px] font-black text-slate-700 uppercase tracking-widest italic">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-4 h-4 text-slate-800 mt-0.5 shrink-0" />
-              <span>IKORODU_HQ, LAGOS STATE, NIGERIA</span>
+        {/* Contact */}
+        <div>
+          <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] mb-10">Communications</h4>
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shrink-0">
+                <Mail className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-bold text-slate-600 leading-relaxed pt-2">
+                support@sentinel.lasustech.edu.ng
+              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-slate-800 shrink-0" />
-              <span>SENTINEL@LASUSTECH.EDU.NG</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-4 h-4 text-slate-800 shrink-0" />
-              <span>+234_LASUSTECH_CORE</span>
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shrink-0">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-bold text-slate-600 leading-relaxed">
+                LASUSTECH Main Campus,<br />Ikorodu, Lagos State.
+              </p>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-slate-950 bg-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <p className="text-slate-800 text-[9px] font-black uppercase tracking-[0.3em] italic">
-            © {year} SENTINEL_SYSTEMS // LASUSTECH_AUTHORIZED_ONLY
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 border-t border-slate-200">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            © {year} Sentinel Accountability Network • All Rights Reserved
           </p>
-          <div className="flex items-center gap-6 text-[8px] font-black text-slate-800 uppercase tracking-widest italic">
-            <Link to="/privacy" className="hover:text-blue-500 transition-colors">Privacy_Core</Link>
-            <span className="opacity-20">//</span>
-            <Link to="/contact" className="hover:text-blue-500 transition-colors">Emergency_Comms</Link>
-            <span className="opacity-20">//</span>
-            <a href="https://lasustech.edu.ng" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-colors">
-              INSTITUTIONAL_PORTAL ↗
-            </a>
+          <div className="flex items-center gap-10">
+             <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Status: Secure</span>
+             </div>
+             <Shield className="w-5 h-5 text-slate-200" />
           </div>
         </div>
       </div>

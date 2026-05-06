@@ -1,38 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, LogIn, AlertCircle, ShieldCheck } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { Eye, EyeOff, LogIn, AlertCircle, ShieldCheck, User, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-/* ── helpers ──────────────────────────────────────────── */
-const validate = ({ identifier, password }) => {
-  const errors = {};
-  if (!identifier.trim()) {
-    errors.identifier = 'Email or Matric Number is required.';
-  } else if (
-    identifier.includes('@') &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
-  ) {
-    errors.identifier = 'Please enter a valid email address.';
-  }
-  if (!password) {
-    errors.password = 'Password is required.';
-  } else if (password.length < 6) {
-    errors.password = 'Password must be at least 6 characters.';
-  }
-  return errors;
-};
-
-const FieldError = ({ msg }) =>
-  msg ? (
-    <p className="flex items-center gap-1.5 text-xs text-red-500 mt-1.5">
-      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-      {msg}
-    </p>
-  ) : null;
-
-/* ── component ─────────────────────────────────────────── */
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -62,44 +33,44 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0B1120] font-sans text-slate-200 overflow-hidden">
+    <div className="min-h-screen flex bg-white font-sans text-slate-900 overflow-hidden">
       
       {/* Left: Login Form */}
-      <div className="w-full lg:w-[450px] flex flex-col justify-center p-8 md:p-16 relative z-10 bg-[#0B1120] border-r border-slate-800/60 shadow-2xl">
+      <div className="w-full lg:w-[500px] flex flex-col justify-center p-8 md:p-20 relative z-10 bg-white shadow-2xl">
         
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
-              <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 mb-16">
+            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-200">
+              <ShieldCheck className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white tracking-tighter uppercase italic leading-none">Sentinel</h1>
-              <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-1.5">Security Interface</p>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Sentinel</h1>
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1.5">University Support Portal</p>
             </div>
           </div>
 
-          <div className="mb-10">
-            <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Access Protocol</h2>
-            <p className="text-slate-500 text-xs mt-2 font-bold uppercase tracking-widest leading-relaxed">
-              Authenticate your identity to enter the surveillance network.
+          <div className="mb-12">
+            <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Welcome Back</h2>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed">
+              Log in to your account to report issues, track progress, and access support services.
             </p>
           </div>
 
           {/* Role Tabs */}
-          <div className="flex bg-slate-900/50 p-1 rounded-xl mb-8 border border-slate-800/50">
+          <div className="flex bg-slate-50 p-1.5 rounded-2xl mb-10 border border-slate-100">
             {['student', 'staff'].map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
-                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg transition-all duration-300 ${
+                className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${
                   role === r
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'bg-white text-blue-600 shadow-sm border border-slate-100'
+                    : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 {r}
@@ -108,45 +79,48 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">
-                Identity_Identifier
-              </label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Identity Identifier</label>
               <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
+                  <User className="w-5 h-5" />
+                </div>
                 <input
+                  required
                   type="text"
                   value={fields.identifier}
                   onChange={set('identifier')}
-                  placeholder={role === 'student' ? 'MATRIC NUMBER' : 'STAFF ID'}
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all uppercase"
+                  placeholder={role === 'student' ? "Email or Matric Number" : "Staff Email"}
+                  className="w-full pl-14 pr-5 py-4.5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-[15px] font-medium placeholder:text-slate-300"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                </div>
               </div>
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-2.5 ml-1">
-                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Access_Cipher</label>
-                <Link to="/forgot-password" size="sm" className="text-[8px] font-black text-slate-500 uppercase tracking-widest hover:text-blue-500 transition-colors">
-                  Reset_Key
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-widest">Access Cipher</label>
+                <Link to="/forgot-password" size="sm" className="text-[10px] font-bold text-blue-600 hover:underline uppercase tracking-widest">
+                  Forgot?
                 </Link>
               </div>
               <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors">
+                  <Lock className="w-5 h-5" />
+                </div>
                 <input
+                  required
                   type={showPass ? 'text' : 'password'}
                   value={fields.password}
                   onChange={set('password')}
                   placeholder="••••••••"
-                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all"
+                  className="w-full pl-14 pr-14 py-4.5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-[15px] font-medium placeholder:text-slate-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((s) => !s)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-700 hover:text-blue-500 transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-blue-500 transition-colors p-2"
                 >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -154,80 +128,74 @@ const Login = () => {
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-[0.98] shadow-lg shadow-blue-900/20 disabled:opacity-50 mt-4 flex items-center justify-center gap-3 overflow-hidden group"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] shadow-xl shadow-blue-100 disabled:opacity-50 mt-10 flex items-center justify-center gap-3"
             >
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span className="group-hover:translate-x-1 transition-transform">Initialize Access</span>
-                  <LogIn className="w-3.5 h-3.5 opacity-50" />
+                  Establish Access
+                  <LogIn className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mt-12 italic">
-            First time in the field?{' '}
-            <Link to="/register" className="text-blue-500 hover:underline">
-              Create Authority Profile
-            </Link>
+          <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mt-12">
+            First time here?{' '}
+            <Link to="/register" className="text-blue-600 hover:underline">Create Account</Link>
           </p>
         </motion.div>
 
-        <div className="mt-auto pt-10 flex justify-between items-center border-t border-slate-800/40">
-           <p className="text-[8px] font-black text-slate-700 uppercase tracking-[0.3em]">Sentinel_Core v1.5</p>
-           <div className="flex gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest italic">Secure Link Active</span>
-           </div>
+        <div className="mt-auto pt-10 flex justify-between items-center opacity-40 border-t border-slate-50">
+           <p className="text-[8px] font-black text-slate-900 uppercase tracking-[0.3em]">Sentinel Systems v2.4</p>
+           <p className="text-[8px] font-black text-slate-900 uppercase tracking-[0.3em]">LASUSTECH</p>
         </div>
       </div>
 
-      {/* Right: Technical Visuals */}
-      <div className="hidden lg:flex flex-1 relative bg-[#080E1A] overflow-hidden items-center justify-center">
-        {/* Abstract Technical Background */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#1E3A8A_0%,transparent_70%)] opacity-30" />
-           <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(90deg,rgba(15,23,42,0.1)_1px,transparent_1px),linear-gradient(rgba(15,23,42,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
-        </div>
+      {/* Right: Brand Visual */}
+      <div className="hidden lg:flex flex-1 relative bg-blue-600 overflow-hidden items-center justify-center">
+        <img 
+          src="/university_portal_login_1778104480103.png" 
+          alt="LASUSTECH Portal" 
+          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-blue-600/40" />
         
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="relative z-10 flex flex-col items-center"
-        >
-          <div className="relative">
-            <div className="absolute inset-0 bg-blue-500/20 blur-[100px] rounded-full" />
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full border border-blue-500/20 flex items-center justify-center relative">
-               <div className="absolute inset-4 rounded-full border border-blue-500/10 animate-[spin_10s_linear_infinite]" />
-               <div className="absolute inset-8 rounded-full border border-blue-500/5 animate-[spin_15s_linear_infinite_reverse]" />
-               <ShieldCheck className="w-24 h-24 text-blue-500/40" />
-            </div>
-          </div>
-          
-          <div className="mt-12 text-center">
-            <h3 className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.5em] italic mb-3">System Integrity Shield</h3>
-            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] max-w-[280px] leading-relaxed">
-              Monitoring LASUSTECH infrastructure with military-grade encryption and real-time accountability protocols.
-            </p>
-          </div>
-        </motion.div>
+        <div className="relative z-10 text-white max-w-lg px-12">
+           <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+           >
+             <h3 className="text-5xl font-black tracking-tighter uppercase italic leading-tight mb-8">
+               Empowering<br />Student Voices.
+             </h3>
+             <p className="text-blue-50 text-lg font-medium leading-relaxed opacity-90">
+               LASUSTECH's primary platform for transparent issue resolution and institutional growth. Join thousands of students making an impact.
+             </p>
+             
+             <div className="mt-12 flex gap-8">
+                <div className="flex flex-col">
+                   <span className="text-3xl font-black tracking-tighter">98%</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">Resolution Rate</span>
+                </div>
+                <div className="flex flex-col">
+                   <span className="text-3xl font-black tracking-tighter">24/7</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">System Uptime</span>
+                </div>
+             </div>
+           </motion.div>
+        </div>
 
-        {/* Bottom Status Feed */}
-        <div className="absolute bottom-10 left-10 right-10 flex justify-between gap-10">
-           <div className="flex-1 h-[1px] bg-slate-800 self-center" />
-           <div className="flex gap-8">
-              <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Latency</span>
-                <span className="text-[9px] font-black text-blue-500">12ms</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Protocol</span>
-                <span className="text-[9px] font-black text-blue-500">AES-256</span>
-              </div>
+        {/* Floating Elements */}
+        <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
+           <div className="flex gap-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full bg-white opacity-20" />
+              ))}
            </div>
+           <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em]">Sentinel_Secure_Node</span>
         </div>
       </div>
 

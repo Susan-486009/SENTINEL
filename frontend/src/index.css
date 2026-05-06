@@ -37,11 +37,11 @@
   }
 
   .card-premium {
-    @apply bg-[#1E293B] border border-slate-700/50 shadow-2xl rounded-2xl transition-all duration-300;
+    @apply bg-white border border-slate-100 shadow-premium rounded-2xl transition-all duration-300;
   }
 
   .input-premium {
-    @apply w-full bg-[#0B1120] border border-slate-700 rounded-xl px-5 py-3.5 text-sm font-medium text-white placeholder:text-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all duration-300;
+    @apply w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-medium text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all duration-300;
   }
 
   .glass-panel {
@@ -57,7 +57,7 @@
   }
 
   .text-glow {
-    text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    text-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
   }
 }
 
@@ -66,10 +66,10 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-[#0B1120];
+  @apply bg-slate-50;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
 }
 
 /* Animations */

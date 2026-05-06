@@ -3,151 +3,136 @@ import Hero from '../components/Hero';
 import FeatureCards from '../components/FeatureCards';
 import ReportModal from '../components/ReportModal';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Target, TrendingUp, Users } from 'lucide-react';
+import { ShieldCheck, Target, TrendingUp, Users, ArrowRight, Shield } from 'lucide-react';
 import campusImg from '../assets/lasustech_campus_scene.png';
 
 const Home = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   return (
-    <div className="bg-[#0B1120] overflow-hidden">
+    <main className="bg-white">
+      {/* Hero Section */}
       <Hero onReportClick={() => setIsReportModalOpen(true)} />
-      <FeatureCards />
-      
-      {/* Institutional Impact Section */}
-      <section className="py-32 bg-[#0B1120] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-800 group"
-            >
-               <img 
-                src={campusImg} 
-                alt="LASUSTECH Infrastructure" 
-                className="w-full h-[600px] object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
-               />
-               <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
-               <div className="absolute inset-0 bg-gradient-to-tr from-[#0B1120] to-transparent opacity-80" />
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-1 rounded-full bg-blue-500" />
-                <span className="text-[9px] font-black tracking-[0.4em] text-blue-500 uppercase italic">Directive_Mission_401</span>
-              </div>
-              <h2 className="text-5xl sm:text-6xl font-black text-white mb-10 tracking-tighter leading-none uppercase italic">
-                Architecting <br />
-                <span className="text-blue-600">Integrity.</span>
-              </h2>
-              <p className="text-base text-slate-500 mb-14 font-bold leading-relaxed uppercase tracking-widest italic opacity-80">
-                Sentinel acts as the primary institutional watchdog, ensuring every data point contributes to a more transparent ecosystem. 
-                Absolute accountability through immutable audit logs.
-              </p>
-              
-              <div className="grid sm:grid-cols-2 gap-12">
-                <div className="group">
-                  <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors duration-500">
-                    <Target className="w-6 h-6 text-blue-500 group-hover:text-white" />
-                  </div>
-                  <h4 className="text-[10px] font-black text-white mb-3 uppercase tracking-widest italic">Node_Transparency</h4>
-                  <p className="text-[9px] font-bold text-slate-600 leading-relaxed uppercase italic">Track every lifecycle phase with real-time encrypted status updates.</p>
-                </div>
-                <div className="group">
-                  <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors duration-500">
-                    <TrendingUp className="w-6 h-6 text-blue-500 group-hover:text-white" />
-                  </div>
-                  <h4 className="text-[10px] font-black text-white mb-3 uppercase tracking-widest italic">Systemic_Optimization</h4>
-                  <p className="text-[9px] font-bold text-slate-600 leading-relaxed uppercase italic">Data-driven resolution cycles focused on long-term institutional stability.</p>
-                </div>
-              </div>
-            </motion.div>
+      {/* Feature Section */}
+      <section className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl mb-20">
+            <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.4em] mb-4">Core Framework</h2>
+            <h3 className="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Designed for <span className="text-blue-600">Total Transparency.</span>
+            </h3>
           </div>
+          
+          <FeatureCards />
         </div>
       </section>
 
-      {/* Workflow Section */}
-      <section className="py-32 bg-[#111827]/30 border-y border-slate-900/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-1 h-1 rounded-full bg-blue-500" />
-            <span className="text-[9px] font-black tracking-[0.4em] text-blue-500 uppercase italic">Execution_Protocol</span>
-          </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-white mb-24 tracking-tighter uppercase italic">Resolution Path</h2>
-          
-          <div className="grid md:grid-cols-3 gap-12">
+      {/* Statistics Section */}
+      <section className="py-24 bg-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
             {[
-              { 
-                step: '01', 
-                title: 'Data_Ingress', 
-                desc: 'Secure documentation of institutional anomalies via encrypted submission nodes.',
-                icon: ShieldCheck
-              },
-              { 
-                step: '02', 
-                title: 'Packet_Tracking', 
-                desc: 'Generation of unique Protocol IDs for real-time monitoring of the investigation trajectory.',
-                icon: Target
-              },
-              { 
-                step: '03', 
-                title: 'Final_Resolution', 
-                desc: 'Verified administrative resolution cycles with full audit log finalization.',
-                icon: TrendingUp
-              }
-            ].map((s, i) => (
-              <motion.div
-                key={s.step}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="relative bg-[#111827] p-12 rounded-3xl border border-slate-800 group hover:border-blue-500/30 transition-all duration-500"
-              >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-sm font-black italic shadow-2xl shadow-blue-900/40 border border-blue-400/20">
-                  {s.step}
+              { label: "Cases Solved", val: "1,240+", icon: ShieldCheck },
+              { label: "Success Rate", val: "98.5%", icon: TrendingUp },
+              { label: "Avg Resolution", val: "48h", icon: Target },
+              { label: "Users Active", val: "15.2k", icon: Users },
+            ].map((stat, i) => (
+              <div key={i} className="group">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                  <stat.icon className="w-6 h-6" />
                 </div>
-                <div className="mt-6 flex flex-col items-center">
-                  <div className="w-16 h-16 bg-blue-600/5 rounded-2xl border border-blue-500/10 flex items-center justify-center mb-10 group-hover:bg-blue-600 transition-colors duration-500">
-                    <s.icon className="w-8 h-8 text-blue-500 group-hover:text-white" />
-                  </div>
-                  <h3 className="text-lg font-black text-white mb-6 uppercase tracking-widest italic">{s.title}</h3>
-                  <p className="text-[10px] font-bold text-slate-600 leading-relaxed uppercase tracking-widest italic opacity-80">{s.desc}</p>
-                </div>
-              </motion.div>
+                <p className="text-4xl font-black text-slate-900 mb-2">{stat.val}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Commitment Section */}
-      <section id="about" className="py-40 bg-[#0B1120] relative">
-          <div className="absolute inset-0 opacity-[0.02] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
-             <div className="flex items-center justify-center gap-2 mb-8">
-               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-               <span className="text-[10px] font-black tracking-[0.5em] text-blue-500 uppercase italic">Institutional_Mandate</span>
-            </div>
-            <h2 className="text-5xl font-black text-white mb-10 tracking-tighter uppercase italic">System Commitment</h2>
-            <p className="text-slate-500 text-lg leading-relaxed font-bold uppercase tracking-widest italic opacity-80">
-              Fairness is the fundamental core of the LASUSTECH ecosystem. 
-              Sentinel was architected to ensure every voice is synchronized 
-              with a professional, low-latency administrative response.
-            </p>
+      {/* CTA Section */}
+      <section className="py-32 relative overflow-hidden bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="bg-blue-600 rounded-[3rem] p-12 lg:p-24 relative overflow-hidden shadow-2xl shadow-blue-200">
+             {/* Decorative Background */}
+             <div className="absolute inset-0 opacity-20 mix-blend-overlay">
+                <img src="/university_portal_login_1778104480103.png" alt="Overlay" className="w-full h-full object-cover" />
+             </div>
+             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-900/50 to-transparent" />
+
+             <div className="relative z-10 max-w-2xl">
+                <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tighter leading-tight mb-8">
+                   Ready to Make <br />a Difference?
+                </h2>
+                <p className="text-blue-50 text-lg font-medium leading-relaxed mb-12 opacity-90">
+                   Your reports help us identify institutional gaps and improve the campus experience for everyone. Join the Sentinel network today.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                   <button 
+                     onClick={() => setIsReportModalOpen(true)}
+                     className="bg-white text-blue-600 px-10 py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-50 hover:-translate-y-1 transition-all shadow-xl active:scale-95"
+                   >
+                     Submit My First Report
+                   </button>
+                   <Link 
+                     to="/register" 
+                     className="flex items-center justify-center gap-3 bg-blue-700 text-white px-10 py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-800 hover:-translate-y-1 transition-all"
+                   >
+                     Create Account
+                     <ArrowRight className="w-4 h-4" />
+                   </Link>
+                </div>
+             </div>
+
+             <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           </div>
+        </div>
       </section>
 
-      <ReportModal 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
-      />
-    </div>
+      {/* Campus Context Section */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                 <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.4em] mb-4">Institutional Presence</h2>
+                 <h3 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-8">
+                    Bridging the gap between <br /><span className="text-blue-600">Campus & Authority.</span>
+                 </h3>
+                 <p className="text-slate-500 font-medium leading-relaxed mb-10">
+                    Sentinel operates as a neutral, encrypted layer between the student body and university administration. We ensure that every valid concern is documented, analyzed, and addressed through official channels.
+                 </p>
+                 <div className="space-y-4">
+                    {[
+                      "End-to-End Encryption for Anonymous Reporting",
+                      "Automated Evidence Collection & Validation",
+                      "Real-time Dashboard for Transparency",
+                      "Institutional Accountability Feedback Loops"
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-4">
+                         <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-blue-600" />
+                         </div>
+                         <span className="text-sm font-bold text-slate-700 uppercase tracking-wide">{item}</span>
+                      </div>
+                    ))}
+                 </div>
+              </div>
+              <div className="relative group">
+                 <div className="absolute inset-0 bg-blue-600/10 rounded-[3rem] blur-2xl group-hover:bg-blue-600/20 transition-all duration-500" />
+                 <img 
+                   src={campusImg} 
+                   alt="LASUSTECH Campus" 
+                   className="relative z-10 w-full h-[400px] object-cover rounded-[3.5rem] shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 border-8 border-white" 
+                 />
+              </div>
+           </div>
+        </div>
+      </section>
+
+      <ReportModal isOpen={isReportModalOpen} onClose={() => setIsReportModalOpen(false)} />
+    </main>
   );
 };
 
