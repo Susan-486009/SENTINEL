@@ -42,23 +42,14 @@ const Login = () => {
   const [role, setRole]           = useState('student');
   const [showPass, setShowPass]   = useState(false);
   const [loading, setLoading]     = useState(false);
-  const [touched, setTouched]     = useState({});
   const [fields, setFields]       = useState({ identifier: '', password: '' });
-
-  const errors = validate(fields);
-  const hasErrors = Object.keys(errors).length > 0;
 
   const set = (key) => (e) => {
     setFields((prev) => ({ ...prev, [key]: e.target.value }));
   };
-  const blur = (key) => () => setTouched((prev) => ({ ...prev, [key]: true }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mark all touched so errors show
-    setTouched({ identifier: true, password: true });
-    if (hasErrors) return;
-
     setLoading(true);
     try {
       await login(fields);
@@ -71,140 +62,175 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 pt-12 pb-32 md:pb-12 px-4 font-sans">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute top-0 left-0 w-[600px] h-[600px] bg-[#1E3A8A]/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl opacity-60" />
-      <div className="pointer-events-none absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-300/10 rounded-full translate-x-1/3 translate-y-1/3 blur-3xl opacity-60" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="relative w-full max-w-sm"
-      >
-        {/* Card */}
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100/50 overflow-hidden backdrop-blur-sm">
-
-          <div className="p-10">
-            {/* Header */}
-            <div className="text-center mb-10">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-900/20 rotate-3">
-                <LogIn className="w-8 h-8 text-white -mr-1" />
-              </div>
-              <h1 className="text-[2rem] font-black text-slate-900 tracking-tighter uppercase italic">SENTINEL</h1>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-2 px-4 leading-relaxed">
-                {role === 'student'
-                  ? 'Student Care Portal'
-                  : 'Staff Management Portal'}
-              </p>
+    <div className="min-h-screen flex bg-[#0B1120] font-sans text-slate-200 overflow-hidden">
+      
+      {/* Left: Login Form */}
+      <div className="w-full lg:w-[450px] flex flex-col justify-center p-8 md:p-16 relative z-10 bg-[#0B1120] border-r border-slate-800/60 shadow-2xl">
+        
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
-
-            {/* Role Switcher Pills */}
-            <div className="flex bg-slate-50 p-1.5 rounded-2xl mb-8 border border-slate-100 shadow-inner">
-              {['student', 'staff'].map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${
-                    role === r
-                      ? 'bg-white text-primary shadow-premium'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
+            <div>
+              <h1 className="text-xl font-black text-white tracking-tighter uppercase italic leading-none">Sentinel</h1>
+              <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-1.5">Security Interface</p>
             </div>
+          </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-6">
-              {/* Email / Matric */}
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
-                  {role === 'student' ? 'Student ID or Email' : 'Staff ID or Email'}
-                </label>
-                <input
-                  id="login-identifier"
-                  type="text"
-                  autoComplete="username"
-                  value={fields.identifier}
-                  onChange={set('identifier')}
-                  onBlur={blur('identifier')}
-                  placeholder={role === 'student' ? 'e.g. 240303010001' : 'e.g. STF-0042'}
-                  className={`input-premium
-                    ${touched.identifier && errors.identifier
-                      ? 'border-red-200 bg-red-50 focus:ring-red-100'
-                      : ''
-                    }`}
-                />
-                <FieldError msg={touched.identifier && errors.identifier} />
-              </div>
-
-              {/* Password */}
-              <div>
-                <div className="flex justify-between items-center mb-2 ml-1">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
-                  <Link to="/forgot-password" size="sm" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">
-                    Forgot?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <input
-                    id="login-password"
-                    type={showPass ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    value={fields.password}
-                    onChange={set('password')}
-                    onBlur={blur('password')}
-                    placeholder="••••••••"
-                    className={`input-premium pr-14
-                      ${touched.password && errors.password
-                        ? 'border-red-200 bg-red-50 focus:ring-red-100'
-                        : ''
-                      }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass((s) => !s)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-colors"
-                  >
-                    {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                <FieldError msg={touched.password && errors.password} />
-              </div>
-
-              {/* Submit */}
-              <motion.button
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={loading}
-                className="w-full btn-primary flex items-center justify-center gap-3 mt-4"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Sign In
-                  </>
-                )}
-              </motion.button>
-            </form>
-
-            <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-10">
-              New to Sentinel?{' '}
-              <Link to="/register" className="text-primary hover:underline">
-                Create Account
-              </Link>
+          <div className="mb-10">
+            <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Access Protocol</h2>
+            <p className="text-slate-500 text-xs mt-2 font-bold uppercase tracking-widest leading-relaxed">
+              Authenticate your identity to enter the surveillance network.
             </p>
           </div>
-        </div>
 
-        <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] mt-8 opacity-50">
-          SENTINEL PLATFORM v1.0.0
-        </p>
-      </motion.div>
+          {/* Role Tabs */}
+          <div className="flex bg-slate-900/50 p-1 rounded-xl mb-8 border border-slate-800/50">
+            {['student', 'staff'].map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg transition-all duration-300 ${
+                  role === r
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">
+                Identity_Identifier
+              </label>
+              <div className="relative group">
+                <input
+                  type="text"
+                  value={fields.identifier}
+                  onChange={set('identifier')}
+                  placeholder={role === 'student' ? 'MATRIC NUMBER' : 'STAFF ID'}
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all uppercase"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2.5 ml-1">
+                <label className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Access_Cipher</label>
+                <Link to="/forgot-password" size="sm" className="text-[8px] font-black text-slate-500 uppercase tracking-widest hover:text-blue-500 transition-colors">
+                  Reset_Key
+                </Link>
+              </div>
+              <div className="relative group">
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  value={fields.password}
+                  onChange={set('password')}
+                  placeholder="••••••••"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass((s) => !s)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-700 hover:text-blue-500 transition-colors"
+                >
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              disabled={loading}
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-[0.98] shadow-lg shadow-blue-900/20 disabled:opacity-50 mt-4 flex items-center justify-center gap-3 overflow-hidden group"
+            >
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span className="group-hover:translate-x-1 transition-transform">Initialize Access</span>
+                  <LogIn className="w-3.5 h-3.5 opacity-50" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="text-center text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mt-12 italic">
+            First time in the field?{' '}
+            <Link to="/register" className="text-blue-500 hover:underline">
+              Create Authority Profile
+            </Link>
+          </p>
+        </motion.div>
+
+        <div className="mt-auto pt-10 flex justify-between items-center border-t border-slate-800/40">
+           <p className="text-[8px] font-black text-slate-700 uppercase tracking-[0.3em]">Sentinel_Core v1.5</p>
+           <div className="flex gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest italic">Secure Link Active</span>
+           </div>
+        </div>
+      </div>
+
+      {/* Right: Technical Visuals */}
+      <div className="hidden lg:flex flex-1 relative bg-[#080E1A] overflow-hidden items-center justify-center">
+        {/* Abstract Technical Background */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#1E3A8A_0%,transparent_70%)] opacity-30" />
+           <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(90deg,rgba(15,23,42,0.1)_1px,transparent_1px),linear-gradient(rgba(15,23,42,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative z-10 flex flex-col items-center"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-500/20 blur-[100px] rounded-full" />
+            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full border border-blue-500/20 flex items-center justify-center relative">
+               <div className="absolute inset-4 rounded-full border border-blue-500/10 animate-[spin_10s_linear_infinite]" />
+               <div className="absolute inset-8 rounded-full border border-blue-500/5 animate-[spin_15s_linear_infinite_reverse]" />
+               <ShieldCheck className="w-24 h-24 text-blue-500/40" />
+            </div>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <h3 className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.5em] italic mb-3">System Integrity Shield</h3>
+            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] max-w-[280px] leading-relaxed">
+              Monitoring LASUSTECH infrastructure with military-grade encryption and real-time accountability protocols.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Bottom Status Feed */}
+        <div className="absolute bottom-10 left-10 right-10 flex justify-between gap-10">
+           <div className="flex-1 h-[1px] bg-slate-800 self-center" />
+           <div className="flex gap-8">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Latency</span>
+                <span className="text-[9px] font-black text-blue-500">12ms</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Protocol</span>
+                <span className="text-[9px] font-black text-blue-500">AES-256</span>
+              </div>
+           </div>
+        </div>
+      </div>
+
     </div>
   );
 };

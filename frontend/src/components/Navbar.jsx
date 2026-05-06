@@ -20,11 +20,10 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -35,7 +34,6 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => { setMenuOpen(false); setDropdownOpen(false); }, [location.pathname]);
 
   const isActive = (path) =>
@@ -44,7 +42,7 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
-    toast.info('You have been signed out.');
+    toast.info('Session Terminated.');
     navigate('/login');
   };
 
@@ -53,30 +51,33 @@ const Navbar = () => {
     : 'U';
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-100 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0B1120]/80 backdrop-blur-xl border-b border-slate-800/60 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
 
-          {/* ── Logo ───────────────────────────────────────────── */}
-          <Link to="/" className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3.5 group">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-transform group-hover:scale-105">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <span className="hidden sm:block text-xl font-extrabold text-[#1E3A8A] tracking-tighter uppercase italic">
-              Sentinel
-            </span>
+            <div className="flex flex-col">
+               <span className="text-lg font-black text-white tracking-tighter uppercase italic leading-none group-hover:text-blue-500 transition-colors">
+                 Sentinel
+               </span>
+               <span className="text-[7px] font-black text-slate-700 tracking-[0.4em] uppercase italic mt-1">Core_Infrastructure</span>
+            </div>
           </Link>
 
-          {/* ── Desktop Nav Links ───────────────────────────────── */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-2">
             {NAV_LINKS.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
+                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all duration-300 border ${
                   isActive(to)
-                    ? 'bg-[#1E3A8A]/10 text-[#1E3A8A]'
-                    : 'text-slate-600 hover:text-[#1E3A8A] hover:bg-slate-50'
+                    ? 'bg-blue-600/10 border-blue-500/20 text-blue-500 shadow-inner'
+                    : 'text-slate-500 border-transparent hover:text-white hover:bg-slate-800/40'
                 }`}
               >
                 {label}
@@ -85,72 +86,65 @@ const Navbar = () => {
             {isAuthenticated && user?.role === 'admin' && (
               <Link
                 to="/admin"
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic transition-all duration-300 border ${
                   isActive('/admin')
-                    ? 'bg-violet-100 text-violet-700'
-                    : 'text-slate-600 hover:text-violet-700 hover:bg-violet-50'
+                    ? 'bg-blue-600/10 border-blue-500/20 text-blue-500'
+                    : 'text-slate-500 border-transparent hover:text-white hover:bg-slate-800/40'
                 }`}
               >
-                <Shield className="w-3.5 h-3.5" />
-                Admin
+                <Shield className="w-3 h-3" />
+                Admin_Gate
               </Link>
             )}
           </div>
 
-          {/* ── Auth Area ──────────────────────────────────────── */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Auth Area */}
+          <div className="hidden md:flex items-center gap-5">
             {isAuthenticated ? (
-              /* Avatar Dropdown */
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen((o) => !o)}
-                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all duration-150"
-                  aria-expanded={dropdownOpen}
-                  aria-haspopup="true"
+                  className={`flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-2xl transition-all duration-300 border ${dropdownOpen ? 'bg-slate-900 border-slate-700 shadow-2xl' : 'bg-transparent border-transparent hover:bg-slate-900 hover:border-slate-800'}`}
                 >
-                  {/* Avatar circle */}
-                  <div className="w-8 h-8 rounded-full bg-[#1E3A8A] text-white text-xs font-bold flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-500 text-[10px] font-black flex items-center justify-center">
                     {initials}
                   </div>
-                  <span className="text-sm font-semibold text-slate-800 max-w-[120px] truncate">
-                    {user?.name || 'User'}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
-                  />
+                  <div className="text-left hidden lg:block">
+                     <p className="text-[10px] font-black text-white uppercase italic tracking-tight">{user?.name?.split(' ')[0]}</p>
+                     <p className="text-[7px] font-black text-slate-700 uppercase tracking-widest">{user?.role?.toUpperCase()}_LEVEL</p>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-700 transition-transform duration-300 ${dropdownOpen ? 'rotate-180 text-blue-500' : ''}`} />
                 </button>
 
                 <AnimatePresence>
                   {dropdownOpen && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1 z-50"
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      className="absolute right-0 top-full mt-3 w-56 bg-[#0B1120] rounded-2xl shadow-2xl border border-slate-800 overflow-hidden py-2 z-50"
                     >
-                      {/* User info banner */}
-                      <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                        <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
-                        <p className="text-xs text-slate-500 capitalize mt-0.5">{user?.role} • {user?.id}</p>
+                      <div className="px-5 py-4 border-b border-slate-800/60 bg-slate-950/40 mb-2">
+                        <p className="text-[9px] font-black text-white uppercase italic tracking-widest truncate">{user?.name}</p>
+                        <p className="text-[7px] text-slate-700 font-black uppercase tracking-[0.3em] mt-1 italic">ID: {user?.id?.toUpperCase()}</p>
                       </div>
 
-                      <Link to="/dashboard" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#1E3A8A] transition-colors">
-                        <LayoutDashboard className="w-4 h-4" />
-                        Dashboard
+                      <Link to="/dashboard" className="flex items-center gap-3 px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest italic hover:text-white hover:bg-slate-800/40 transition-colors">
+                        <LayoutDashboard className="w-3.5 h-3.5" />
+                        Dashboard_Node
                       </Link>
-                      <Link to="/settings" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#1E3A8A] transition-colors">
-                        <Settings className="w-4 h-4" />
-                        Settings
+                      <Link to="/settings" className="flex items-center gap-3 px-5 py-3 text-[9px] font-black text-slate-500 uppercase tracking-widest italic hover:text-white hover:bg-slate-800/40 transition-colors">
+                        <Settings className="w-3.5 h-3.5" />
+                        System_Config
                       </Link>
 
-                      <div className="border-t border-slate-100 mt-1 pt-1">
+                      <div className="border-t border-slate-800/60 mt-2 pt-2">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-5 py-3 text-[9px] font-black text-red-500 uppercase tracking-widest italic hover:bg-red-500/5 transition-colors"
                         >
-                          <LogOut className="w-4 h-4" />
-                          Sign Out
+                          <LogOut className="w-3.5 h-3.5" />
+                          Term_Session
                         </button>
                       </div>
                     </motion.div>
@@ -158,53 +152,51 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-4">
                 <Link
                   to="/login"
-                  className="px-5 py-2 text-sm font-semibold text-[#1E3A8A] border-2 border-[#1E3A8A] rounded-lg hover:bg-[#1E3A8A] hover:text-white transition-all duration-200"
+                  className="px-6 py-2.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] italic border border-slate-800 rounded-xl hover:text-white hover:border-slate-600 transition-all"
                 >
-                  Login
+                  Auth_Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2 text-sm font-semibold text-white bg-[#1E3A8A] rounded-lg hover:bg-[#172E6D] transition-all duration-200 shadow-md shadow-blue-900/20"
+                  className="px-6 py-2.5 text-[9px] font-black text-white bg-blue-600 rounded-xl shadow-lg shadow-blue-900/20 hover:bg-blue-700 transition-all uppercase tracking-[0.2em] italic"
                 >
-                  Register
+                  Join_Network
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          {/* ── Mobile Hamburger ───────────────────────────────── */}
+          {/* Mobile Hamburguer */}
           <button
             onClick={() => setMenuOpen((o) => !o)}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-            aria-label="Toggle navigation menu"
+            className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-900/50 transition-colors"
           >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {menuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* ── Mobile Menu ────────────────────────────────────────── */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden bg-[#0B1120] border-t border-slate-800 shadow-2xl"
           >
-            <div className="px-4 py-4 space-y-1">
+            <div className="px-4 py-6 space-y-2">
               {NAV_LINKS.map(({ to, label, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
-                  className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                  className={`flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest italic transition-colors ${
                     isActive(to)
-                      ? 'bg-[#1E3A8A]/10 text-[#1E3A8A]'
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-[#1E3A8A]'
+                      ? 'bg-blue-600/10 text-blue-500 border border-blue-500/20'
+                      : 'text-slate-500 hover:bg-slate-900 hover:text-white'
                   }`}
                 >
                   {Icon && <Icon className="w-4 h-4" />}
@@ -212,36 +204,35 @@ const Navbar = () => {
                 </Link>
               ))}
 
-              <div className="border-t border-slate-100 pt-3 mt-3">
+              <div className="border-t border-slate-800 pt-6 mt-4">
                 {isAuthenticated ? (
                   <>
-                    {/* Mobile user info */}
-                    <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-slate-50 rounded-xl">
-                      <div className="w-9 h-9 rounded-full bg-[#1E3A8A] text-white text-sm font-bold flex items-center justify-center">
+                    <div className="flex items-center gap-4 px-5 py-4 mb-4 bg-slate-900/40 rounded-2xl border border-slate-800">
+                      <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs">
                         {initials}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{user?.name}</p>
-                        <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
+                        <p className="text-[10px] font-black text-white uppercase italic">{user?.name}</p>
+                        <p className="text-[7px] text-slate-700 font-black uppercase tracking-[0.3em] mt-0.5">{user?.role}_LEVEL</p>
                       </div>
                     </div>
-                    <Link to="/dashboard" className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                      <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    <Link to="/dashboard" className="flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-slate-500 uppercase italic hover:bg-slate-900">
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard_Node
                     </Link>
-                    <Link to="/settings" className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                      <Settings className="w-4 h-4" /> Settings
+                    <Link to="/settings" className="flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-slate-500 uppercase italic hover:bg-slate-900">
+                      <Settings className="w-4 h-4" /> System_Config
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50"
+                      className="w-full flex items-center gap-3.5 px-5 py-4 rounded-xl text-[10px] font-black text-red-500 uppercase italic hover:bg-red-500/5 mt-2"
                     >
-                      <LogOut className="w-4 h-4" /> Sign Out
+                      <LogOut className="w-4 h-4" /> Term_Session
                     </button>
                   </>
                 ) : (
-                  <div className="flex gap-3">
-                    <Link to="/login"    className="flex-1 text-center px-4 py-2.5 border-2 border-[#1E3A8A] text-[#1E3A8A] rounded-xl text-sm font-semibold hover:bg-[#1E3A8A] hover:text-white transition-all">Login</Link>
-                    <Link to="/register" className="flex-1 text-center px-4 py-2.5 bg-[#1E3A8A] text-white rounded-xl text-sm font-semibold hover:bg-[#172E6D] transition-all">Register</Link>
+                  <div className="flex flex-col gap-3">
+                    <Link to="/login"    className="text-center px-5 py-4 bg-slate-900 border border-slate-800 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:text-white transition-all">Auth_Login</Link>
+                    <Link to="/register" className="text-center px-5 py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic shadow-lg shadow-blue-900/20">Join_Network</Link>
                   </div>
                 )}
               </div>

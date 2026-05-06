@@ -75,38 +75,23 @@ const StrengthBar = ({ password }) => {
 };
 
 /* ── field error ─────────────────────────────────────── */
-const FieldError = ({ msg }) =>
-  msg ? (
-    <p className="flex items-center gap-1.5 text-[10px] font-bold text-red-500 mt-1.5 uppercase tracking-wider">
-      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-      {msg}
-    </p>
-  ) : null;
-
-const Register = () => {
+const Ficonst Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const [fields, setFields] = useState({
     name: '', matric: '', email: '', password: '', confirm: '',
   });
-  const [touched, setTouched] = useState({});
-
-  const errors = validate(fields);
-  const hasErrors = Object.keys(errors).length > 0;
 
   const set = (key) => (e) => setFields((p) => ({ ...p, [key]: e.target.value }));
-  const blur = (key) => () => setTouched((p) => ({ ...p, [key]: true }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched({ name: true, matric: true, email: true, password: true, confirm: true });
-    if (hasErrors) {
-      toast.error('Please fix the errors.');
+    if (fields.password !== fields.confirm) {
+      toast.error('Ciphers do not match.');
       return;
     }
 
@@ -123,24 +108,24 @@ const Register = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 px-4 font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1120] px-4 font-sans">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="card-premium p-12 max-w-sm w-full text-center"
+          className="bg-[#111827] p-12 max-w-sm w-full text-center border border-slate-800 rounded-2xl shadow-2xl"
         >
-          <div className="w-20 h-20 bg-green-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 rotate-3 shadow-lg shadow-green-900/10">
+          <div className="w-20 h-20 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-8 border border-green-500/20">
             <CheckCircle2 className="w-10 h-10 text-green-500" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-3 uppercase tracking-tight italic">Welcome Aboard!</h2>
-          <p className="text-slate-500 text-sm mb-10 leading-relaxed font-medium">
-            Great to have you here, <strong>{fields.name.split(' ')[0]}</strong>. Your account is ready!
+          <h2 className="text-2xl font-black text-white mb-3 uppercase tracking-tighter italic">Registration Logged</h2>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-10 leading-relaxed italic">
+            Identity profile created. You are now authorized to access the Sentinel network.
           </p>
           <button
             onClick={() => navigate('/dashboard')}
             className="w-full btn-primary"
           >
-            Go to My Dashboard
+            Access My Terminal
           </button>
         </motion.div>
       </div>
@@ -148,144 +133,175 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 pt-20 pb-32 md:pb-20 px-4 font-sans overflow-x-hidden">
-      <div className="pointer-events-none absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl opacity-60" />
-      <div className="pointer-events-none absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/10 rounded-full -translate-x-1/3 translate-y-1/3 blur-3xl opacity-60" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-md"
-      >
-        <div className="card-premium overflow-hidden">
-          <div className="bg-primary px-10 py-12 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <UserPlus className="w-32 h-32 -mr-10 -mt-10 rotate-12" />
+    <div className="min-h-screen flex bg-[#0B1120] font-sans text-slate-200 overflow-hidden">
+      
+      {/* Left: Registration Form */}
+      <div className="w-full lg:w-[500px] flex flex-col justify-center p-8 md:p-12 relative z-10 bg-[#0B1120] border-r border-slate-800/60 shadow-2xl overflow-y-auto">
+        
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="py-12"
+        >
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md">
-                  <UserPlus className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Sentinel Care</span>
-              </div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic">Create Account</h1>
-              <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mt-2">Join our student care community.</p>
-              <div className="mt-4 flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-200" />
-                <span className="text-[9px] font-black uppercase tracking-widest text-blue-100/70">Anonymity focused reporting platform</span>
-              </div>
+            <div>
+              <h1 className="text-xl font-black text-white tracking-tighter uppercase italic leading-none">Sentinel</h1>
+              <p className="text-[9px] font-black text-blue-500 uppercase tracking-[0.3em] mt-1.5">Authority Registration</p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} noValidate className="p-10 space-y-7">
+          <div className="mb-10">
+            <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Create Profile</h2>
+            <p className="text-slate-500 text-[10px] mt-2 font-black uppercase tracking-[0.2em] leading-relaxed italic">
+              Establish your clearance within the LASUSTECH accountability network.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Your Full Name</label>
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">Full_Legal_Identity</label>
               <input
-                id="reg-name"
                 value={fields.name}
                 onChange={set('name')}
-                onBlur={blur('name')}
-                placeholder="e.g. David Oluwaseun"
-                className="input-premium"
+                placeholder="FIRSTNAME LASTNAME"
+                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all uppercase"
               />
-              <FieldError msg={touched.name && errors.name} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Student ID #</label>
+                <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">Matric_Reference</label>
                 <input
-                  id="reg-matric"
                   value={fields.matric}
                   onChange={set('matric')}
-                  onBlur={blur('matric')}
-                  placeholder="e.g. 240303010001"
-                  className="input-premium pr-14"
+                  placeholder="240303010001"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all uppercase"
                 />
-                <FieldError msg={touched.matric && errors.matric} />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Email (Optional)</label>
+                <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">Contact_Node</label>
                 <input
-                  id="reg-email"
                   type="email"
                   value={fields.email}
                   onChange={set('email')}
-                  onBlur={blur('email')}
-                  placeholder="e.g. student@edu.ng"
-                  className="input-premium pr-14"
+                  placeholder="EMAIL (OPTIONAL)"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all uppercase"
                 />
-                <FieldError msg={touched.email && errors.email} />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Set Password</label>
-              <div className="relative">
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">Primary_Access_Cipher</label>
+              <div className="relative group">
                 <input
-                  id="reg-password"
                   type={showPass ? 'text' : 'password'}
                   value={fields.password}
                   onChange={set('password')}
-                  onBlur={blur('password')}
                   placeholder="••••••••"
-                  className="input-premium pr-14"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((s) => !s)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-700 hover:text-blue-500 transition-colors"
                 >
-                  {showPass ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               <StrengthBar password={fields.password} />
-              <FieldError msg={touched.password && errors.password} />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Confirm Password</label>
-              <div className="relative">
-                <input
-                  id="reg-confirm"
-                  type={showConfirm ? 'text' : 'password'}
-                  value={fields.confirm}
-                  onChange={set('confirm')}
-                  onBlur={blur('confirm')}
-                  placeholder="••••••••"
-                  className="input-premium pr-14"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((s) => !s)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-colors"
-                >
-                  {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              <FieldError msg={touched.confirm && errors.confirm} />
+              <label className="block text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2.5 ml-1 italic">Repeat_Cipher_Check</label>
+              <input
+                type="password"
+                value={fields.confirm}
+                onChange={set('confirm')}
+                placeholder="••••••••"
+                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-5 py-4 text-xs font-black tracking-widest text-white placeholder:text-slate-800 focus:outline-none focus:border-blue-500/40 transition-all"
+              />
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
+            <button
               disabled={loading}
-              className="w-full btn-primary flex items-center justify-center gap-3 mt-4"
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-[0.98] shadow-lg shadow-blue-900/20 disabled:opacity-50 mt-4 flex items-center justify-center gap-3 group overflow-hidden"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
-                <>Join Sentinel</>
+                <>
+                  <span className="group-hover:translate-x-1 transition-transform">Initialize Profile</span>
+                  <UserPlus className="w-3.5 h-3.5 opacity-50" />
+                </>
               )}
-            </motion.button>
+            </button>
           </form>
 
-          <div className="px-10 pb-12 text-center -mt-2">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline font-black">Sign In</Link>
+          <p className="text-center text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mt-12 italic">
+            Profile already exists?{' '}
+            <Link to="/login" className="text-blue-500 hover:underline">Access Terminal</Link>
+          </p>
+        </motion.div>
+
+        <div className="mt-auto py-8 flex justify-between items-center border-t border-slate-800/40">
+           <p className="text-[8px] font-black text-slate-700 uppercase tracking-[0.3em]">Sentinel_Core v1.5</p>
+           <div className="flex gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest italic">Identity Secure</span>
+           </div>
+        </div>
+      </div>
+
+      {/* Right: Technical Visuals */}
+      <div className="hidden lg:flex flex-1 relative bg-[#080E1A] overflow-hidden items-center justify-center">
+        {/* Abstract Technical Background */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#1E3A8A_0%,transparent_70%)] opacity-30" />
+           <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(90deg,rgba(15,23,42,0.1)_1px,transparent_1px),linear-gradient(rgba(15,23,42,0.1)_1px,transparent_1px)] bg-[size:40px_40px]" />
+        </div>
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+          className="relative z-10 flex flex-col items-center"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-500/20 blur-[100px] rounded-full" />
+            <div className="w-80 h-80 rounded-full border border-blue-500/20 flex items-center justify-center relative">
+               <div className="absolute inset-4 rounded-full border border-blue-500/10 animate-[spin_10s_linear_infinite]" />
+               <UserPlus className="w-24 h-24 text-blue-500/40" />
+            </div>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <h3 className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.5em] italic mb-3">Community Integrity System</h3>
+            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] max-w-[280px] leading-relaxed italic">
+              Establishing individual accountability nodes to maintain a safe and transparent campus environment.
+            </p>
+          </div>
+        </motion.div>
+
+        <div className="absolute bottom-10 left-10 right-10 flex justify-between gap-10">
+           <div className="flex-1 h-[1px] bg-slate-800 self-center" />
+           <div className="flex gap-8">
+              <div className="flex flex-col text-right">
+                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">Clearance</span>
+                <span className="text-[9px] font-black text-blue-500">LEVEL 1</span>
+              </div>
+           </div>
+        </div>
+      </div>
+
+    </div>
+  );
+};
+n In</Link>
             </p>
           </div>
         </div>
