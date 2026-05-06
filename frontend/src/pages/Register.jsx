@@ -75,7 +75,7 @@ const StrengthBar = ({ password }) => {
 };
 
 /* ── field error ─────────────────────────────────────── */
-const Ficonst Register = () => {
+const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -298,18 +298,6 @@ const Ficonst Register = () => {
         </div>
       </div>
 
-    </div>
-  );
-};
-n In</Link>
-            </p>
-          </div>
-        </div>
-
-        <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] mt-10 opacity-50">
-          SENTINEL v1.5 • LASUSTECH
-        </p>
-      </motion.div>
     </div>
   );
 };
