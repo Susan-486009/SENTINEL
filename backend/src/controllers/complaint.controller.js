@@ -10,7 +10,7 @@ import { deleteFile }       from '../services/file.service.js';
      files[]                                  (up to 5 files)
 ════════════════════════════════════════════════════════ */
 export const submitComplaint = asyncHandler(async (req, res) => {
-  const { category, title, description, anonymous } = req.body;
+  const { category, title, description, anonymous, priority } = req.body;
 
   const result = await complaintService.create({
     userId:    req.user.id,
@@ -18,6 +18,7 @@ export const submitComplaint = asyncHandler(async (req, res) => {
     title,
     description,
     anonymous: ['true', '1', true].includes(anonymous),
+    priority: priority || 'normal',
     files:     req.files ?? [],
   });
 
@@ -79,9 +80,14 @@ export const getComplaintById = asyncHandler(async (req, res) => {
    Query params: status, category, page, limit
 ════════════════════════════════════════════════════════ */
 export const getAllComplaints = asyncHandler(async (req, res) => {
-  const { status, category, page, limit } = req.query;   // pre-sanitised by middleware
-  const result = await complaintService.getAll({ status, category, page, limit });
+  const { status, category, priority, page, limit } = req.query;
+  const result = await complaintService.getAll({ status, category, priority, page, limit });
   sendSuccess(res, result);
+});
+
+export const getAdminStats = asyncHandler(async (req, res) => {
+  const stats = await complaintService.getStats();
+  sendSuccess(res, stats);
 });
 
 /* ════════════════════════════════════════════════════════
@@ -90,10 +96,29 @@ export const getAllComplaints = asyncHandler(async (req, res) => {
 ════════════════════════════════════════════════════════ */
 export const updateComplaintStatus = asyncHandler(async (req, res) => {
   const updated = await complaintService.updateStatus(
-    Number(req.params.id),
+    req.params.id,
     req.body.status,
+    req.user.id
   );
   sendSuccess(res, updated, `Status updated to "${updated.status}".`);
+});
+
+export const updateComplaintPriority = asyncHandler(async (req, res) => {
+  const updated = await complaintService.updatePriority(
+    req.params.id,
+    req.body.priority,
+    req.user.id
+  );
+  sendSuccess(res, updated, `Priority updated to "${updated.priority}".`);
+});
+
+export const addInternalNote = asyncHandler(async (req, res) => {
+  const note = await complaintService.addInternalNote(
+    req.params.id,
+    req.user.id,
+    req.body.text
+  );
+  sendSuccess(res, note, 'Internal note added successfully.');
 });
 
 /* ════════════════════════════════════════════════════════

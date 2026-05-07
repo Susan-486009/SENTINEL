@@ -3,9 +3,9 @@ import { SuspiciousActivity } from '../models/SuspiciousActivity.js';
 import { User } from '../models/User.js';
 import { AppError } from '../utils/response.js';
 import { generateIdWithRetry, VALID_STATUSES } from '../utils/complaint.utils.js';
+import { Notification } from '../models/Notification.js';
 import {
   processAndStore,
-  getFilesForComplaint,
   safeCleanRaw,
 } from './file.service.js';
 
@@ -14,13 +14,12 @@ export const complaintService = {
   /* ══════════════════════════════════════════════════════
      CREATE
   ══════════════════════════════════════════════════════ */
-  async create({ userId, category, title, description, anonymous, files = [] }) {
+  async create({ userId, category, title, description, anonymous, priority = 'normal', files = [] }) {
     let referenceId;
 
     try {
       referenceId = await generateIdWithRetry();
 
-      // Process files first (they don't need the complaint ID in MongoDB yet)
       const attachedFiles = await processAndStore(files);
 
       const newComplaint = await Complaint.create({
@@ -30,8 +29,14 @@ export const complaintService = {
         title: title.trim(),
         description: description.trim(),
         anonymous: anonymous ? true : false,
+        priority,
         status: 'pending',
         files: attachedFiles,
+        timeline: [{
+          type: 'system',
+          text: 'Complaint submitted and reference ID issued.',
+          user_id: anonymous ? null : userId
+        }]
       });
 
       return {
@@ -52,16 +57,17 @@ export const complaintService = {
   ══════════════════════════════════════════════════════ */
   async getByUser(userId) {
     const complaints = await Complaint.find({ user_id: userId })
-      .select('reference_id category title status anonymous files created_at updated_at')
+      .select('reference_id category title status priority anonymous files created_at updated_at')
       .sort({ created_at: -1 })
       .lean();
 
     return complaints.map(c => ({
-      id: c._id.toString(),
+      _id: c._id.toString(),
       reference_id: c.reference_id,
       category: c.category,
       title: c.title,
       status: c.status,
+      priority: c.priority,
       anonymous: c.anonymous,
       created_at: c.created_at,
       updated_at: c.updated_at,
@@ -76,7 +82,10 @@ export const complaintService = {
     const isRef = typeof identifier === 'string' && identifier.startsWith('CMP-');
 
     const query = isRef ? { reference_id: identifier } : { _id: identifier };
-    const complaint = await Complaint.findOne(query).lean();
+    const complaint = await Complaint.findOne(query)
+      .populate('internal_notes.admin_id', 'name')
+      .populate('timeline.user_id', 'name role')
+      .lean();
 
     if (!complaint) {
       throw new AppError(
@@ -103,17 +112,20 @@ export const complaintService = {
     }
 
     return {
-      id:          complaint._id.toString(),
-      referenceId: complaint.reference_id,
-      category:    complaint.category,
-      title:       complaint.title,
-      description: complaint.description,
-      status:      complaint.status,
-      anonymous:   complaint.anonymous,
+      id:             complaint._id.toString(),
+      referenceId:    complaint.reference_id,
+      category:       complaint.category,
+      title:          complaint.title,
+      description:    complaint.description,
+      status:         complaint.status,
+      priority:       complaint.priority,
+      anonymous:      complaint.anonymous,
       submitter,
-      files:       complaint.files || [],
-      createdAt:   complaint.created_at,
-      updatedAt:   complaint.updated_at,
+      files:          complaint.files || [],
+      internalNotes:  complaint.internal_notes || [],
+      timeline:       complaint.timeline || [],
+      createdAt:      complaint.created_at,
+      updatedAt:      complaint.updated_at,
     };
   },
 
@@ -122,7 +134,8 @@ export const complaintService = {
   ══════════════════════════════════════════════════════ */
   async trackByReference(referenceId) {
     const complaint = await Complaint.findOne({ reference_id: referenceId.trim().toUpperCase() })
-      .select('reference_id category title status anonymous created_at updated_at')
+      .select('reference_id category title status anonymous timeline created_at updated_at')
+      .populate('timeline.user_id', 'name role')
       .lean();
 
     if (!complaint) {
@@ -130,42 +143,44 @@ export const complaintService = {
     }
 
     return {
-      referenceId:  complaint.reference_id,
+      reference_id:  complaint.reference_id,
       category:     complaint.category,
       title:        complaint.title,
       status:       complaint.status,
       anonymous:    complaint.anonymous,
-      submittedAt:  complaint.created_at,
-      lastUpdated:  complaint.updated_at,
+      timeline:     complaint.timeline || [],
+      created_at:  complaint.created_at,
+      updated_at:  complaint.updated_at,
     };
   },
 
   /* ══════════════════════════════════════════════════════
      ADMIN — paginated list
   ══════════════════════════════════════════════════════ */
-  async getAll({ status, category, page = 1, limit = 20 } = {}) {
+  async getAll({ status, category, priority, page = 1, limit = 50 } = {}) {
     const filter = {};
     if (status) filter.status = status;
     if (category) filter.category = category;
+    if (priority) filter.priority = priority;
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const [complaints, total] = await Promise.all([
-      Complaint.find(filter)
-        .populate('user_id', 'name matric')
-        .sort({ created_at: -1 })
-        .skip(skip)
-        .limit(Number(limit))
-        .lean(),
-      Complaint.countDocuments(filter),
-    ]);
+    const complaints = await Complaint.find(filter)
+      .populate('user_id', 'name matric')
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
 
-    const rows = complaints.map(c => ({
-      id: c._id.toString(),
+    const total = await Complaint.countDocuments(filter);
+
+    return complaints.map(c => ({
+      _id: c._id.toString(),
       reference_id: c.reference_id,
       category: c.category,
       title: c.title,
       status: c.status,
+      priority: c.priority,
       anonymous: c.anonymous,
       created_at: c.created_at,
       updated_at: c.updated_at,
@@ -173,43 +188,111 @@ export const complaintService = {
       matric: c.user_id ? c.user_id.matric : null,
       file_count: c.files ? c.files.length : 0,
     }));
-
-    return {
-      rows,
-      pagination: {
-        total,
-        page:  Number(page),
-        limit: Number(limit),
-        pages: Math.ceil(total / Number(limit)),
-      },
-    };
   },
 
   /* ══════════════════════════════════════════════════════
      UPDATE STATUS
   ══════════════════════════════════════════════════════ */
-  async updateStatus(id, status) {
+  async updateStatus(id, status, adminId) {
     if (!VALID_STATUSES.has(status)) {
-      throw new AppError(
-        `Invalid status "${status}". Allowed: ${[...VALID_STATUSES].join(', ')}`,
-        400,
-      );
+      throw new AppError(`Invalid status "${status}".`, 400);
     }
 
-    const complaint = await Complaint.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    ).lean();
-
+    const complaint = await Complaint.findById(id);
     if (!complaint) throw new AppError('Complaint not found.', 404);
+
+    const oldStatus = complaint.status;
+    complaint.status = status;
+    
+    complaint.timeline.push({
+      type: 'status_change',
+      text: `Status changed from ${oldStatus.replace('_', ' ')} to ${status.replace('_', ' ')}.`,
+      user_id: adminId
+    });
+
+    await complaint.save();
+
+    // Notify student if not anonymous
+    if (complaint.user_id && !complaint.anonymous) {
+      await Notification.create({
+        recipient_id: complaint.user_id,
+        title: 'Case Status Updated',
+        message: `Your case #${complaint.reference_id} status has been changed to ${status.replace('_', ' ')}.`,
+        type: 'status_update',
+        reference_link: `/track?id=${complaint.reference_id}`
+      });
+    }
 
     return { id: complaint._id.toString(), status: complaint.status };
   },
 
   /* ══════════════════════════════════════════════════════
-     TRACKING & SECURITY
+     ADD INTERNAL NOTE
   ══════════════════════════════════════════════════════ */
+  async addInternalNote(id, adminId, text) {
+    const complaint = await Complaint.findById(id);
+    if (!complaint) throw new AppError('Complaint not found.', 404);
+
+    complaint.internal_notes.push({
+      admin_id: adminId,
+      text: text.trim()
+    });
+
+    complaint.timeline.push({
+      type: 'note_added',
+      text: 'Internal note added by administrator.',
+      user_id: adminId
+    });
+
+    await complaint.save();
+
+    return complaint.internal_notes[complaint.internal_notes.length - 1];
+  },
+
+  /* ══════════════════════════════════════════════════════
+     UPDATE PRIORITY
+  ══════════════════════════════════════════════════════ */
+  async updatePriority(id, priority, adminId) {
+    const validPriorities = ['low', 'normal', 'high', 'critical'];
+    if (!validPriorities.includes(priority)) {
+      throw new AppError('Invalid priority.', 400);
+    }
+
+    const complaint = await Complaint.findById(id);
+    if (!complaint) throw new AppError('Complaint not found.', 404);
+
+    const oldPriority = complaint.priority;
+    complaint.priority = priority;
+
+    complaint.timeline.push({
+      type: 'system',
+      text: `Priority updated from ${oldPriority} to ${priority}.`,
+      user_id: adminId
+    });
+
+    await complaint.save();
+    return { id: complaint._id.toString(), priority: complaint.priority };
+  },
+
+  /* ══════════════════════════════════════════════════════
+     GET ADMIN STATS
+  ══════════════════════════════════════════════════════ */
+  async getStats() {
+    const [counts, byCategory] = await Promise.all([
+      Complaint.aggregate([
+        { $group: { _id: '$status', count: { $sum: 1 } } }
+      ]),
+      Complaint.aggregate([
+        { $group: { _id: '$category', open: { $sum: { $cond: [{ $in: ['$status', ['pending', 'in_review']] }, 1, 0] } }, resolved: { $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] } } } }
+      ])
+    ]);
+
+    return {
+      statusCounts: counts.reduce((acc, curr) => ({ ...acc, [curr._id]: curr.count }), {}),
+      categoryStats: byCategory
+    };
+  },
+
   async countRecentByUserId(userId, minutes) {
     const cutoff = new Date(Date.now() - minutes * 60000);
     return Complaint.countDocuments({

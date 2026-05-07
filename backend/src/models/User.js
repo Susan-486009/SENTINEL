@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'staff', 'admin'],
       default: 'student',
     },
+    department_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: false,
+    },
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

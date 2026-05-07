@@ -1,14 +1,18 @@
 import { Router }       from 'express';
 import authRoutes        from './auth.routes.js';
 import complaintRoutes   from './complaint.routes.js';
+import departmentRoutes  from './department.routes.js';
+import notificationRoutes from './notification.routes.js';
 import aiRoutes          from './ai.routes.js';
 import mongoose from 'mongoose';
 
 const router = Router();
 
-router.use('/auth',       authRoutes);
-router.use('/complaints', complaintRoutes);
-router.use('/ai',         aiRoutes);
+router.use('/auth',        authRoutes);
+router.use('/complaints',  complaintRoutes);
+router.use('/departments', departmentRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/ai',          aiRoutes);
 
 // Health-check — includes live DB connection state
 router.get('/health', (_req, res) =>

@@ -68,7 +68,6 @@ router.delete('/files/:fileId', complaint.removeFile);
 /**
  * GET /api/v1/complaints
  * Paginated list with optional filters.
- * Query: ?status=pending&category=academic-result&page=1&limit=20
  */
 router.get(
   '/',
@@ -78,14 +77,40 @@ router.get(
 );
 
 /**
+ * GET /api/v1/complaints/stats/overview
+ */
+router.get(
+  '/stats/overview',
+  authorize('admin'),
+  complaint.getAdminStats
+);
+
+/**
  * PATCH /api/v1/complaints/:id/status
- * Body: { status: 'pending' | 'in_review' | 'resolved' | 'rejected' }
  */
 router.patch(
   '/:id/status',
   authorize('admin'),
   validateStatusUpdate,
   complaint.updateComplaintStatus,
+);
+
+/**
+ * PATCH /api/v1/complaints/:id/priority
+ */
+router.patch(
+  '/:id/priority',
+  authorize('admin'),
+  complaint.updateComplaintPriority
+);
+
+/**
+ * POST /api/v1/complaints/:id/notes
+ */
+router.post(
+  '/:id/notes',
+  authorize('admin'),
+  complaint.addInternalNote
 );
 
 export default router;

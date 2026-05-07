@@ -1,0 +1,137 @@
+/**
+ * API Service Layer for LASUSTECH Resolution Center
+ */
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+export interface User {
+  id: string;
+  full_name: string;
+  email: string;
+  role: 'student' | 'staff' | 'admin';
+  matric_number?: string;
+  staff_id?: string;
+}
+
+export interface ComplaintFile {
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  url: string;
+}
+
+export interface InternalNote {
+  admin_id: { _id: string; name: string };
+  text: string;
+  created_at: string;
+}
+
+export interface TimelineEntry {
+  type: 'status_change' | 'note_added' | 'assigned' | 'evidence_added' | 'system';
+  text: string;
+  user_id?: { _id: string; name: string; role: string };
+  created_at: string;
+}
+
+export interface Complaint {
+  _id: string;
+  reference_id: string;
+  category: string;
+  title: string;
+  description: string;
+  anonymous: boolean;
+  priority: 'low' | 'normal' | 'high' | 'critical';
+  status: 'pending' | 'in_review' | 'resolved' | 'rejected';
+  files: ComplaintFile[];
+  internalNotes: InternalNote[];
+  timeline: TimelineEntry[];
+  created_at: string;
+  updated_at: string;
+}
+
+const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+  const token = localStorage.getItem('as_access_token');
+  
+  const headers: Record<string, string> = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const baseUrlClean = BASE_URL.replace(/\/$/, '');
+  const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const response = await fetch(`${baseUrlClean}${endpointClean}`, {
+    ...options,
+    headers,
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'An unexpected error occurred' }));
+    throw new Error(error.message || 'Request failed');
+  }
+  
+  const result = await response.json();
+  return result.data !== undefined ? result.data : result;
+};
+
+export const authService = {
+  login: (credentials: any) => 
+    request<{ user: User; token: string }>('/auth/login', { 
+      method: 'POST', 
+      body: JSON.stringify(credentials) 
+    }),
+  register: (userData: any) => 
+    request<{ user: User; token: string }>('/auth/register', { 
+      method: 'POST', 
+      body: JSON.stringify(userData) 
+    }),
+  me: () => request<User>('/auth/me'),
+};
+
+export const complaintService = {
+  getAll: (params?: any) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request<Complaint[]>(`/complaints${qs}`);
+  },
+  getMine: () => request<Complaint[]>('/complaints/mine'),
+  getById: (id: string) => request<Complaint>(`/complaints/${id}`),
+  track: (refId: string) => request<Complaint>(`/complaints/track/${refId}`),
+  getStats: () => request<any>('/complaints/stats/overview'),
+  submit: (formData: FormData) => 
+    request<Complaint>('/complaints', { 
+      method: 'POST', 
+      body: formData 
+    }),
+  updateStatus: (id: string, status: string) => 
+    request<Complaint>(`/complaints/${id}/status`, { 
+      method: 'PATCH', 
+      body: JSON.stringify({ status }) 
+    }),
+  updatePriority: (id: string, priority: string) => 
+    request<Complaint>(`/complaints/${id}/priority`, { 
+      method: 'PATCH', 
+      body: JSON.stringify({ priority }) 
+    }),
+  addInternalNote: (id: string, text: string) => 
+    request<InternalNote>(`/complaints/${id}/notes`, { 
+      method: 'POST', 
+      body: JSON.stringify({ text }) 
+    }),
+};
+
+export const departmentService = {
+  getAll: () => request<any[]>('/departments'),
+  create: (data: any) => request<any>('/departments', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => request<any>(`/departments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+};
+
+export const notificationService = {
+  getMine: () => request<any[]>('/notifications'),
+  markAsRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllAsRead: () => request<any>('/notifications/read-all', { method: 'PATCH' }),
+};
