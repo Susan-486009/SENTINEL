@@ -4,6 +4,7 @@ import React from "react";
 export const adminNav = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/cases", label: "Cases", icon: Inbox },
+  { to: "/admin/users", label: "Users", icon: Building2 },
   { to: "/admin/departments", label: "Departments", icon: Building2 },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", label: "Reports", icon: FileText },

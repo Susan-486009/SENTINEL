@@ -42,3 +42,9 @@ export const changePassword = asyncHandler(async (req, res) => {
   const result = await authService.changePassword(req.user.id, req.body);
   sendSuccess(res, result);
 });
+
+/* ── GET /api/v1/auth/admin/users ───────────────────── */
+export const getUsers = asyncHandler(async (req, res) => {
+  const result = await authService.getAllUsers(req.query);
+  sendSuccess(res, result);
+});

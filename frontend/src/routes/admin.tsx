@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutDashboard, Inbox, Building2, BarChart3, FileText, ScrollText, Settings, ArrowUpRight, TrendingUp, TrendingDown, Clock, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useQuery } from "@tanstack/react-query";
-import { complaintService } from "@/lib/api";
+import { complaintService, authService } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { adminNav, StatusBadge } from "@/lib/ui-shared";
 
@@ -22,7 +22,12 @@ function AdminDashboard() {
     queryFn: () => complaintService.getStats(),
   });
 
-  const isLoading = complaintsLoading || statsLoading;
+  const { data: usersData, isLoading: usersLoading } = useQuery({
+    queryKey: ["admin", "users"],
+    queryFn: () => authService.getUsers({ limit: 1 }),
+  });
+
+  const isLoading = complaintsLoading || statsLoading || usersLoading;
 
   const metrics = [
     { 
@@ -35,15 +40,6 @@ function AdminDashboard() {
       bg: "bg-warning/10" 
     },
     { 
-      label: "In Review", 
-      value: stats?.statusCounts?.in_review || 0, 
-      change: "-18%", 
-      trend: "down", 
-      icon: Clock, 
-      tint: "text-accent", 
-      bg: "bg-accent/10" 
-    },
-    { 
       label: "Resolved", 
       value: stats?.statusCounts?.resolved || 0, 
       change: "+8%", 
@@ -53,13 +49,22 @@ function AdminDashboard() {
       bg: "bg-success/10" 
     },
     { 
-      label: "Rejected", 
-      value: stats?.statusCounts?.rejected || 0, 
-      change: "+2", 
+      label: "Total users", 
+      value: usersData?.pagination?.total || 0, 
+      change: "+5", 
+      trend: "up", 
+      icon: Building2, 
+      tint: "text-accent", 
+      bg: "bg-accent/10" 
+    },
+    { 
+      label: "Success rate", 
+      value: `${stats?.statusCounts?.resolved ? Math.round((stats.statusCounts.resolved / (stats.statusCounts.resolved + stats.statusCounts.pending + stats.statusCounts.in_review + stats.statusCounts.rejected)) * 100) : 0}%`, 
+      change: "+2%", 
       trend: "up", 
       icon: TrendingUp, 
-      tint: "text-destructive", 
-      bg: "bg-destructive/10" 
+      tint: "text-primary", 
+      bg: "bg-primary/10" 
     },
   ];
 
@@ -77,23 +82,25 @@ function AdminDashboard() {
     <AppShell nav={adminNav} title="Overview">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Operations overview</h2>
-          <p className="mt-1 text-muted-foreground">Live snapshot of cases across all departments.</p>
+          <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">System Command Center</h2>
+          <p className="mt-1 text-muted-foreground">Global operational metrics and real-time activity tracking.</p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-1">
-          {["7 days", "30 days", "90 days"].map((r, i) => (
-            <button key={r} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${i === 1 ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              {r}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-1">
+            {["Live", "24h", "7d"].map((r, i) => (
+              <button key={r} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div key={m.label} className="rounded-2xl border border-border bg-card p-5 shadow-soft transition hover:shadow-md">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{m.label}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{m.label}</span>
               <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${m.bg} ${m.tint}`}>
                 <m.icon className="h-4.5 w-4.5" />
               </div>
@@ -102,14 +109,15 @@ function AdminDashboard() {
               <span className="font-display text-3xl font-semibold tracking-tight">
                 {isLoading ? <Loader2 className="h-6 w-6 animate-spin opacity-20" /> : m.value}
               </span>
-              <span className={`inline-flex items-center gap-1 text-xs font-medium ${m.trend === "up" ? "text-success" : "text-destructive"}`}>
-                {m.trend === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${m.trend === "up" ? "text-success" : "text-destructive"}`}>
+                {m.trend === "up" ? <ArrowUpRight className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
                 {m.change}
               </span>
             </div>
           </div>
         ))}
       </div>
+
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
         {/* Trends chart */}

@@ -161,4 +161,46 @@ export const authService = {
 
     return { message: 'Password updated successfully.' };
   },
+
+  /* ══════════════════════════════════════════════════════
+     GET ALL USERS (ADMIN)
+  ══════════════════════════════════════════════════════ */
+  async getAllUsers({ role, search, page = 1, limit = 50 }) {
+    const query = {};
+    if (role) query.role = role;
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { matric: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      User.countDocuments(query),
+    ]);
+
+    const formattedUsers = users.map(u => ({
+      ...u,
+      id: u._id.toString(),
+      _id: undefined,
+    }));
+
+    return {
+      users: formattedUsers,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        pages: Math.ceil(total / limit),
+      },
+    };
+  },
 };
