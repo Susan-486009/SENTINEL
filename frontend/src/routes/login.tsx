@@ -38,7 +38,7 @@ function LoginPage() {
         localStorage.removeItem("remembered_identifier");
       }
 
-      localStorage.setItem("as_access_token", data.token);
+      localStorage.setItem("as_access_token", data.accessToken || (data as any).token);
       localStorage.setItem("user", JSON.stringify(data.user));
       
       toast.success("Welcome back!");
