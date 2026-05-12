@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   ChevronDown,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { DashboardPreview } from "@/components/DashboardPreview";

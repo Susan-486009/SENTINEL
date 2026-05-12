@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { Field } from "@/components/Field";
 import { authService } from "@/lib/api";

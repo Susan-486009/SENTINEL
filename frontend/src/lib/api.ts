@@ -42,7 +42,9 @@ export interface TimelineEntry {
 
 export interface Complaint {
   _id: string;
-  reference_id: string;
+  id?: string; // Some endpoints return 'id'
+  reference_id: string; // From model
+  referenceId?: string; // From some service returns
   category: string;
   title: string;
   description: string;
@@ -50,10 +52,28 @@ export interface Complaint {
   priority: 'low' | 'normal' | 'high' | 'critical';
   status: 'pending' | 'in_review' | 'resolved' | 'rejected';
   files: ComplaintFile[];
-  internalNotes: InternalNote[];
+  internalNotes?: InternalNote[];
+  internal_notes?: InternalNote[];
   timeline: TimelineEntry[];
   created_at: string;
+  createdAt?: string;
   updated_at: string;
+  updatedAt?: string;
+  submitter?: {
+    id: string;
+    name: string;
+    email: string;
+    matric: string;
+  };
+}
+
+export interface AnalyticsData {
+  statusCounts: Record<string, number>;
+  categoryStats: Array<{
+    _id: string;
+    open: number;
+    resolved: number;
+  }>;
 }
 
 const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
@@ -130,7 +150,7 @@ export const complaintService = {
   getMine: () => request<Complaint[]>('/complaints/mine'),
   getById: (id: string) => request<Complaint>(`/complaints/${id}`),
   track: (refId: string) => request<Complaint>(`/complaints/track/${refId}`),
-  getStats: () => request<any>('/complaints/stats/overview'),
+  getStats: () => request<AnalyticsData>('/complaints/stats/overview'),
   submit: (formData: FormData) => 
     request<Complaint>('/complaints', { 
       method: 'POST', 
