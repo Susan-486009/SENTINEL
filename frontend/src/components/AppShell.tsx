@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { Bell, Search, Plus, ChevronDown, LogOut, Check, ExternalLink, Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { type User, notificationService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
