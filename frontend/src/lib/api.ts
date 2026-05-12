@@ -4,13 +4,19 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
+export interface UserSettings {
+  email_notifications: boolean;
+  in_app_notifications: boolean;
+  theme: 'light' | 'dark' | 'system';
+}
+
 export interface User {
   id: string;
-  full_name: string;
+  name: string;
   email: string;
   role: 'student' | 'staff' | 'admin';
-  matric_number?: string;
-  staff_id?: string;
+  matric: string;
+  settings?: UserSettings;
 }
 
 export interface ComplaintFile {
@@ -51,30 +57,48 @@ export interface Complaint {
 }
 
 const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
-  const token = localStorage.getItem('as_access_token');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('as_access_token') : null;
   
-  const headers: Record<string, string> = {
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...(options.headers as Record<string, string>),
-  };
+  const headers = new Headers(options.headers);
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
 
   if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
+    headers.set('Content-Type', 'application/json');
   }
 
   const baseUrlClean = BASE_URL.replace(/\/$/, '');
-  const endpointClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const pathClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
-  const response = await fetch(`${baseUrlClean}${endpointClean}`, {
+  const response = await fetch(`${baseUrlClean}${pathClean}`, {
     ...options,
     headers,
   });
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An unexpected error occurred' }));
-    throw new Error(error.message || 'Request failed');
+
+  if (response.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('as_access_token');
+      localStorage.removeItem('user');
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login?expired=true';
+      }
+    }
+    throw new Error('Session expired. Please login again.');
   }
-  
+
+  if (!response.ok) {
+    let message = 'An unexpected error occurred';
+    try {
+      const error = await response.json();
+      message = error.message || message;
+    } catch (e) {
+      // Fallback for non-JSON errors
+    }
+    throw new Error(message);
+  }
+
   const result = await response.json();
   return result.data !== undefined ? result.data : result;
 };
@@ -91,6 +115,11 @@ export const authService = {
       body: JSON.stringify(userData) 
     }),
   me: () => request<User>('/auth/me'),
+  updateProfile: (data: Partial<User> & { settings?: Partial<UserSettings> }) => 
+    request<User>('/auth/me', { 
+      method: 'PATCH', 
+      body: JSON.stringify(data) 
+    }),
 };
 
 export const complaintService = {

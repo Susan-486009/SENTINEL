@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema(
       ref: 'Department',
       required: false,
     },
+    settings: {
+      email_notifications: { type: Boolean, default: true },
+      in_app_notifications: { type: Boolean, default: true },
+      theme: { type: String, enum: ['light', 'dark', 'system'], default: 'light' },
+    },
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

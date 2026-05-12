@@ -70,11 +70,11 @@ function SubmitPage() {
       formData.append("title", form.summary);
       formData.append("description", form.details);
       formData.append("anonymous", String(form.anonymous));
-      formData.append("urgency", form.urgency);
+      formData.append("priority", form.urgency.toLowerCase());
       formData.append("department", form.department);
       
       form.files.forEach((file) => {
-        formData.append("evidence", file);
+        formData.append("files", file);
       });
 
       const result = await complaintService.submit(formData);

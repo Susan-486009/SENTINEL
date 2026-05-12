@@ -1,0 +1,25 @@
+import { LayoutDashboard, Inbox, Building2, BarChart3, FileText, ScrollText, Settings } from "lucide-react";
+import React from "react";
+
+export const adminNav = [
+  { to: "/admin", label: "Overview", icon: LayoutDashboard },
+  { to: "/admin/cases", label: "Cases", icon: Inbox },
+  { to: "/admin/departments", label: "Departments", icon: Building2 },
+  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/admin/reports", label: "Reports", icon: FileText },
+  { to: "/admin/audit", label: "Audit logs", icon: ScrollText },
+  { to: "/admin/settings", label: "Settings", icon: Settings },
+];
+
+export function StatusBadge({ tone, children }: { tone: string; children: React.ReactNode }) {
+  const map: Record<string, string> = {
+    accent: "bg-accent/10 text-accent",
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/10 text-warning",
+    danger: "bg-destructive/10 text-destructive",
+    muted: "bg-muted text-muted-foreground",
+  };
+  return (
+    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${map[tone] || map.muted}`}>{children}</span>
+  );
+}

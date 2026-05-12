@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Bell, Search, Plus, ChevronDown, LogOut, Check, ExternalLink } from "lucide-react";
+import { Bell, Search, Plus, ChevronDown, LogOut, Check, ExternalLink, Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { useState, type ReactNode } from "react";
 import { type User, notificationService } from "@/lib/api";
@@ -7,7 +7,11 @@ import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 
-/* ... */
+export interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
 
 export function AppShell({
   nav,
@@ -27,7 +31,25 @@ export function AppShell({
   const [notifOpen, setNotifOpen] = useState(false);
   const nav_ = useNavigate();
 
-  const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+  useEffect(() => {
+    const token = localStorage.getItem("as_access_token");
+    if (!token && typeof window !== "undefined") {
+      nav_({ to: "/login" });
+    }
+  }, [nav_]);
+
+  const getStoredUser = (): User | null => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    if (!stored || stored === "undefined") return null;
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  };
+
+  const user = getStoredUser();
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
@@ -55,27 +77,65 @@ export function AppShell({
     nav_({ to: "/login" });
   };
 
-  const initials = user?.full_name
-    ? user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : "??";
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ... sidebar ... */}
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-surface transition-transform lg:translate-x-0 ${
+        open ? "translate-x-0" : "-translate-x-full"
+      }`}>
+        <div className="flex h-16 items-center border-b border-border px-5">
+          <Logo />
+        </div>
+        <nav className="flex flex-col gap-0.5 p-3">
+          {nav.map((n) => {
+            const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                  active
+                    ? "bg-accent/10 text-accent"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <n.icon className="h-4.5 w-4.5" />
+                {n.label}
+              </Link>
+            );
+          })}
+        </nav>
+        {primaryAction && (
+          <div className="absolute bottom-4 left-4 right-4">
+            <Link
+              to={primaryAction.to}
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" /> {primaryAction.label}
+            </Link>
+          </div>
+        )}
+      </aside>
 
       {/* Main */}
       <div className="lg:pl-64">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-5 backdrop-blur-md md:px-8">
           <button
-            className="rounded-lg p-2 lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground lg:hidden"
             onClick={() => setOpen(!open)}
-            aria-label="Toggle navigation"
+            aria-label={open ? "Close navigation" : "Open navigation"}
           >
-            <span className="block h-0.5 w-5 bg-foreground" />
-            <span className="mt-1 block h-0.5 w-5 bg-foreground" />
-            <span className="mt-1 block h-0.5 w-5 bg-foreground" />
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          {title && <h1 className="hidden font-display text-lg font-semibold md:block">{title}</h1>}
+          
+          <h1 className="font-display text-base font-semibold lg:text-lg">
+            {title || "Dashboard"}
+          </h1>
           <div className="ml-auto flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 md:flex">
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -161,14 +221,14 @@ export function AppShell({
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
                   {initials}
                 </div>
-                <span className="hidden text-sm font-medium md:inline">{user?.full_name || "User"}</span>
+                <span className="hidden text-sm font-medium md:inline">{user?.name || "User"}</span>
                 <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
               
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-xl border border-border bg-card p-1 shadow-lg z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="px-3 py-2 border-b border-border mb-1">
-                    <p className="text-xs font-bold truncate">{user?.full_name}</p>
+                    <p className="text-xs font-bold truncate">{user?.name}</p>
                     <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
                   </div>
                   <button 
@@ -185,8 +245,14 @@ export function AppShell({
         <main className="px-5 py-8 md:px-8 md:py-10">{children}</main>
       </div>
 
-      {open && <div className="fixed inset-0 z-30 bg-foreground/30 lg:hidden" onClick={() => setOpen(false)} />}
+      {open && (
+        <div 
+          className="fixed inset-0 z-30 bg-background/40 backdrop-blur-sm animate-in fade-in duration-300 lg:hidden" 
+          onClick={() => setOpen(false)} 
+        />
+      )}
       {dropdownOpen && <div className="fixed inset-0 z-20" onClick={() => setDropdownOpen(false)} />}
+      {notifOpen && <div className="fixed inset-0 z-20" onClick={() => setNotifOpen(false)} />}
     </div>
   );
 }

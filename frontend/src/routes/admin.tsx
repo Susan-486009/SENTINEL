@@ -1,25 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutDashboard, Inbox, Building2, BarChart3, FileText, ScrollText, Settings, ArrowUpRight, TrendingUp, TrendingDown, Clock, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { StatusBadge } from "@/routes/dashboard";
 import { useQuery } from "@tanstack/react-query";
 import { complaintService } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
+import { adminNav, StatusBadge } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin overview — LASUSTECH Resolution Center" }] }),
   component: AdminDashboard,
 });
-
-export const adminNav = [
-  { to: "/admin", label: "Overview", icon: LayoutDashboard },
-  { to: "/admin/cases", label: "Cases", icon: Inbox },
-  { to: "/admin/departments", label: "Departments", icon: Building2 },
-  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/admin/reports", label: "Reports", icon: FileText },
-  { to: "/admin/audit", label: "Audit logs", icon: ScrollText },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
-];
 
 function AdminDashboard() {
   const { data: allComplaints, isLoading: complaintsLoading } = useQuery({

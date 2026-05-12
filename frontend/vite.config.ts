@@ -7,7 +7,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [
-    tanstackRouter(),
     tanstackStart({
       server: { entry: "src/server.ts" },
     }),

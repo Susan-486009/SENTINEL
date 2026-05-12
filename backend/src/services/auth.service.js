@@ -33,18 +33,18 @@ export const authService = {
     const newUser = await User.create({
       name: normName,
       matric: normMatric,
-      ...(normEmail && { email: normEmail }),  // only set email if provided
+      ...(normEmail && { email: normEmail }),
       password: hashedPassword,
       role: safeRole,
     });
 
-    return {
-      id:    newUser._id.toString(),
-      name:  normName,
-      matric: normMatric,
-      ...(normEmail && { email: normEmail }),
-      role:  safeRole,
-    };
+    // Strip password and format ID
+    const user = newUser.toObject();
+    delete user.password;
+    user.id = user._id.toString();
+    delete user._id;
+
+    return user;
   },
 
   /* ══════════════════════════════════════════════════════
@@ -104,7 +104,7 @@ export const authService = {
   /* ══════════════════════════════════════════════════════
      UPDATE PROFILE
   ══════════════════════════════════════════════════════ */
-  async updateProfile(id, { name, email }) {
+  async updateProfile(id, { name, email, settings }) {
     const updates = {};
 
     if (name) {
@@ -118,9 +118,21 @@ export const authService = {
       updates.email = norm;
     }
 
+    if (settings) {
+      if (settings.email_notifications !== undefined) {
+        updates['settings.email_notifications'] = settings.email_notifications;
+      }
+      if (settings.in_app_notifications !== undefined) {
+        updates['settings.in_app_notifications'] = settings.in_app_notifications;
+      }
+      if (settings.theme) {
+        updates['settings.theme'] = settings.theme;
+      }
+    }
+
     if (Object.keys(updates).length === 0) throw new AppError('No fields to update.', 400);
 
-    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true })
+    const updatedUser = await User.findByIdAndUpdate(id, { $set: updates }, { new: true })
                                   .select('-password')
                                   .lean();
     if (!updatedUser) throw new AppError('User not found.', 404);

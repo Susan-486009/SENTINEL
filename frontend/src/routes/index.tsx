@@ -35,20 +35,26 @@ const fade = {
 };
 
 function LandingPage() {
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    setIsAuth(!!localStorage.getItem("as_access_token"));
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <Hero />
+      <Hero isAuth={isAuth} />
       <HowItWorks />
       <TrustSection />
       <FAQSection />
-      <CTASection />
+      <CTASection isAuth={isAuth} />
       <SiteFooter />
     </div>
   );
 }
 
-function Hero() {
+function Hero({ isAuth }: { isAuth: boolean }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10 grid-bg opacity-60" />
@@ -69,17 +75,17 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/register"
+              to={isAuth ? "/submit" : "/register"}
               className="group inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-90 active:scale-[0.98]"
             >
-              Submit a report
+              {isAuth ? "Submit a report" : "Create an account"}
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </Link>
             <Link
-              to="/track"
+              to={isAuth ? "/dashboard" : "/track"}
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium transition hover:bg-muted active:scale-[0.98]"
             >
-              Track existing case
+              {isAuth ? "Go to Dashboard" : "Track existing case"}
             </Link>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
@@ -235,7 +241,7 @@ function FAQSection() {
   );
 }
 
-function CTASection() {
+function CTASection({ isAuth }: { isAuth: boolean }) {
   return (
     <section className="border-t border-border">
       <div className="container-page py-16">
@@ -249,11 +255,11 @@ function CTASection() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/register" className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
+              <Link to={isAuth ? "/submit" : "/register"} className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
                 Submit a report <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link to="/track" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10">
-                Track a case
+              <Link to={isAuth ? "/dashboard" : "/track"} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10">
+                {isAuth ? "Go to Dashboard" : "Track a case"}
               </Link>
             </div>
           </div>

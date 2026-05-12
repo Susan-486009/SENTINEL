@@ -18,6 +18,7 @@ function RegisterPage() {
     full_name: "",
     email: "",
     password: "",
+    confirm_password: "",
     matric_number: "",
     staff_id: "",
   });
@@ -30,13 +31,21 @@ function RegisterPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirm_password) {
+      return toast.error("Passwords do not match");
+    }
+    if (formData.password.length < 8) {
+      return toast.error("Password must be at least 8 characters");
+    }
+    
     setLoading(true);
     try {
       const payload = {
-        ...formData,
+        name: formData.full_name,
+        email: formData.email,
+        password: formData.password,
         role,
-        // Backend expects either matric_number or staff_id
-        ...(role === "student" ? { staff_id: undefined } : { matric_number: undefined })
+        matric: role === "student" ? formData.matric_number : formData.staff_id,
       };
       
       const data = await authService.register(payload);
@@ -64,7 +73,7 @@ function RegisterPage() {
         </span>
       }
     >
-      <form onSubmit={submit} className="space-y-5">
+      <form onSubmit={submit} className="space-y-5" autoComplete="off">
         <div>
           <span className="block text-sm font-medium">I am a</span>
           <div className="mt-2 grid grid-cols-2 gap-3">
@@ -92,6 +101,7 @@ function RegisterPage() {
           </div>
         </div>
         
+        
         <Field 
           label="Full name" 
           placeholder="Enter your full name" 
@@ -99,6 +109,7 @@ function RegisterPage() {
           value={formData.full_name}
           onChange={(e) => update("full_name", e.target.value)}
           required 
+          autoComplete="off"
         />
         
         <Field 
@@ -109,6 +120,7 @@ function RegisterPage() {
           value={formData.email}
           onChange={(e) => update("email", e.target.value)}
           required 
+          autoComplete="off"
         />
         
         {role === "student" ? (
@@ -118,6 +130,7 @@ function RegisterPage() {
             value={formData.matric_number}
             onChange={(e) => update("matric_number", e.target.value)}
             required 
+            autoComplete="off"
           />
         ) : (
           <Field 
@@ -126,6 +139,7 @@ function RegisterPage() {
             value={formData.staff_id}
             onChange={(e) => update("staff_id", e.target.value)}
             required 
+            autoComplete="off"
           />
         )}
         
@@ -138,6 +152,18 @@ function RegisterPage() {
           value={formData.password}
           onChange={(e) => update("password", e.target.value)}
           required 
+          autoComplete="new-password"
+        />
+
+        <Field 
+          label="Confirm password" 
+          type="password" 
+          placeholder="Repeat your password" 
+          leading={<Lock className="h-4 w-4" />} 
+          value={formData.confirm_password}
+          onChange={(e) => update("confirm_password", e.target.value)}
+          required 
+          autoComplete="new-password"
         />
         
         <button
