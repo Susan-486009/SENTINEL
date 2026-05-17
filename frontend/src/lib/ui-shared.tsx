@@ -24,3 +24,18 @@ export function StatusBadge({ tone, children }: { tone: string; children: React.
     <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${map[tone] || map.muted}`}>{children}</span>
   );
 }
+
+export function formatCategory(cat: string): string {
+  const map: Record<string, string> = {
+    "academic-result": "Academic Concern (Results/Exams)",
+    "academic-lecturer": "Lecturer Conduct / Concern",
+    "facility-maint": "Campus Facility & Maintenance",
+    "facility-hostel": "Hostel & Welfare",
+    "admin-staff": "Administrative & Staff Issue",
+    "security": "Security & Safety",
+    "financial": "Financial & Payments",
+    "it-service": "IT Services",
+    "other": "Other Issues",
+  };
+  return map[cat] || cat;
+}

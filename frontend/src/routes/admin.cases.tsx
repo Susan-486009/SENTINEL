@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Search, Paperclip, Send, MoreHorizontal, User, Calendar, Building2, ShieldCheck, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { adminNav, StatusBadge } from "@/lib/ui-shared";
+import { adminNav, StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintService, type Complaint } from "@/lib/api";
 import { format } from "date-fns";
@@ -146,7 +146,7 @@ function CasesPage() {
                   </div>
                   <div className="mt-1.5 line-clamp-1 font-medium">{c.title}</div>
                   <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{c.category}</span>
+                    <span>{formatCategory(c.category)}</span>
                     <span>{format(new Date(c.created_at), 'MMM d')}</span>
                   </div>
                 </li>
@@ -172,8 +172,8 @@ function CasesPage() {
                   <h2 className="mt-2 font-display text-xl font-semibold">{active.title}</h2>
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> {active.anonymous ? "Anonymous" : active.submitter?.name || "Student"}</span>
-                    <span className="flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" /> {active.category}</span>
-                    <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Submitted {format(new Date(active.createdAt), 'PPP')}</span>
+                    <span className="flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" /> {formatCategory(active.category)}</span>
+                    <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Submitted {format(new Date(active.created_at), 'PPP')}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -182,7 +182,7 @@ function CasesPage() {
                     <select 
                       className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
                       value={active.status}
-                      onChange={(e) => updateStatusMutation.mutate({ id: active.id, status: e.target.value })}
+                      onChange={(e) => updateStatusMutation.mutate({ id: active._id, status: e.target.value })}
                       disabled={updateStatusMutation.isPending}
                     >
                       <option value="pending">Pending</option>
@@ -196,7 +196,7 @@ function CasesPage() {
                     <select 
                       className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
                       value={active.priority}
-                      onChange={(e) => updatePriorityMutation.mutate({ id: active.id, priority: e.target.value })}
+                      onChange={(e) => updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })}
                       disabled={updatePriorityMutation.isPending}
                     >
                       <option value="low">Low</option>
@@ -260,7 +260,7 @@ function CasesPage() {
                           <Paperclip className="h-3.5 w-3.5" /> Attach
                         </button>
                         <button 
-                          onClick={() => addNoteMutation.mutate({ id: active.id, text: noteText })}
+                          onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
                           disabled={addNoteMutation.isPending || !noteText.trim()}
                           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                         >
@@ -289,7 +289,7 @@ function CasesPage() {
 
                 <Section title="System Audit">
                   <div className="space-y-2 text-sm">
-                    <Row k="Department" v={active.category} />
+                    <Row k="Department" v={formatCategory(active.category)} />
                     <Row k="Anonymous" v={active.anonymous ? "Yes" : "No"} />
                     {!active.anonymous && (
                       <>

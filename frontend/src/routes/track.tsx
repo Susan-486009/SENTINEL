@@ -5,6 +5,7 @@ import { Search, FileText, Paperclip, MessageSquare, CheckCircle2, Clock, Shield
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { complaintService, type Complaint } from "@/lib/api";
+import { formatCategory } from "@/lib/ui-shared";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -119,7 +120,7 @@ function TrackResult({ data }: { data: Complaint }) {
               <span className="text-xs text-muted-foreground">Case #{data.reference_id}</span>
             </div>
             <h2 className="mt-2 font-display text-xl font-semibold">{data.title}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{data.category} · Submitted {format(new Date(data.created_at), 'PPP')}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{formatCategory(data.category)} · Submitted {format(new Date(data.created_at), 'PPP')}</p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
             <Clock className="h-3.5 w-3.5" /> Last updated {format(new Date(data.updated_at), 'p')}

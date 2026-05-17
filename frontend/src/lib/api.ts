@@ -125,12 +125,12 @@ const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<
 
 export const authService = {
   login: (credentials: any) => 
-    request<{ user: User; token: string }>('/auth/login', { 
+    request<{ user: User; accessToken: string; refreshToken: string }>('/auth/login', { 
       method: 'POST', 
       body: JSON.stringify(credentials) 
     }),
   register: (userData: any) => 
-    request<{ user: User; token: string }>('/auth/register', { 
+    request<{ user: User; accessToken: string; refreshToken: string }>('/auth/register', { 
       method: 'POST', 
       body: JSON.stringify(userData) 
     }),
@@ -140,6 +140,10 @@ export const authService = {
       method: 'PATCH', 
       body: JSON.stringify(data) 
     }),
+  getUsers: (params?: any) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request<any>(`/auth/admin/users${qs}`);
+  },
 };
 
 export const complaintService = {

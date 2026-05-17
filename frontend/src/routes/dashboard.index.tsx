@@ -3,7 +3,7 @@ import { Plus, ArrowUpRight, Clock, CheckCircle2, AlertCircle, Loader2 } from "l
 import { useQuery } from "@tanstack/react-query";
 import { complaintService, type User, notificationService } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
-import { StatusBadge } from "@/lib/ui-shared";
+import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({ meta: [{ title: "Dashboard — LASUSTECH Resolution Center" }] }),
@@ -122,7 +122,7 @@ function DashboardIndex() {
                     </div>
                     <div className="mt-1.5 truncate font-medium">{r.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {r.category} · Updated {formatDistanceToNow(new Date(r.updated_at), { addSuffix: true })}
+                      {formatCategory(r.category)} · Updated {formatDistanceToNow(new Date(r.updated_at), { addSuffix: true })}
                     </div>
                   </div>
                   <Link to="/track" className="hidden text-sm font-medium text-accent hover:underline sm:inline">View</Link>

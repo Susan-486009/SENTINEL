@@ -38,13 +38,18 @@ export const authService = {
       role: safeRole,
     });
 
+    // Issue tokens
+    const tokenPayload = { id: newUser._id.toString(), role: newUser.role, name: newUser.name };
+    const accessToken  = signAccessToken(tokenPayload);
+    const refreshToken = signRefreshToken(newUser._id.toString());
+
     // Strip password and format ID
     const user = newUser.toObject();
     delete user.password;
     user.id = user._id.toString();
     delete user._id;
 
-    return user;
+    return { accessToken, refreshToken, user };
   },
 
   /* ══════════════════════════════════════════════════════

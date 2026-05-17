@@ -3,7 +3,7 @@ import { LayoutDashboard, Inbox, Building2, BarChart3, FileText, ScrollText, Set
 import { useQuery } from "@tanstack/react-query";
 import { complaintService, authService } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
-import { StatusBadge } from "@/lib/ui-shared";
+import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminDashboard,
@@ -133,13 +133,13 @@ function AdminDashboard() {
             <h3 className="font-display text-base font-semibold">Department activity</h3>
           </div>
           <ul className="space-y-4 p-6">
-            {stats?.categoryStats?.length > 0 ? stats.categoryStats.map((d: any) => {
+            {stats?.categoryStats && stats.categoryStats.length > 0 ? stats.categoryStats.map((d: any) => {
               const total = d.open + d.resolved;
               const pct = total > 0 ? (d.resolved / total) * 100 : 0;
               return (
                 <li key={d._id}>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{d._id}</span>
+                    <span className="font-medium">{formatCategory(d._id)}</span>
                     <span className="text-muted-foreground">{d.open} open</span>
                   </div>
                   <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -189,7 +189,7 @@ function AdminDashboard() {
                         <div className="text-xs text-muted-foreground">#{r.reference_id}</div>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">{r.anonymous ? "Anonymous" : "User"}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{r.category}</td>
+                      <td className="px-6 py-4 text-muted-foreground">{formatCategory(r.category)}</td>
                       <td className="px-6 py-4"><StatusBadge tone={getStatusTone(r.status)}>{r.status.replace('_', ' ').toUpperCase()}</StatusBadge></td>
                       <td className="px-6 py-4 text-muted-foreground">{formatDistanceToNow(new Date(r.updated_at), { addSuffix: true })}</td>
                     </tr>
@@ -206,7 +206,7 @@ function AdminDashboard() {
                     <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(r.updated_at), { addSuffix: true })}</span>
                   </div>
                   <div className="mt-1.5 font-medium">{r.title}</div>
-                  <div className="text-xs text-muted-foreground">#{r.reference_id} · {r.category}</div>
+                  <div className="text-xs text-muted-foreground">#{r.reference_id} · {formatCategory(r.category)}</div>
                 </li>
               ))}
             </ul>

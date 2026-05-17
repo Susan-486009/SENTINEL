@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { LayoutDashboard, FileText as FileIcon, History, Bell, Settings } from "lucide-react";
 import { complaintService } from "@/lib/api";
 import { toast } from "sonner";
+import { formatCategory } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/submit")({
   head: () => ({ meta: [{ title: "Submit a report — LASUSTECH Resolution Center" }] }),
@@ -57,8 +58,8 @@ function SubmitPage() {
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
   const canNext = () => {
-    if (step === 0) return form.category && form.department && form.summary.length >= 5;
-    if (step === 1) return form.details.length >= 20;
+    if (step === 0) return form.category && form.department && form.summary.length >= 10;
+    if (step === 1) return form.details.length >= 30;
     return true;
   };
 
@@ -182,12 +183,15 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
           <Label>Category</Label>
           <select className={inputCls()} value={form.category} onChange={(e) => update("category", e.target.value)}>
             <option value="">Select a category</option>
-            <option>Academic concern</option>
-            <option>Administrative issue</option>
-            <option>Campus facility</option>
-            <option>Hostel & welfare</option>
-            <option>Financial / payments</option>
-            <option>Other</option>
+            <option value="academic-result">Academic Concern (Results/Exams)</option>
+            <option value="academic-lecturer">Lecturer Conduct / Concern</option>
+            <option value="facility-maint">Campus Facility & Maintenance</option>
+            <option value="facility-hostel">Hostel & Welfare</option>
+            <option value="admin-staff">Administrative & Staff Issue</option>
+            <option value="security">Security & Safety</option>
+            <option value="financial">Financial & Payments</option>
+            <option value="it-service">IT Services</option>
+            <option value="other">Other Issues</option>
           </select>
         </div>
         <div className="space-y-1.5">
@@ -247,7 +251,7 @@ function Step2({ form, update }: { form: FormState; update: (k: keyof FormState,
           onChange={(e) => update("details", e.target.value)}
         />
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Minimum 20 characters</span>
+          <span>Minimum 30 characters</span>
           <span>{form.details.length} / 2000</span>
         </div>
       </div>
@@ -326,7 +330,7 @@ function Step4({ form, update }: { form: FormState; update: (k: keyof FormState,
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border border-border bg-surface p-5">
-        <Row k="Category" v={form.category} />
+        <Row k="Category" v={formatCategory(form.category)} />
         <Row k="Department" v={form.department} />
         <Row k="Urgency" v={form.urgency} />
         <Row k="Summary" v={form.summary} />

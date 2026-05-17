@@ -165,7 +165,7 @@ export function AppShell({
                     )}
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
-                    {notifications?.length > 0 ? notifications.map((n: any) => (
+                    {notifications && notifications.length > 0 ? notifications.map((n: any) => (
                       <div 
                         key={n._id} 
                         className={`group relative border-b border-border p-4 transition hover:bg-muted/40 ${!n.is_read ? "bg-accent/5" : ""}`}
