@@ -79,13 +79,13 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-surface transition-transform lg:translate-x-0 ${
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border/50 bg-surface/85 backdrop-blur-md transition-transform lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}>
-        <div className="flex h-16 items-center border-b border-border px-5">
+        <div className="flex h-16 items-center border-b border-border/50 px-5">
           <Logo />
         </div>
-        <nav className="flex flex-col gap-0.5 p-3">
+        <nav className="flex flex-col gap-1 p-4">
           {nav.map((n) => {
             const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
             return (
@@ -93,25 +93,25 @@ export function AppShell({
                 key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 hover:translate-x-0.5 ${
                   active
-                    ? "bg-accent/10 text-accent"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary/5 text-primary border-l-4 border-accent font-semibold shadow-soft"
+                    : "text-muted-foreground hover:bg-secondary hover:text-primary"
                 }`}
               >
-                <n.icon className="h-4.5 w-4.5" />
+                <n.icon className={`h-4.5 w-4.5 transition-colors ${active ? "text-accent" : "text-muted-foreground group-hover:text-primary"}`} />
                 {n.label}
               </Link>
             );
           })}
         </nav>
         {primaryAction && (
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute bottom-6 left-5 right-5">
             <Link
               to={primaryAction.to}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-[0.98] border border-accent/10"
             >
-              <Plus className="h-4 w-4" /> {primaryAction.label}
+              <Plus className="h-4 w-4 text-accent" /> {primaryAction.label}
             </Link>
           </div>
         )}
@@ -119,9 +119,9 @@ export function AppShell({
 
       {/* Main */}
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-5 backdrop-blur-md md:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/40 bg-background/70 px-5 backdrop-blur-lg md:px-8">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition hover:bg-muted active:scale-95 lg:hidden"
             onClick={() => setOpen(!open)}
             aria-label={open ? "Close navigation" : "Open navigation"}
           >
@@ -132,10 +132,10 @@ export function AppShell({
             {title || "Dashboard"}
           </h1>
           <div className="ml-auto flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 md:flex">
+            <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/10 focus-within:border-primary/30 md:flex shadow-soft">
               <Search className="h-4 w-4 text-muted-foreground" />
               <input placeholder="Search cases, departments..." className="w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
-              <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</span>
+              <span className="rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">⌘K</span>
             </div>
             
             {/* Notifications Dropdown */}

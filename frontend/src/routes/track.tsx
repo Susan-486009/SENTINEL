@@ -130,7 +130,7 @@ function TrackResult({ data }: { data: Complaint }) {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-display text-base font-semibold">Progress timeline</h3>
+          <h3 className="font-display text-base font-bold text-primary">Progress Timeline</h3>
           <ol className="mt-5 space-y-5">
             {STAGES.map((s, i) => {
               const done = i < currentStageIndex;
@@ -138,18 +138,18 @@ function TrackResult({ data }: { data: Complaint }) {
               return (
                 <li key={s.key} className="flex items-start gap-4">
                   <div className="relative">
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-full border ${
-                      done ? "border-success bg-success text-success-foreground" :
-                      active ? "border-accent bg-accent/10 text-accent" :
-                      "border-border bg-background text-muted-foreground"
+                    <div className={`flex h-7 w-7 items-center justify-center rounded-full border transition-all duration-300 ${
+                      done ? "border-success bg-success text-success-foreground shadow-soft" :
+                      active ? "border-accent bg-accent/15 text-primary ring-4 ring-accent/20 font-bold shadow-soft" :
+                      "border-border bg-muted/30 text-muted-foreground/60"
                     }`}>
-                      {done ? <CheckCircle2 className="h-4 w-4" /> : <span className="h-2 w-2 rounded-full bg-current" />}
+                      {done ? <CheckCircle2 className="h-4 w-4 text-white" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
                     </div>
-                    {i < STAGES.length - 1 && <span className="absolute left-1/2 top-7 h-9 w-px -translate-x-1/2 bg-border" />}
+                    {i < STAGES.length - 1 && <span className="absolute left-1/2 top-7 h-9 w-px -translate-x-1/2 bg-border/50" />}
                   </div>
                   <div className="pb-1">
-                    <div className={`text-sm font-medium ${done || active ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</div>
-                    <div className="text-xs text-muted-foreground">{s.desc}</div>
+                    <div className={`text-sm font-semibold ${done || active ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</div>
+                    <div className="text-[11px] leading-normal text-muted-foreground">{s.desc}</div>
                   </div>
                 </li>
               );

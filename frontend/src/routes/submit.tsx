@@ -92,31 +92,33 @@ function SubmitPage() {
 
   return (
     <AppShell nav={nav} title="Submit a report">
-      <div className="mx-auto max-w-3xl">
-        <ol className="flex items-center gap-2">
-          {STEPS.map((s, i) => {
-            const active = i === step;
-            const complete = i < step;
-            return (
-              <li key={s.key} className="flex flex-1 items-center gap-2">
-                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                  complete ? "border-success bg-success text-success-foreground" :
-                  active ? "border-accent bg-accent/10 text-accent" :
-                  "border-border bg-card text-muted-foreground"
-                }`}>
-                  {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
-                </div>
-                <span className={`hidden text-xs font-medium md:inline ${active || complete ? "text-foreground" : "text-muted-foreground"}`}>
-                  {s.title}
-                </span>
-                {i < STEPS.length - 1 && <span className="h-px flex-1 bg-border" />}
-              </li>
-            );
-          })}
-        </ol>
+      <div className="mx-auto max-w-3xl space-y-6">
+        <div className="rounded-2xl border border-border/40 bg-surface/85 backdrop-blur-md p-4 shadow-soft">
+          <ol className="flex items-center gap-2">
+            {STEPS.map((s, i) => {
+              const active = i === step;
+              const complete = i < step;
+              return (
+                <li key={s.key} className="flex flex-1 items-center gap-2">
+                  <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 ${
+                    complete ? "border-success bg-success text-success-foreground" :
+                    active ? "border-accent bg-accent/10 text-primary ring-1 ring-accent/25" :
+                    "border-border bg-card text-muted-foreground"
+                  }`}>
+                    {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                  </div>
+                  <span className={`hidden text-xs font-bold uppercase tracking-wider md:inline ${active || complete ? "text-foreground" : "text-muted-foreground"}`}>
+                    {s.title}
+                  </span>
+                  {i < STEPS.length - 1 && <span className="h-px flex-1 bg-border/60" />}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-soft md:p-8">
-          <h2 className="font-display text-xl font-semibold md:text-2xl">{STEPS[step].title}</h2>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
+          <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">{STEPS[step].title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{STEPS[step].desc}</p>
 
           <AnimatePresence mode="wait">
@@ -139,7 +141,7 @@ function SubmitPage() {
             <button
               onClick={back}
               disabled={step === 0 || loading}
-              className="inline-flex items-center gap-1 rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted active:scale-95 disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" /> Back
             </button>
@@ -147,17 +149,17 @@ function SubmitPage() {
               <button
                 onClick={next}
                 disabled={!canNext() || loading}
-                className="inline-flex items-center gap-1 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground border border-accent/10 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-95 disabled:opacity-30 disabled:-translate-y-0 disabled:shadow-none"
               >
-                Continue <ChevronRight className="h-4 w-4" />
+                Continue <ChevronRight className="h-4 w-4 text-accent" />
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground border border-accent/15 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-95 disabled:opacity-30"
               >
-                {loading ? "Submitting..." : "Submit report"} <ArrowRight className="h-4 w-4" />
+                {loading ? "Submitting..." : "Submit report"} <ArrowRight className="h-4 w-4 text-accent" />
               </button>
             )}
           </div>
@@ -176,24 +178,49 @@ function inputCls() {
 }
 
 function Step1({ form, update }: { form: FormState; update: (k: keyof FormState, v: any) => void }) {
+  const categories = [
+    { value: "academic-result", label: "Academic Concern", desc: "Grades, delayed results, exam issues" },
+    { value: "academic-lecturer", label: "Lecturer Conduct", desc: "Lecturer concern, materials, guidance" },
+    { value: "facility-maint", label: "Campus Facilities", desc: "Classroom repairs, lighting, pathways" },
+    { value: "facility-hostel", label: "Hostel & Welfare", desc: "Accommodation, light, water supplies" },
+    { value: "admin-staff", label: "Administrative Process", desc: "Registry delays, clearances, bursary issues" },
+    { value: "security", label: "Security & Safety", desc: "Campus safety, thefts, threats" },
+    { value: "financial", label: "Financial / Payments", desc: "Portal payment errors, bursary processing" },
+    { value: "it-service", label: "IT Portal Services", desc: "Student accounts, Wi-Fi connectivity" },
+    { value: "other", label: "Other Issues", desc: "Any other general reports or concerns" },
+  ];
+
   return (
-    <div className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Category</Label>
-          <select className={inputCls()} value={form.category} onChange={(e) => update("category", e.target.value)}>
-            <option value="">Select a category</option>
-            <option value="academic-result">Academic Concern (Results/Exams)</option>
-            <option value="academic-lecturer">Lecturer Conduct / Concern</option>
-            <option value="facility-maint">Campus Facility & Maintenance</option>
-            <option value="facility-hostel">Hostel & Welfare</option>
-            <option value="admin-staff">Administrative & Staff Issue</option>
-            <option value="security">Security & Safety</option>
-            <option value="financial">Financial & Payments</option>
-            <option value="it-service">IT Services</option>
-            <option value="other">Other Issues</option>
-          </select>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className="space-y-2">
+        <Label>Select Category</Label>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((c) => {
+            const isSelected = form.category === c.value;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                onClick={() => update("category", c.value)}
+                className={`flex flex-col text-left p-4 rounded-2xl border transition-all duration-300 hover:shadow-soft active:scale-[0.98] ${
+                  isSelected 
+                    ? "border-accent bg-accent/5 ring-1 ring-accent/25" 
+                    : "border-border bg-card hover:border-accent/40 hover:bg-secondary/20"
+                }`}
+              >
+                <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${isSelected ? "text-primary font-bold" : "text-foreground"}`}>
+                  {c.label}
+                </span>
+                <span className="mt-1.5 text-[11px] text-muted-foreground leading-normal">
+                  {c.desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label>Department</Label>
           <select className={inputCls()} value={form.department} onChange={(e) => update("department", e.target.value)}>
@@ -206,26 +233,31 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
             <option>Examinations</option>
           </select>
         </div>
-      </div>
-      <div className="space-y-1.5">
-        <Label>How urgent is this?</Label>
-        <div className="flex flex-wrap gap-2">
-          {["Low", "Normal", "High", "Critical"].map((u) => (
-            <button
-              key={u}
-              type="button"
-              onClick={() => update("urgency", u)}
-              className={`rounded-xl border px-4 py-2 text-sm transition ${
-                form.urgency === u ? "border-accent bg-accent/10 text-accent" : "border-border bg-card hover:bg-muted"
-              }`}
-            >
-              {u}
-            </button>
-          ))}
+        <div className="space-y-1.5">
+          <Label>How urgent is this?</Label>
+          <div className="flex flex-wrap gap-2">
+            {["Low", "Normal", "High", "Critical"].map((u) => {
+              const isSel = form.urgency === u;
+              return (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => update("urgency", u)}
+                  className={`flex-1 min-w-[70px] text-center rounded-xl border px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                    isSel 
+                      ? "border-accent bg-accent/5 text-primary ring-1 ring-accent/15" 
+                      : "border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {u}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label>Short summary</Label>
+        <Label>Short summary / title</Label>
         <input
           className={inputCls()}
           placeholder="A one-line description of your concern"
@@ -278,12 +310,12 @@ function Step3({ form, update }: { form: FormState; update: (k: keyof FormState,
 
   return (
     <div className="space-y-4">
-      <label className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface px-6 py-10 text-center transition hover:border-accent/50 hover:bg-accent/5">
+      <label className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface/60 px-6 py-10 text-center transition-all duration-300 hover:border-accent hover:bg-accent/5 shadow-soft">
         <input type="file" multiple className="hidden" onChange={handleFileChange} />
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform hover:scale-105 shadow-soft">
           <Upload className="h-5 w-5" />
         </div>
-        <p className="text-sm font-medium">Click to browse or drag & drop</p>
+        <p className="text-sm font-semibold text-primary">Click to browse or drag & drop</p>
         <p className="text-xs text-muted-foreground">PDF, JPG, PNG, DOCX · up to 25MB each</p>
       </label>
 

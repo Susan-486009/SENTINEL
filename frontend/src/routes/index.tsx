@@ -255,7 +255,7 @@ function CTASection({ isAuth }: { isAuth: boolean }) {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to={isAuth ? "/submit" : "/register"} className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-medium text-primary transition hover:bg-white/90">
+              <Link to={isAuth ? "/submit" : "/register"} className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 active:scale-95">
                 Submit a report <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to={isAuth ? "/dashboard" : "/track"} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10">
