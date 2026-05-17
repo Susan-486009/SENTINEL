@@ -42,7 +42,13 @@ function LoginPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
       
       toast.success("Welcome back!");
-      nav({ to: "/dashboard" });
+      
+      const role = data.user?.role;
+      if (role === "admin") {
+        nav({ to: "/admin" });
+      } else {
+        nav({ to: "/dashboard" });
+      }
     } catch (err: any) {
       toast.error(err.message || "Login failed");
     } finally {

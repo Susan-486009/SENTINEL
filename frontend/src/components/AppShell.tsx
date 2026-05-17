@@ -31,17 +31,12 @@ export function AppShell({
   const [notifOpen, setNotifOpen] = useState(false);
   const nav_ = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("as_access_token");
-    if (!token && typeof window !== "undefined") {
-      nav_({ to: "/login" });
-    }
-  }, [nav_]);
+  // Redirect logic moved to beforeLoad in routes
 
   const getStoredUser = (): User | null => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    if (!stored || stored === "undefined") return null;
+    if (!stored || stored === "undefined" || stored === "null") return null;
     try {
       return JSON.parse(stored);
     } catch {

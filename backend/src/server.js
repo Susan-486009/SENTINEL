@@ -18,6 +18,7 @@ const app = express();
    1.  CORS
    ════════════════════════════════════════════════════════════ */
 const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175',

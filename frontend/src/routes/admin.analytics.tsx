@@ -57,7 +57,7 @@ function AnalyticsPage() {
   ];
 
   const categoryData = (stats?.categoryStats || []).map(cat => ({
-    name: cat._id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    name: cat._id ? cat._id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Other',
     total: cat.open + cat.resolved,
     resolved: cat.resolved
   })).sort((a, b) => b.total - a.total).slice(0, 5);

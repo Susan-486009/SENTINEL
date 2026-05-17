@@ -18,10 +18,12 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
 import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminDepartmentsRouteImport } from './routes/admin.departments'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
@@ -73,6 +75,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -92,6 +99,11 @@ const DashboardActivityRoute = DashboardActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
   getParentRoute: () => DashboardRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
@@ -133,15 +145,16 @@ export interface FileRoutesByFullPath {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/departments': typeof AdminDepartmentsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
@@ -152,10 +165,12 @@ export interface FileRoutesByTo {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/departments': typeof AdminDepartmentsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -173,10 +188,12 @@ export interface FileRoutesById {
   '/admin/cases': typeof AdminCasesRoute
   '/admin/departments': typeof AdminDepartmentsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -195,15 +212,16 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/departments'
     | '/admin/settings'
+    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/admin/'
     | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/forgot-password'
     | '/login'
     | '/register'
@@ -214,10 +232,12 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/departments'
     | '/admin/settings'
+    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/admin'
     | '/dashboard'
   id:
     | '__root__'
@@ -234,10 +254,12 @@ export interface FileRouteTypes {
     | '/admin/cases'
     | '/admin/departments'
     | '/admin/settings'
+    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/admin/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -317,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/dashboard/settings': {
       id: '/dashboard/settings'
       path: '/settings'
@@ -344,6 +373,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/activity'
       preLoaderRoute: typeof DashboardActivityRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
       id: '/admin/settings'
@@ -389,6 +425,8 @@ interface AdminRouteChildren {
   AdminCasesRoute: typeof AdminCasesRoute
   AdminDepartmentsRoute: typeof AdminDepartmentsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -397,6 +435,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCasesRoute: AdminCasesRoute,
   AdminDepartmentsRoute: AdminDepartmentsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

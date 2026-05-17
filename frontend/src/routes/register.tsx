@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Mail, Lock, User, GraduationCap, Briefcase } from "lucide-react";
+import { Mail, Lock, User } from "lucide-react";
 import { useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { Field } from "@/components/Field";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/register")({
 });
 
 function RegisterPage() {
-  const [role, setRole] = useState<"student" | "staff">("student");
+  const role = "student";
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
@@ -20,7 +20,6 @@ function RegisterPage() {
     password: "",
     confirm_password: "",
     matric_number: "",
-    staff_id: "",
   });
   
   const nav = useNavigate();
@@ -44,8 +43,8 @@ function RegisterPage() {
         name: formData.full_name,
         email: formData.email,
         password: formData.password,
-        role,
-        matric: role === "student" ? formData.matric_number : formData.staff_id,
+        role: "student" as const,
+        matric: formData.matric_number,
       };
       
       const data = await authService.register(payload);
@@ -74,34 +73,6 @@ function RegisterPage() {
       }
     >
       <form onSubmit={submit} className="space-y-5" autoComplete="off">
-        <div>
-          <span className="block text-sm font-medium">I am a</span>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            {([
-              { v: "student", label: "Student", icon: GraduationCap },
-              { v: "staff", label: "Staff", icon: Briefcase },
-            ] as const).map(({ v, label, icon: Icon }) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setRole(v)}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
-                  role === v ? "border-accent bg-accent/5 ring-2 ring-accent/15" : "border-border hover:bg-muted"
-                }`}
-              >
-                <Icon className="h-5 w-5 text-accent" />
-                <div>
-                  <div className="text-sm font-medium">{label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {v === "student" ? "Undergraduate or postgraduate" : "Faculty or administration"}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        
         <Field 
           label="Full name" 
           placeholder="Enter your full name" 
@@ -123,25 +94,14 @@ function RegisterPage() {
           autoComplete="off"
         />
         
-        {role === "student" ? (
-          <Field 
-            label="Matric number" 
-            placeholder="e.g. LAS/22/SCI/00123" 
-            value={formData.matric_number}
-            onChange={(e) => update("matric_number", e.target.value)}
-            required 
-            autoComplete="off"
-          />
-        ) : (
-          <Field 
-            label="Staff ID" 
-            placeholder="e.g. STF/0023" 
-            value={formData.staff_id}
-            onChange={(e) => update("staff_id", e.target.value)}
-            required 
-            autoComplete="off"
-          />
-        )}
+        <Field 
+          label="Matric number" 
+          placeholder="e.g. LAS/22/SCI/00123" 
+          value={formData.matric_number}
+          onChange={(e) => update("matric_number", e.target.value)}
+          required 
+          autoComplete="off"
+        />
         
         <Field 
           label="Create password" 

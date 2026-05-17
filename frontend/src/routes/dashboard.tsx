@@ -1,8 +1,21 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { LayoutDashboard, FileText, History, Bell, Settings } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/dashboard")({
+  beforeLoad: ({ location }) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem("as_access_token");
+      if (!token) {
+        throw redirect({
+          to: "/login",
+          search: {
+            redirect: location.href,
+          },
+        });
+      }
+    }
+  },
   component: DashboardLayout,
 });
 
