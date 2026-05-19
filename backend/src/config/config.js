@@ -29,3 +29,23 @@ export const config = {
     groqModel:  process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
   },
 };
+
+// Validate crucial environment variables at startup
+const requiredKeys = ['DATABASE_URI', 'JWT_SECRET', 'GROQ_API_KEY'];
+if (config.env === 'production') {
+  for (const key of requiredKeys) {
+    if (!process.env[key]) {
+      throw new Error(`CRITICAL STARTUP FAILURE: Environment variable ${key} must be specified in production!`);
+    }
+  }
+  if (config.jwt.secret === 'change_me') {
+    throw new Error("CRITICAL STARTUP FAILURE: JWT_SECRET must not be 'change_me' in production!");
+  }
+} else {
+  // Warn in development
+  for (const key of requiredKeys) {
+    if (!process.env[key]) {
+      console.warn(`\n⚠️  CONFIG WARNING: Environment variable ${key} is missing in development mode.\n`);
+    }
+  }
+}

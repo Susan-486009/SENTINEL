@@ -9,6 +9,11 @@ export const testConnection = async () => {
   try {
     const conn = await mongoose.connect(config.db.uri, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 30
+      maxPoolSize: 50,                // High-performance pooling
+      minPoolSize: 5,
+      autoIndex: true,                // Automatically build Mongoose indexes on startup
+      retryWrites: true,              // Resilient retryable writes
+      retryReads: true,
     });
     console.log(`✅ MongoDB connected → ${conn.connection.host}`);
     return conn.connection;

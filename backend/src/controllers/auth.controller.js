@@ -1,28 +1,86 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { sendSuccess }  from '../utils/response.js';
 import { authService }  from '../services/auth.service.js';
+import { sessionService } from '../services/session.service.js';
+import { resetAttempts, recordFailedAttempt } from '../middleware/rateLimitCooldown.js';
+import { secureCookieOptions, shortSecureCookieOptions } from '../utils/cookie.js';
+import { getRefreshToken } from '../middleware/auth.middleware.js';
 
 /* ── POST /api/v1/auth/register ───────────────────────── */
 export const register = asyncHandler(async (req, res) => {
-  const user = await authService.register(req.body);
-  sendSuccess(res, user, 'Account created successfully.', 201);
-});
+  const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+  const ua = req.get('user-agent') || 'unknown';
 
-/* ── POST /api/v1/auth/login ──────────────────────────── */
-export const login = asyncHandler(async (req, res) => {
-  const { accessToken, refreshToken, user } = await authService.login(req.body);
+  const { accessToken, refreshToken: _, user } = await authService.register(req.body);
+
+  // Persistent session registration in MongoDB
+  const session = await sessionService.createSession(user.id, ip, ua);
+
+  // Set secure HTTP-only cookies
+  res.cookie('as_access_token', accessToken, shortSecureCookieOptions);
+  res.cookie('as_refresh_token', session.refreshToken, secureCookieOptions);
 
   sendSuccess(
     res,
     {
       accessToken,
-      refreshToken,
-      tokenType: 'Bearer',
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+      refreshToken: session.refreshToken,
       user,
     },
-    'Login successful.',
+    'Account created successfully.',
+    201
   );
+});
+
+/* ── POST /api/v1/auth/login ──────────────────────────── */
+export const login = asyncHandler(async (req, res) => {
+  const { identifier } = req.body;
+  const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+  const ua = req.get('user-agent') || 'unknown';
+
+  try {
+    const { accessToken, refreshToken: _, user } = await authService.login(req.body);
+
+    // Save session in TokenSession collection in MongoDB
+    const session = await sessionService.createSession(user.id, ip, ua);
+
+    // Reset failed lockouts
+    await resetAttempts(ip, identifier);
+
+    // Set secure HTTP-only cookies
+    res.cookie('as_access_token', accessToken, shortSecureCookieOptions);
+    res.cookie('as_refresh_token', session.refreshToken, secureCookieOptions);
+
+    sendSuccess(
+      res,
+      {
+        accessToken,
+        refreshToken: session.refreshToken,
+        tokenType: 'Bearer',
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+        user,
+      },
+      'Login successful.',
+    );
+  } catch (err) {
+    // Record login security metrics
+    await recordFailedAttempt(ip, identifier, ua);
+    throw err;
+  }
+});
+
+/* ── POST /api/v1/auth/logout ─────────────────────────── */
+export const logout = asyncHandler(async (req, res) => {
+  const refreshToken = getRefreshToken(req);
+  if (refreshToken) {
+    await sessionService.revokeSession(refreshToken);
+  }
+
+  // Clear HTTP-only cookies
+  res.clearCookie('as_access_token', { path: '/' });
+  res.clearCookie('as_refresh_token', { path: '/' });
+
+  sendSuccess(res, null, 'Logged out successfully.');
 });
 
 /* ── GET /api/v1/auth/me ──────────────────────────────── */

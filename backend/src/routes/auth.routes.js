@@ -1,6 +1,7 @@
 import { Router }    from 'express';
 import * as auth      from '../controllers/auth.controller.js';
 import { authenticate, refreshAuth, authorize } from '../middleware/auth.middleware.js';
+import { bruteForceLimiter } from '../middleware/rateLimitCooldown.js';
 import {
   validateRegister,
   validateLogin,
@@ -23,7 +24,13 @@ router.post('/register', validateRegister, auth.register);
  * Body: { identifier, password }  (identifier = email OR matric)
  * Returns: { accessToken, refreshToken, tokenType, expiresIn, user }
  */
-router.post('/login', validateLogin, auth.login);
+router.post('/login', validateLogin, bruteForceLimiter, auth.login);
+
+/**
+ * POST /api/v1/auth/logout
+ * Clears secure cookies and invalidates the session in MongoDB.
+ */
+router.post('/logout', auth.logout);
 
 /**
  * POST /api/v1/auth/refresh

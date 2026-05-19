@@ -23,4 +23,26 @@ router.get('/health', (_req, res) =>
   }),
 );
 
+// Liveness probe — checks if the process is up
+router.get('/health/liveness', (_req, res) => {
+  res.status(200).json({ status: 'live', timestamp: new Date().toISOString() });
+});
+
+// Readiness probe — checks if the database connection is fully active
+router.get('/health/readiness', async (_req, res) => {
+  const isDbConnected = mongoose.connection.readyState === 1;
+  if (!isDbConnected) {
+    return res.status(503).json({
+      status: 'unready',
+      reason: 'Database connection is not fully established',
+      timestamp: new Date().toISOString(),
+    });
+  }
+  res.status(200).json({ status: 'ready', db: 'connected', timestamp: new Date().toISOString() });
+});
+
+// Telemetry Prometheus Metrics Exporter
+import { getSystemMetrics } from '../middleware/metrics.js';
+router.get('/metrics', getSystemMetrics);
+
 export default router;

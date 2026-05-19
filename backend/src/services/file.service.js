@@ -5,6 +5,7 @@ import crypto  from 'crypto';
 import { AppError }        from '../utils/response.js';
 import { config }          from '../config/config.js';
 import { Complaint }       from '../models/Complaint.js';
+import { validateMagicBytes, checkDuplicateFileHash, zipBombCheck } from '../utils/fileDefense.js';
 
 /* ─── Directory paths ──────────────────────────────────── */
 const BASE_DIR       = config.upload.uploadsPath;          // src/uploads
@@ -68,6 +69,33 @@ export const processAndStore = async (files) => {
     const rawPath    = file.path;
     const isImage    = IMAGE_MIMES.has(file.mimetype);
     const outputFmt  = file.mimetype === 'image/webp' ? 'webp' : 'jpeg';
+
+    // 1. Run dynamic safety audits before opening or renaming the file
+    try {
+      zipBombCheck(rawPath);
+      await validateMagicBytes(rawPath, path.extname(file.originalname));
+      
+      const duplicateUrl = await checkDuplicateFileHash(rawPath);
+      if (duplicateUrl && duplicateUrl.startsWith('/uploads/')) {
+        // Clean up the uploaded raw file immediately
+        await fs.unlink(rawPath).catch(() => {});
+        
+        results.push({
+          filename: path.basename(duplicateUrl),
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          sizeBytes: file.size,
+          width: null,
+          height: null,
+          url: duplicateUrl,
+        });
+        continue;
+      }
+    } catch (auditErr) {
+      // Clean up raw file immediately on audit failure
+      await fs.unlink(rawPath).catch(() => {});
+      throw auditErr;
+    }
 
     let storedFilename, storedPath, width, height, sizeBytes, mimeType;
 

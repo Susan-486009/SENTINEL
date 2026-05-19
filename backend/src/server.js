@@ -2,17 +2,37 @@ import 'dotenv/config';
 import express from 'express';
 import cors    from 'cors';
 import path    from 'path';
+import crypto  from 'crypto';
 import { fileURLToPath } from 'url';
 
 import { config }                    from './config/config.js';
-import { testConnection }            from './config/db.js';
+import { testConnection, disconnectDB }    from './config/db.js';
 import apiRoutes                     from './routes/index.js';
-import { errorHandler, notFound }    from './middleware/error.middleware.js';
+import { notFound }                  from './middleware/error.middleware.js';
+import { productionErrorNormalizer } from './utils/productionErrorNormalizer.js';
 import { sanitizeInputs }           from './middleware/security.middleware.js';
+import { nosqlInjectionSanitizer, originValidator, secureHeaders, parameterPollutionGuard } from './middleware/securityHardening.js';
 import { startKeepAlive }          from './utils/keepAlive.js';
+import { registerCatastrophicProcessListeners, logStructured } from './utils/catastrophicLogger.js';
+import { runMigrations } from './migrations/runner.js';
+import { compressionMiddleware } from './middleware/compression.js';
+
+// Setup uncaught process listeners immediately
+registerCatastrophicProcessListeners(disconnectDB);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+// 0. Inject Request Correlation ID
+app.use((req, res, next) => {
+  req.requestId = req.headers['x-request-id'] || crypto.randomUUID();
+  res.setHeader('X-Request-Id', req.requestId);
+  next();
+});
+
+// Compress all responses cleanly
+app.use(compressionMiddleware);
+
 
 /* ════════════════════════════════════════════════════════════
    1.  CORS
@@ -54,17 +74,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Strip malicious tags (XSS protection) from all incoming data
 app.use(sanitizeInputs);
+app.use(nosqlInjectionSanitizer);
+app.use(parameterPollutionGuard);
 
 /* ════════════════════════════════════════════════════════════
-   3.  SECURITY HEADERS  (no helmet dep needed)
+   3.  SECURITY HARDENING & CSP HEADERS
    ════════════════════════════════════════════════════════════ */
-app.use((_req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  next();
-});
+app.use(originValidator);
+app.use(secureHeaders);
 
 /* ════════════════════════════════════════════════════════════
    4.  REQUEST LOGGER  (dev only)
@@ -110,7 +127,7 @@ app.get('/', (_req, res) =>
    8.  ERROR HANDLING  (must be LAST)
    ════════════════════════════════════════════════════════════ */
 app.use(notFound);
-app.use(errorHandler);
+app.use(productionErrorNormalizer);
 
 /* ════════════════════════════════════════════════════════════
    9.  BOOT — connect DB first, then listen
@@ -119,17 +136,15 @@ const PORT = process.env.PORT || config.port;   // honours raw env var too
 
 const start = async () => {
   try {
-    await testConnection();                      // verify MySQL before accepting traffic
+    await testConnection();                      // verify DB before accepting traffic
+    await runMigrations();                       // run automated schema and index migrations
 
     const server = app.listen(PORT, () => {
-      console.log('');
-      console.log('┌─────────────────────────────────────────┐');
-      console.log(`│  🚀  LASUSTECH API — listening           │`);
-      console.log(`│  PORT : ${String(PORT).padEnd(32)}│`);
-      console.log(`│  ENV  : ${config.env.padEnd(32)}│`);
-      console.log(`│  BASE : http://localhost:${String(PORT).padEnd(16)}/api/v1 │`);
-      console.log('└─────────────────────────────────────────┘');
-      console.log('');
+      logStructured({
+        level: 'INFO',
+        message: `LASUSTECH API — listening on PORT ${PORT} in ${config.env} environment`,
+        metadata: { port: PORT, env: config.env }
+      });
     });
 
     // 10. KEEP-ALIVE (Render Free Tier)
@@ -138,28 +153,47 @@ const start = async () => {
     }
 
     /* ── Graceful shutdown ──────────────────────────────── */
-    const shutdown = (signal) => {
-      console.log(`\n${signal} received — shutting down gracefully…`);
-      server.close(() => {
-        console.log('✅ HTTP server closed.');
-        process.exit(0);
+    const shutdown = async (signal) => {
+      logStructured({
+        level: 'WARN',
+        message: `${signal} received — starting graceful shutdown process…`
       });
+
+      // Stop receiving new connections
+      server.close(async () => {
+        logStructured({ level: 'INFO', message: '✅ HTTP server closed.' });
+        try {
+          await disconnectDB();
+          logStructured({ level: 'INFO', message: '✅ Database connections disconnected cleanly.' });
+          process.exit(0);
+        } catch (dbErr) {
+          logStructured({
+            level: 'ERROR',
+            message: 'Error during DB pool close at shutdown',
+            error: dbErr
+          });
+          process.exit(1);
+        }
+      });
+
       // Force exit after 10 s if connections hang
-      setTimeout(() => process.exit(1), 10_000);
+      setTimeout(() => {
+        logStructured({ level: 'CRITICAL', message: 'Shutdown timeout breached — forcing exit.' });
+        process.exit(1);
+      }, 10_000);
     };
 
     process.on('SIGTERM', () => shutdown('SIGTERM'));
     process.on('SIGINT',  () => shutdown('SIGINT'));
 
   } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
+    logStructured({
+      level: 'CRITICAL',
+      message: `Failed to bootstrap Express application server: ${err.message}`,
+      error: err
+    });
     process.exit(1);
   }
 };
-
-/* ── Catch unhandled promise rejections ─────────────────── */
-process.on('unhandledRejection', (reason) => {
-  console.error('⚠️  Unhandled Rejection:', reason);
-});
 
 start();

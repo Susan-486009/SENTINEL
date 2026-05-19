@@ -2,13 +2,21 @@
  * ai.service.js
  *
  * Communicates with the Groq API to provide assistive analysis of complaint text.
- * Returns suggested category, priority, and recommendation in a structured format.
+ * Enforces strict input validation screening and high-resiliency circuit breakers.
  */
 
 import { config } from '../config/config.js';
 import { AppError } from '../utils/response.js';
+import { CircuitBreaker } from '../utils/circuitBreaker.js';
+import { screenPromptInput, repairJsonOutput } from '../utils/aiSafety.js';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Initialize a shared Circuit Breaker for Groq API completions
+const groqBreaker = new CircuitBreaker('GroqCompletions', {
+  failureThreshold: 3,
+  recoveryTimeoutMs: 30000 // 30 seconds cooldown
+});
 
 export const aiService = {
   /**
@@ -22,7 +30,11 @@ export const aiService = {
       throw new AppError('AI service is not configured (missing API key).', 503);
     }
 
-    try {
+    // 1. Filter out prompt injection threats
+    screenPromptInput(text);
+
+    // 2. Define the remote Groq request action
+    const runFetch = async () => {
       const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
@@ -63,8 +75,6 @@ Response Format:
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Groq API Error:', errorData);
         throw new AppError('Failed to communicate with AI service.', 502);
       }
 
@@ -75,10 +85,21 @@ Response Format:
         throw new AppError('AI service returned an empty response.', 502);
       }
 
-      return JSON.parse(content);
+      return content;
+    };
+
+    // 3. Fallback deterministic payload if Groq is failing
+    const fallbackPayload = JSON.stringify({
+      category: 'other',
+      priority: 'low',
+      recommendation: 'The Sentinel AI Assistant experienced a temporary connection limit. The case remains queued for manual administration classification.',
+    });
+
+    try {
+      const content = await groqBreaker.execute(runFetch, fallbackPayload);
+      return repairJsonOutput(content, JSON.parse(fallbackPayload));
     } catch (err) {
       if (err instanceof AppError) throw err;
-      console.error('AI Service Exception:', err);
       throw new AppError('An unexpected error occurred while analyzing the complaint.', 500);
     }
   },
@@ -94,7 +115,14 @@ Response Format:
       throw new AppError('AI service is not configured (missing API key).', 503);
     }
 
-    try {
+    // 1. Validate prompt inputs
+    const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')?.content;
+    if (lastUserMessage) {
+      screenPromptInput(lastUserMessage);
+    }
+
+    // 2. Define remote Groq chat execution
+    const runChat = async () => {
       const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
@@ -107,14 +135,14 @@ Response Format:
             {
               role: 'system',
               content: `You are SENTINEL ADVISOR, a real-life, empathetic, and friendly student mentor at LASUSTECH. 
-              Your tone should be very human, warm, and conversational—like a senior student or a caring staff member talking to a friend.
-              
-              STRICT RULES:
-              1. DO NOT USE MARKDOWN. NO BOLDING (**), NO ITALICS (_), NO HEADERS (#). Just plain text.
-              2. Avoid sounding like a machine. Don't say "Step 1", "Step 2" in a structured list. Instead, use natural sentences like "First, I think you should..." or "Maybe try starting with...".
-              3. Be very empathetic. If a student is stressed, acknowledge it. Use phrases like "I totally understand how frustrating that is" or "Hang in there, we'll figure this out."
-              4. Keep it simple and clear. No big words. No robotic structure.
-              5. If it's a serious issue, gently suggest they use the formal "Launch Report" button on the portal.`,
+Your tone should be very human, warm, and conversational—like a senior student or a caring staff member talking to a friend.
+
+STRICT RULES:
+1. DO NOT USE MARKDOWN. NO BOLDING (**), NO ITALICS (_), NO HEADERS (#). Just plain text.
+2. Avoid sounding like a machine. Don't say "Step 1", "Step 2" in a structured list. Instead, use natural sentences like "First, I think you should..." or "Maybe try starting with...".
+3. Be very empathetic. If a student is stressed, acknowledge it. Use phrases like "I totally understand how frustrating that is" or "Hang in there, we'll figure this out."
+4. Keep it simple and clear. No big words. No robotic structure.
+5. If it's a serious issue, gently suggest they use the formal "Launch Report" button on the portal.`,
             },
             ...messages,
           ],
@@ -128,7 +156,14 @@ Response Format:
       }
 
       const data = await response.json();
-      return { content: data.choices?.[0]?.message?.content || 'I am sorry, I could not process your request at this time.' };
+      return data.choices?.[0]?.message?.content || 'I could not process your advice request at this time.';
+    };
+
+    const fallbackChat = 'Hang in there! The Sentinel Advisor experienced a brief network delay. Please write your message again in a short moment, we will get this resolved!';
+
+    try {
+      const content = await groqBreaker.execute(runChat, fallbackChat);
+      return { content };
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw new AppError('An unexpected error occurred in the chat service.', 500);
