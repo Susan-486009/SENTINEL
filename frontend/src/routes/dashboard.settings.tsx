@@ -281,24 +281,26 @@ function SettingsPage() {
             </section>
           ))}
 
-          <div className="sticky bottom-4 lg:relative lg:bottom-0 flex justify-end gap-3 pt-6 lg:border-t lg:border-border bg-background/80 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-4 lg:p-0 rounded-2xl lg:rounded-none border border-border lg:border-0 shadow-lg lg:shadow-none">
+          <div className="fixed bottom-0 left-0 right-0 lg:relative flex justify-end gap-3 pt-6 lg:pt-0 lg:border-t lg:border-border bg-background/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-4 lg:p-0 border-t border-border lg:border-0 shadow-2xl lg:shadow-none z-50 lg:z-auto">
             <button 
               onClick={() => navigate({ to: "/dashboard" })}
-              className="rounded-xl border border-border bg-card lg:bg-transparent px-5 py-2.5 text-sm font-medium transition hover:bg-muted"
+              className="rounded-xl border border-border bg-background lg:bg-card px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition hover:bg-muted w-full sm:w-auto"
             >
               Cancel
             </button>
             <button 
               onClick={handleSave}
               disabled={updateMutation.isPending}
-              className="flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 w-full sm:w-auto"
             >
               {updateMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3.5 sm:h-4 w-3.5 sm:w-4 animate-spin" />
               ) : null}
               Save changes
             </button>
           </div>
+          {/* Spacer for fixed footer on mobile */}
+          <div className="lg:hidden h-16" />
         </div>
       </div>
     </div>
