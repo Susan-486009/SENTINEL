@@ -51,8 +51,8 @@ function DashboardIndex() {
 
   if (userLoading || complaintsLoading) {
     return (
-      <div className="flex h-[450px] flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-accent" />
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 py-20" role="status" aria-live="polite">
+        <Loader2 className="h-10 w-10 animate-spin text-accent" aria-hidden="true" />
         <p className="text-sm font-medium text-muted-foreground animate-pulse">Loading student dashboard data...</p>
       </div>
     );

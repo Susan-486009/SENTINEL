@@ -82,8 +82,9 @@ function SettingsPage() {
 
   if (userLoading) {
     return (
-      <div className="flex h-[400px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex min-h-screen items-center justify-center" role="status" aria-live="polite">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Loading settings...</span>
       </div>
     );
   }
@@ -143,7 +144,10 @@ function SettingsPage() {
       bg: "bg-emerald-500/10",
       content: (
         <div className="divide-y divide-border">
-          <button className="flex w-full items-center justify-between p-5 hover:bg-muted/40 transition">
+          <button 
+            className="flex w-full items-center justify-between p-5 hover:bg-muted/40 transition"
+            aria-label="Change password - update your account password"
+          >
             <div className="text-left">
               <p className="text-sm font-semibold">Change password</p>
               <p className="text-xs text-muted-foreground mt-0.5">Ensure your account uses a strong password</p>
@@ -177,8 +181,13 @@ function SettingsPage() {
             <button 
               onClick={() => handleToggle("email_notifications")}
               className={`h-5 w-10 rounded-full transition-colors relative ${formData.settings.email_notifications ? 'bg-accent' : 'bg-muted'}`}
+              aria-pressed={formData.settings.email_notifications}
+              aria-label={`Email notifications ${formData.settings.email_notifications ? 'enabled' : 'disabled'}`}
             >
-              <div className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-transform ${formData.settings.email_notifications ? 'translate-x-6' : 'translate-x-1'}`} />
+              <div 
+                className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-transform ${formData.settings.email_notifications ? 'translate-x-6' : 'translate-x-1'}`}
+                aria-hidden="true"
+              />
             </button>
           </div>
           <div className="flex items-center justify-between p-5">
@@ -189,8 +198,13 @@ function SettingsPage() {
             <button 
               onClick={() => handleToggle("in_app_notifications")}
               className={`h-5 w-10 rounded-full transition-colors relative ${formData.settings.in_app_notifications ? 'bg-accent' : 'bg-muted'}`}
+              aria-pressed={formData.settings.in_app_notifications}
+              aria-label={`In-app notifications ${formData.settings.in_app_notifications ? 'enabled' : 'disabled'}`}
             >
-              <div className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-transform ${formData.settings.in_app_notifications ? 'translate-x-6' : 'translate-x-1'}`} />
+              <div 
+                className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-transform ${formData.settings.in_app_notifications ? 'translate-x-6' : 'translate-x-1'}`}
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>
@@ -214,6 +228,7 @@ function SettingsPage() {
               value={formData.settings.theme}
               onChange={(e) => setFormData(p => ({ ...p, settings: { ...p.settings, theme: e.target.value as any } }))}
               className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium outline-none focus:border-accent"
+              aria-label="Theme preference - switch between light and dark themes"
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
