@@ -7,11 +7,5 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 
 export default defineConfig({
-  plugins: [
-    tanstackStart(),
-    nitro(),
-    react(),
-    tailwindcss(),
-    tsconfigPaths(),
-  ],
+  plugins: [tanstackStart(), nitro(), react(), tailwindcss(), tsconfigPaths()],
 });

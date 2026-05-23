@@ -1,7 +1,17 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Bell, Search, Plus, ChevronDown, LogOut, Check, ExternalLink, Menu, X } from "lucide-react";
+import {
+  Bell,
+  Search,
+  Plus,
+  ChevronDown,
+  LogOut,
+  Check,
+  ExternalLink,
+  Menu,
+  X,
+} from "lucide-react";
 import { Logo } from "./Logo";
-import { useState, useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { type User, notificationService } from "@/lib/api";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +20,16 @@ import { formatDistanceToNow } from "date-fns";
 export interface NavItem {
   to: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
+}
+
+interface DashboardNotification {
+  _id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  reference_link?: string;
 }
 
 export function AppShell({
@@ -33,24 +52,27 @@ export function AppShell({
 
   // Redirect logic moved to beforeLoad in routes
 
-  const getStoredUser = (): User | null => {
-    if (typeof window === "undefined") return null;
-    const stored = localStorage.getItem("user");
-    if (!stored || stored === "undefined" || stored === "null") return null;
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return null;
-    }
-  };
+  const [user, setUser] = useState<User | null>(null);
 
-  const user = getStoredUser();
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (!stored || stored === "undefined" || stored === "null") {
+      setUser(null);
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(stored) as User);
+    } catch {
+      setUser(null);
+    }
+  }, []);
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => notificationService.getMine(),
     enabled: !!user,
-    refetchInterval: 30000, // Poll every 30s
+    refetchInterval: 30000,
   });
 
   const markReadMutation = useMutation({
@@ -63,7 +85,7 @@ export function AppShell({
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
-  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
+  const unreadCount = notifications?.filter((n: DashboardNotification) => !n.is_read).length || 0;
 
   const logout = () => {
     localStorage.removeItem("as_access_token");
@@ -73,15 +95,22 @@ export function AppShell({
   };
 
   const initials = user?.name
-    ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
     : "??";
 
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border/50 bg-surface/85 backdrop-blur-md transition-transform lg:translate-x-0 ${
-        open ? "translate-x-0" : "-translate-x-full"
-      }`}>
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border/50 bg-surface/85 backdrop-blur-md transition-transform lg:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex h-16 items-center border-b border-border/50 px-5">
           <Logo />
         </div>
@@ -95,11 +124,15 @@ export function AppShell({
                 onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 hover:translate-x-0.5 ${
                   active
-                    ? "bg-primary/5 text-primary border-l-4 border-accent font-semibold shadow-soft"
+                    ? "border-l-4 border-accent bg-primary/5 font-semibold text-primary shadow-soft"
                     : "text-muted-foreground hover:bg-secondary hover:text-primary"
                 }`}
               >
-                <n.icon className={`h-4.5 w-4.5 transition-colors ${active ? "text-accent" : "text-muted-foreground group-hover:text-primary"}`} />
+                <n.icon
+                  className={`h-4.5 w-4.5 transition-colors ${
+                    active ? "text-accent" : "text-muted-foreground group-hover:text-primary"
+                  }`}
+                />
                 {n.label}
               </Link>
             );
@@ -109,7 +142,7 @@ export function AppShell({
           <div className="absolute bottom-6 left-5 right-5">
             <Link
               to={primaryAction.to}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-[0.98] border border-accent/10"
+              className="flex items-center justify-center gap-2 rounded-xl border border-accent/10 bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-[0.98]"
             >
               <Plus className="h-4 w-4 text-accent" /> {primaryAction.label}
             </Link>
@@ -127,36 +160,42 @@ export function AppShell({
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          
+
           <h1 className="font-display text-base font-semibold lg:text-lg">
             {title || "Dashboard"}
           </h1>
+
           <div className="ml-auto flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/10 focus-within:border-primary/30 md:flex shadow-soft">
+            <div className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-soft transition-all duration-300 focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/10 md:flex">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <input placeholder="Search cases, departments..." className="w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
-              <span className="rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">⌘K</span>
+              <input
+                placeholder="Search cases, departments..."
+                className="w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <span className="rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground">
+                ⌘K
+              </span>
             </div>
-            
+
             {/* Notifications Dropdown */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className="relative rounded-xl border border-border bg-card p-2.5 text-muted-foreground hover:text-foreground transition hover:bg-muted/50" 
+                className="relative rounded-xl border border-border bg-card p-2.5 text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
                 aria-label="Notifications"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent animate-pulse" />
+                  <span className="absolute right-2 top-2 h-2 w-2 animate-pulse rounded-full bg-accent" />
                 )}
               </button>
-              
+
               {notifOpen && (
-                <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-border bg-card p-0 shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-muted/30">
+                <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-border bg-card p-0 shadow-xl animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
                     <h3 className="text-sm font-semibold">Notifications</h3>
                     {unreadCount > 0 && (
-                      <button 
+                      <button
                         onClick={() => markAllReadMutation.mutate()}
                         className="text-[10px] font-bold uppercase tracking-wider text-accent hover:underline"
                       >
@@ -165,39 +204,48 @@ export function AppShell({
                     )}
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
-                    {notifications && notifications.length > 0 ? notifications.map((n: any) => (
-                      <div 
-                        key={n._id} 
-                        className={`group relative border-b border-border p-4 transition hover:bg-muted/40 ${!n.is_read ? "bg-accent/5" : ""}`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-xs font-bold">{n.title}</h4>
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                            {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
-                          </span>
+                    {notifications && notifications.length > 0 ? (
+                      notifications.map((n: DashboardNotification) => (
+                        <div
+                          key={n._id}
+                          className={`group relative border-b border-border p-4 transition hover:bg-muted/40 ${
+                            !n.is_read ? "bg-accent/5" : ""
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="text-xs font-bold">{n.title}</h4>
+                            <span className="whitespace-nowrap text-[10px] text-muted-foreground">
+                              {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            {n.message}
+                          </p>
+                          <div className="mt-2 flex items-center gap-3">
+                            {n.reference_link && (
+                              <Link
+                                to={n.reference_link}
+                                onClick={() => {
+                                  setNotifOpen(false);
+                                  markReadMutation.mutate(n._id);
+                                }}
+                                className="inline-flex items-center gap-1 text-[10px] font-bold text-accent hover:underline"
+                              >
+                                View <ExternalLink className="h-2.5 w-2.5" />
+                              </Link>
+                            )}
+                            {!n.is_read && (
+                              <button
+                                onClick={() => markReadMutation.mutate(n._id)}
+                                className="inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground hover:text-foreground"
+                              >
+                                <Check className="h-2.5 w-2.5" /> Read
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{n.message}</p>
-                        <div className="mt-2 flex items-center gap-3">
-                          {n.reference_link && (
-                            <Link 
-                              to={n.reference_link} 
-                              onClick={() => { setNotifOpen(false); markReadMutation.mutate(n._id); }}
-                              className="inline-flex items-center gap-1 text-[10px] font-bold text-accent hover:underline"
-                            >
-                              View <ExternalLink className="h-2.5 w-2.5" />
-                            </Link>
-                          )}
-                          {!n.is_read && (
-                            <button 
-                              onClick={() => markReadMutation.mutate(n._id)}
-                              className="text-[10px] font-bold text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-                            >
-                              <Check className="h-2.5 w-2.5" /> Read
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    )) : (
+                      ))
+                    ) : (
                       <div className="py-10 text-center text-xs text-muted-foreground">
                         No notifications yet.
                       </div>
@@ -209,26 +257,30 @@ export function AppShell({
 
             {/* Profile Dropdown */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-card px-2.5 py-1.5 hover:bg-muted/50 transition"
+                className="flex items-center gap-2 rounded-xl border border-border bg-card px-2.5 py-1.5 transition hover:bg-muted/50"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
                   {initials}
                 </div>
                 <span className="hidden text-sm font-medium md:inline">{user?.name || "User"}</span>
-                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              
+
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-border bg-card p-1 shadow-lg z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-3 py-2 border-b border-border mb-1">
-                    <p className="text-xs font-bold truncate">{user?.name}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+                <div className="absolute right-0 z-50 mt-2 w-48 animate-in fade-in slide-in-from-top-2 rounded-xl border border-border bg-card p-1 shadow-lg">
+                  <div className="mb-1 border-b border-border px-3 py-2">
+                    <p className="truncate text-xs font-bold">{user?.name}</p>
+                    <p className="truncate text-[10px] text-muted-foreground">{user?.email}</p>
                   </div>
-                  <button 
+                  <button
                     onClick={logout}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-destructive hover:bg-destructive/10 transition"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-destructive transition hover:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4" /> Logout
                   </button>
@@ -241,12 +293,14 @@ export function AppShell({
       </div>
 
       {open && (
-        <div 
-          className="fixed inset-0 z-30 bg-background/40 backdrop-blur-sm animate-in fade-in duration-300 lg:hidden" 
-          onClick={() => setOpen(false)} 
+        <div
+          className="fixed inset-0 z-30 bg-background/40 backdrop-blur-sm animate-in fade-in duration-300 lg:hidden"
+          onClick={() => setOpen(false)}
         />
       )}
-      {dropdownOpen && <div className="fixed inset-0 z-20" onClick={() => setDropdownOpen(false)} />}
+      {dropdownOpen && (
+        <div className="fixed inset-0 z-20" onClick={() => setDropdownOpen(false)} />
+      )}
       {notifOpen && <div className="fixed inset-0 z-20" onClick={() => setNotifOpen(false)} />}
     </div>
   );

@@ -8,7 +8,9 @@ export function Logo({ light = false }: { light?: boolean }) {
         <Shield className="h-4.5 w-4.5" strokeWidth={2.25} />
       </div>
       <div className="leading-tight">
-        <div className={`font-display text-[15px] font-semibold ${light ? "text-white" : "text-foreground"}`}>
+        <div
+          className={`font-display text-[15px] font-semibold ${light ? "text-white" : "text-foreground"}`}
+        >
           LASUSTECH
         </div>
         <div className={`text-[11px] ${light ? "text-white/70" : "text-muted-foreground"}`}>

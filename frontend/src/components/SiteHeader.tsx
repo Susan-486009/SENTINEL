@@ -27,10 +27,7 @@ export function SiteHeader() {
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/track", label: "Track Case" },
-    ...(isAuth 
-      ? [{ to: "/dashboard", label: "Dashboard" }] 
-      : [{ to: "/login", label: "Sign in" }]
-    ),
+    ...(isAuth ? [{ to: "/dashboard", label: "Dashboard" }] : [{ to: "/login", label: "Sign in" }]),
   ];
 
   return (
@@ -52,7 +49,7 @@ export function SiteHeader() {
               </Link>
             );
           })}
-          
+
           {isAuth && (
             <button
               onClick={logout}
@@ -81,7 +78,12 @@ export function SiteHeader() {
         <div className="border-t border-border bg-background md:hidden">
           <div className="container-page flex flex-col gap-1 py-3">
             {navLinks.map((l) => (
-              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
+              >
                 {l.label}
               </Link>
             ))}
@@ -93,7 +95,11 @@ export function SiteHeader() {
                 <LogOut className="h-4 w-4" /> Sign out
               </button>
             )}
-            <Link to={isAuth ? "/submit" : "/register"} onClick={() => setOpen(false)} className="mt-1 rounded-xl bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground">
+            <Link
+              to={isAuth ? "/submit" : "/register"}
+              onClick={() => setOpen(false)}
+              className="mt-1 rounded-xl bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground"
+            >
               Submit a report
             </Link>
           </div>

@@ -21,11 +21,11 @@ function RegisterPage() {
     confirm_password: "",
     matric_number: "",
   });
-  
+
   const nav = useNavigate();
 
   const update = (key: string, value: string) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -36,7 +36,7 @@ function RegisterPage() {
     if (formData.password.length < 8) {
       return toast.error("Password must be at least 8 characters");
     }
-    
+
     setLoading(true);
     try {
       const payload = {
@@ -46,7 +46,7 @@ function RegisterPage() {
         role: "student" as const,
         matric: formData.matric_number,
       };
-      
+
       const data = await authService.register(payload);
       localStorage.setItem("as_access_token", (data as any).accessToken || (data as any).token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -73,59 +73,59 @@ function RegisterPage() {
       }
     >
       <form onSubmit={submit} className="space-y-5" autoComplete="off">
-        <Field 
-          label="Full name" 
-          placeholder="Enter your full name" 
-          leading={<User className="h-4 w-4" />} 
+        <Field
+          label="Full name"
+          placeholder="Enter your full name"
+          leading={<User className="h-4 w-4" />}
           value={formData.full_name}
           onChange={(e) => update("full_name", e.target.value)}
-          required 
+          required
           autoComplete="off"
         />
-        
-        <Field 
-          label="University email" 
-          type="email" 
-          placeholder="you@lasustech.edu.ng" 
-          leading={<Mail className="h-4 w-4" />} 
+
+        <Field
+          label="University email"
+          type="email"
+          placeholder="you@lasustech.edu.ng"
+          leading={<Mail className="h-4 w-4" />}
           value={formData.email}
           onChange={(e) => update("email", e.target.value)}
-          required 
+          required
           autoComplete="off"
         />
-        
-        <Field 
-          label="Matric number" 
-          placeholder="e.g. LAS/22/SCI/00123" 
+
+        <Field
+          label="Matric number"
+          placeholder="e.g. LAS/22/SCI/00123"
           value={formData.matric_number}
           onChange={(e) => update("matric_number", e.target.value)}
-          required 
+          required
           autoComplete="off"
         />
-        
-        <Field 
-          label="Create password" 
-          type="password" 
-          placeholder="At least 8 characters" 
-          leading={<Lock className="h-4 w-4" />} 
-          hint="Use 8+ characters with a mix of letters and numbers." 
+
+        <Field
+          label="Create password"
+          type="password"
+          placeholder="At least 8 characters"
+          leading={<Lock className="h-4 w-4" />}
+          hint="Use 8+ characters with a mix of letters and numbers."
           value={formData.password}
           onChange={(e) => update("password", e.target.value)}
-          required 
+          required
           autoComplete="new-password"
         />
 
-        <Field 
-          label="Confirm password" 
-          type="password" 
-          placeholder="Repeat your password" 
-          leading={<Lock className="h-4 w-4" />} 
+        <Field
+          label="Confirm password"
+          type="password"
+          placeholder="Repeat your password"
+          leading={<Lock className="h-4 w-4" />}
           value={formData.confirm_password}
           onChange={(e) => update("confirm_password", e.target.value)}
-          required 
+          required
           autoComplete="new-password"
         />
-        
+
         <button
           type="submit"
           disabled={loading}

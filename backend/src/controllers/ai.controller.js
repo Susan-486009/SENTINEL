@@ -47,7 +47,8 @@ export const chat = asyncHandler(async (req, res) => {
  * Fetch the authenticated user's chat history.
  */
 export const getChatHistory = asyncHandler(async (req, res) => {
-  const history = await Chat.find({ user: req.user._id }).sort({ createdAt: 1 });
+  const userId = req.user._id || req.user.id;
+  const history = await Chat.find({ user: userId }).sort({ createdAt: 1 });
   sendSuccess(res, history, 'Chat history retrieved.');
 });
 
@@ -62,8 +63,9 @@ export const saveChatMessage = asyncHandler(async (req, res) => {
     throw new AppError('Role and content are required to save a message.', 400);
   }
 
+  const userId = req.user._id || req.user.id;
   const message = await Chat.create({
-    user: req.user._id,
+    user: userId,
     role,
     content
   });

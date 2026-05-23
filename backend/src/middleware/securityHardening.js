@@ -11,8 +11,9 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5174',
   'http://localhost:5175',
   'http://localhost:4173',
-  'https://lasustech.edu.ng'
-];
+  'https://lasustech.edu.ng',
+  process.env.FRONTEND_URL?.replace(/\/$/, '')
+].filter(Boolean);
 
 /**
  * Strips MongoDB operator keys starting with '$' recursively to block NoSQL injection vectors.

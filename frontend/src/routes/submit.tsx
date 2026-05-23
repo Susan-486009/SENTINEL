@@ -1,9 +1,21 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronLeft, ChevronRight, Upload, FileText, ShieldCheck, Sparkles, X, Copy, ArrowRight } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  FileText,
+  ShieldCheck,
+  Sparkles,
+  X,
+  Copy,
+  ArrowRight,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { LayoutDashboard, FileText as FileIcon, History, Bell, Settings } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { complaintService } from "@/lib/api";
 import { toast } from "sonner";
 import { formatCategory } from "@/lib/ui-shared";
@@ -23,9 +35,21 @@ const nav = [
 
 const STEPS = [
   { key: "what", title: "What happened?", desc: "A short description helps us route your report." },
-  { key: "details", title: "Tell us more", desc: "Share the full context. Be as detailed as you'd like." },
-  { key: "evidence", title: "Supporting evidence", desc: "Optional. Attach files that support your case." },
-  { key: "review", title: "Review & submit", desc: "Make sure everything looks right before submitting." },
+  {
+    key: "details",
+    title: "Tell us more",
+    desc: "Share the full context. Be as detailed as you'd like.",
+  },
+  {
+    key: "evidence",
+    title: "Supporting evidence",
+    desc: "Optional. Attach files that support your case.",
+  },
+  {
+    key: "review",
+    title: "Review & submit",
+    desc: "Make sure everything looks right before submitting.",
+  },
 ];
 
 interface FormState {
@@ -39,10 +63,11 @@ interface FormState {
 }
 
 function SubmitPage() {
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
-  
+
   const [form, setForm] = useState<FormState>({
     category: "",
     department: "",
@@ -53,7 +78,8 @@ function SubmitPage() {
     anonymous: false,
   });
 
-  const update = (k: keyof FormState, v: any) => setForm((f) => ({ ...f, [k]: v }));
+  const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+    setForm((current) => ({ ...current, [k]: v }));
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
@@ -73,16 +99,18 @@ function SubmitPage() {
       formData.append("anonymous", String(form.anonymous));
       formData.append("priority", form.urgency.toLowerCase());
       formData.append("department", form.department);
-      
+
       form.files.forEach((file) => {
         formData.append("files", file);
       });
 
       const result = await complaintService.submit(formData);
-      setSubmittedRef(result.reference_id);
+      setSubmittedRef(result.referenceId || result.reference_id || null);
+      await queryClient.invalidateQueries({ queryKey: ["my-complaints"] });
+      await queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Report submitted successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to submit report");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit report");
     } finally {
       setLoading(false);
     }
@@ -100,14 +128,20 @@ function SubmitPage() {
               const complete = i < step;
               return (
                 <li key={s.key} className="flex flex-1 items-center gap-2">
-                  <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 ${
-                    complete ? "border-success bg-success text-success-foreground" :
-                    active ? "border-accent bg-accent/10 text-primary ring-1 ring-accent/25" :
-                    "border-border bg-card text-muted-foreground"
-                  }`}>
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 ${
+                      complete
+                        ? "border-success bg-success text-success-foreground"
+                        : active
+                          ? "border-accent bg-accent/10 text-primary ring-1 ring-accent/25"
+                          : "border-border bg-card text-muted-foreground"
+                    }`}
+                  >
                     {complete ? <Check className="h-3.5 w-3.5" /> : i + 1}
                   </div>
-                  <span className={`hidden text-xs font-bold uppercase tracking-wider md:inline ${active || complete ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span
+                    className={`hidden text-xs font-bold uppercase tracking-wider md:inline ${active || complete ? "text-foreground" : "text-muted-foreground"}`}
+                  >
                     {s.title}
                   </span>
                   {i < STEPS.length - 1 && <span className="h-px flex-1 bg-border/60" />}
@@ -118,7 +152,9 @@ function SubmitPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
-          <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">{STEPS[step].title}</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">
+            {STEPS[step].title}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">{STEPS[step].desc}</p>
 
           <AnimatePresence mode="wait">
@@ -159,7 +195,8 @@ function SubmitPage() {
                 disabled={loading}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground border border-accent/15 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-95 disabled:opacity-30"
               >
-                {loading ? "Submitting..." : "Submit report"} <ArrowRight className="h-4 w-4 text-accent" />
+                {loading ? "Submitting..." : "Submit report"}{" "}
+                <ArrowRight className="h-4 w-4 text-accent" />
               </button>
             )}
           </div>
@@ -169,24 +206,62 @@ function SubmitPage() {
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <label className="block text-sm font-medium">{children}</label>;
+function Label({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
+  return (
+    <label htmlFor={htmlFor} className="block text-sm font-medium">
+      {children}
+    </label>
+  );
 }
 
 function inputCls() {
   return "w-full rounded-xl border border-border bg-card px-3.5 py-3 text-[15px] outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20";
 }
 
-function Step1({ form, update }: { form: FormState; update: (k: keyof FormState, v: any) => void }) {
+function Step1({
+  form,
+  update,
+}: {
+  form: FormState;
+  update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
+}) {
   const categories = [
-    { value: "academic-result", label: "Academic Concern", desc: "Grades, delayed results, exam issues" },
-    { value: "academic-lecturer", label: "Lecturer Conduct", desc: "Lecturer concern, materials, guidance" },
-    { value: "facility-maint", label: "Campus Facilities", desc: "Classroom repairs, lighting, pathways" },
-    { value: "facility-hostel", label: "Hostel & Welfare", desc: "Accommodation, light, water supplies" },
-    { value: "admin-staff", label: "Administrative Process", desc: "Registry delays, clearances, bursary issues" },
+    {
+      value: "academic-result",
+      label: "Academic Concern",
+      desc: "Grades, delayed results, exam issues",
+    },
+    {
+      value: "academic-lecturer",
+      label: "Lecturer Conduct",
+      desc: "Lecturer concern, materials, guidance",
+    },
+    {
+      value: "facility-maint",
+      label: "Campus Facilities",
+      desc: "Classroom repairs, lighting, pathways",
+    },
+    {
+      value: "facility-hostel",
+      label: "Hostel & Welfare",
+      desc: "Accommodation, light, water supplies",
+    },
+    {
+      value: "admin-staff",
+      label: "Administrative Process",
+      desc: "Registry delays, clearances, bursary issues",
+    },
     { value: "security", label: "Security & Safety", desc: "Campus safety, thefts, threats" },
-    { value: "financial", label: "Financial / Payments", desc: "Portal payment errors, bursary processing" },
-    { value: "it-service", label: "IT Portal Services", desc: "Student accounts, Wi-Fi connectivity" },
+    {
+      value: "financial",
+      label: "Financial / Payments",
+      desc: "Portal payment errors, bursary processing",
+    },
+    {
+      value: "it-service",
+      label: "IT Portal Services",
+      desc: "Student accounts, Wi-Fi connectivity",
+    },
     { value: "other", label: "Other Issues", desc: "Any other general reports or concerns" },
   ];
 
@@ -203,12 +278,14 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
                 type="button"
                 onClick={() => update("category", c.value)}
                 className={`flex flex-col text-left p-4 rounded-2xl border transition-all duration-300 hover:shadow-soft active:scale-[0.98] ${
-                  isSelected 
-                    ? "border-accent bg-accent/5 ring-1 ring-accent/25" 
+                  isSelected
+                    ? "border-accent bg-accent/5 ring-1 ring-accent/25"
                     : "border-border bg-card hover:border-accent/40 hover:bg-secondary/20"
                 }`}
               >
-                <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${isSelected ? "text-primary font-bold" : "text-foreground"}`}>
+                <span
+                  className={`text-xs font-bold uppercase tracking-wider transition-colors ${isSelected ? "text-primary font-bold" : "text-foreground"}`}
+                >
                   {c.label}
                 </span>
                 <span className="mt-1.5 text-[11px] text-muted-foreground leading-normal">
@@ -222,8 +299,14 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Department</Label>
-          <select className={inputCls()} value={form.department} onChange={(e) => update("department", e.target.value)}>
+          <Label htmlFor="department-select">Department</Label>
+          <select
+            id="department-select"
+            aria-label="Department"
+            className={inputCls()}
+            value={form.department}
+            onChange={(e) => update("department", e.target.value)}
+          >
             <option value="">Select department</option>
             <option>Faculty of Science</option>
             <option>Faculty of Engineering</option>
@@ -244,8 +327,8 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
                   type="button"
                   onClick={() => update("urgency", u)}
                   className={`flex-1 min-w-[70px] text-center rounded-xl border px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
-                    isSel 
-                      ? "border-accent bg-accent/5 text-primary ring-1 ring-accent/15" 
+                    isSel
+                      ? "border-accent bg-accent/5 text-primary ring-1 ring-accent/15"
                       : "border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -264,13 +347,21 @@ function Step1({ form, update }: { form: FormState; update: (k: keyof FormState,
           value={form.summary}
           onChange={(e) => update("summary", e.target.value)}
         />
-        <p className="text-xs text-muted-foreground">Keep it brief — you'll add more details next.</p>
+        <p className="text-xs text-muted-foreground">
+          Keep it brief — you'll add more details next.
+        </p>
       </div>
     </div>
   );
 }
 
-function Step2({ form, update }: { form: FormState; update: (k: keyof FormState, v: any) => void }) {
+function Step2({
+  form,
+  update,
+}: {
+  form: FormState;
+  update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
+}) {
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
@@ -293,7 +384,12 @@ function Step2({ form, update }: { form: FormState; update: (k: keyof FormState,
           <div className="text-sm">
             <p className="font-medium">Suggested category</p>
             <p className="mt-0.5 text-muted-foreground">
-              Based on your description, this looks like a <span className="font-medium text-foreground">{form.category}</span> matter for the <span className="font-medium text-foreground">{form.department || "relevant department"}</span>.
+              Based on your description, this looks like a{" "}
+              <span className="font-medium text-foreground">{form.category}</span> matter for the{" "}
+              <span className="font-medium text-foreground">
+                {form.department || "relevant department"}
+              </span>
+              .
             </p>
           </div>
         </div>
@@ -302,7 +398,13 @@ function Step2({ form, update }: { form: FormState; update: (k: keyof FormState,
   );
 }
 
-function Step3({ form, update }: { form: FormState; update: (k: keyof FormState, v: any) => void }) {
+function Step3({
+  form,
+  update,
+}: {
+  form: FormState;
+  update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
+}) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     update("files", [...form.files, ...files]);
@@ -322,18 +424,28 @@ function Step3({ form, update }: { form: FormState; update: (k: keyof FormState,
       {form.files.length > 0 && (
         <ul className="space-y-2">
           {form.files.map((f, i) => (
-            <li key={i} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
+            <li
+              key={i}
+              className="flex items-center justify-between rounded-xl border border-border bg-card p-3"
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                   <FileText className="h-4 w-4" />
                 </div>
                 <div>
                   <div className="text-sm font-medium">{f.name}</div>
-                  <div className="text-xs text-muted-foreground">{(f.size / 1024 / 1024).toFixed(2)} MB</div>
+                  <div className="text-xs text-muted-foreground">
+                    {(f.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
                 </div>
               </div>
               <button
-                onClick={() => update("files", form.files.filter((_, j) => j !== i))}
+                onClick={() =>
+                  update(
+                    "files",
+                    form.files.filter((_, j) => j !== i),
+                  )
+                }
                 className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-destructive"
                 aria-label="Remove"
               >
@@ -346,17 +458,26 @@ function Step3({ form, update }: { form: FormState; update: (k: keyof FormState,
 
       <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-        Files are encrypted at rest and only visible to authorized administrators handling your case.
+        Files are encrypted at rest and only visible to authorized administrators handling your
+        case.
       </div>
     </div>
   );
 }
 
-function Step4({ form, update }: { form: FormState; update: (k: keyof FormState, v: any) => void }) {
+function Step4({
+  form,
+  update,
+}: {
+  form: FormState;
+  update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
+}) {
   const Row = ({ k, v }: { k: string; v: string }) => (
     <div className="flex items-start justify-between gap-6 border-b border-border py-3 last:border-0">
       <span className="text-xs uppercase tracking-wide text-muted-foreground">{k}</span>
-      <span className="max-w-md text-right text-sm">{v || <em className="text-muted-foreground">Not provided</em>}</span>
+      <span className="max-w-md text-right text-sm">
+        {v || <em className="text-muted-foreground">Not provided</em>}
+      </span>
     </div>
   );
   return (
@@ -366,8 +487,14 @@ function Step4({ form, update }: { form: FormState; update: (k: keyof FormState,
         <Row k="Department" v={form.department} />
         <Row k="Urgency" v={form.urgency} />
         <Row k="Summary" v={form.summary} />
-        <Row k="Details" v={form.details.slice(0, 200) + (form.details.length > 200 ? "..." : "")} />
-        <Row k="Evidence" v={form.files.length ? `${form.files.length} file(s) attached` : "None"} />
+        <Row
+          k="Details"
+          v={form.details.slice(0, 200) + (form.details.length > 200 ? "..." : "")}
+        />
+        <Row
+          k="Evidence"
+          v={form.files.length ? `${form.files.length} file(s) attached` : "None"}
+        />
       </div>
       <label className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
         <input
@@ -378,7 +505,9 @@ function Step4({ form, update }: { form: FormState; update: (k: keyof FormState,
         />
         <div className="text-sm">
           <p className="font-medium">Submit anonymously</p>
-          <p className="text-muted-foreground">Your name and contact details won't be shown to administrators.</p>
+          <p className="text-muted-foreground">
+            Your name and contact details won't be shown to administrators.
+          </p>
         </div>
       </label>
       <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground">
@@ -409,7 +538,9 @@ function SuccessScreen({ referenceId }: { referenceId: string }) {
         <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-left">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Your reference ID</p>
           <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="font-display text-2xl font-semibold tracking-tight">{referenceId}</span>
+            <span className="font-display text-2xl font-semibold tracking-tight">
+              {referenceId}
+            </span>
             <button
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:bg-muted"
               onClick={() => {
@@ -426,10 +557,16 @@ function SuccessScreen({ referenceId }: { referenceId: string }) {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to="/track" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <Link
+            to="/track"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
             Track this case <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium hover:bg-muted">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium hover:bg-muted"
+          >
             Back to dashboard
           </Link>
         </div>

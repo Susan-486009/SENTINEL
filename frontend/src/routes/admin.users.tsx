@@ -82,7 +82,9 @@ function AdminUsersPage() {
                         </div>
                         <div>
                           <div className="font-bold">{user.name}</div>
-                          <div className="text-[10px] text-muted-foreground">{user.email || "No email provided"}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {user.email || "No email provided"}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -90,12 +92,16 @@ function AdminUsersPage() {
                       {user.matric}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        user.role === 'admin' ? 'bg-amber-500/10 text-amber-500' :
-                        user.role === 'staff' ? 'bg-blue-500/10 text-blue-500' :
-                        'bg-emerald-500/10 text-emerald-500'
-                      }`}>
-                        {user.role === 'admin' && <Shield className="h-2.5 w-2.5" />}
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                          user.role === "admin"
+                            ? "bg-amber-500/10 text-amber-500"
+                            : user.role === "staff"
+                              ? "bg-blue-500/10 text-blue-500"
+                              : "bg-emerald-500/10 text-emerald-500"
+                        }`}
+                      >
+                        {user.role === "admin" && <Shield className="h-2.5 w-2.5" />}
                         {user.role}
                       </span>
                     </td>

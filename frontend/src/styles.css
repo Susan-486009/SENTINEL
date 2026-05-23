@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -61,11 +61,11 @@
   --radius: 16px;
 
   /* Brand Colors (Forest Green & Champagne Gold) */
-  --navy: oklch(0.20 0.05 160);            /* Dark Forest Emerald #022C22 */
+  --navy: oklch(0.2 0.05 160); /* Dark Forest Emerald #022C22 */
   --surface: oklch(1 0 0);
 
-  --background: oklch(0.985 0.004 80);     /* Soft Chalk Cream #FAF9F5 */
-  --foreground: oklch(0.18 0.03 160);      /* Deep Forest Slate */
+  --background: oklch(0.985 0.004 80); /* Soft Chalk Cream #FAF9F5 */
+  --foreground: oklch(0.18 0.03 160); /* Deep Forest Slate */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.18 0.03 160);
@@ -73,31 +73,31 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.03 160);
 
-  --primary: oklch(0.22 0.06 160);         /* Rich Forest Green */
+  --primary: oklch(0.22 0.06 160); /* Rich Forest Green */
   --primary-foreground: oklch(0.99 0.005 80);
 
-  --secondary: oklch(0.96 0.015 160);      /* Light Sage Tint */
+  --secondary: oklch(0.96 0.015 160); /* Light Sage Tint */
   --secondary-foreground: oklch(0.22 0.06 160);
 
   --muted: oklch(0.96 0.015 160);
   --muted-foreground: oklch(0.48 0.03 160);
 
-  --accent: oklch(0.68 0.16 65);           /* Glorious Champagne Gold */
+  --accent: oklch(0.68 0.16 65); /* Glorious Champagne Gold */
   --accent-foreground: oklch(0.99 0.005 80);
 
   --info: oklch(0.22 0.06 160);
   --info-foreground: oklch(0.99 0.005 80);
 
-  --success: oklch(0.62 0.17 148);         /* Emerald Success */
+  --success: oklch(0.62 0.17 148); /* Emerald Success */
   --success-foreground: oklch(0.99 0.005 80);
 
   --warning: oklch(0.68 0.16 60);
-  --warning-foreground: oklch(0.20 0.04 60);
+  --warning-foreground: oklch(0.2 0.04 60);
 
-  --destructive: oklch(0.58 0.22 27);      /* Crimson Red */
+  --destructive: oklch(0.58 0.22 27); /* Crimson Red */
   --destructive-foreground: oklch(0.99 0.005 80);
 
-  --border: oklch(0.92 0.015 160);         /* Sage Border */
+  --border: oklch(0.92 0.015 160); /* Sage Border */
   --input: oklch(0.92 0.015 160);
   --ring: oklch(0.72 0.12 80);
 
@@ -129,7 +129,11 @@
     line-height: 1.6;
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     line-height: 1.15;
@@ -142,7 +146,9 @@
 }
 
 @layer utilities {
-  .font-display { font-family: var(--font-display); }
+  .font-display {
+    font-family: var(--font-display);
+  }
 
   .container-page {
     width: 100%;
@@ -152,13 +158,23 @@
   }
 
   @media (min-width: 768px) {
-    .container-page { padding-inline: 48px; }
+    .container-page {
+      padding-inline: 48px;
+    }
   }
 
   .grid-bg {
     background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--border) 60%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--border) 60%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 48px 48px;
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   }

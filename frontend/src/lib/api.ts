@@ -2,19 +2,19 @@
  * API Service Layer for LASUSTECH Resolution Center
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 export interface UserSettings {
   email_notifications: boolean;
   in_app_notifications: boolean;
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
 }
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'staff' | 'admin';
+  role: "student" | "staff" | "admin";
   matric: string;
   settings?: UserSettings;
 }
@@ -34,7 +34,7 @@ export interface InternalNote {
 }
 
 export interface TimelineEntry {
-  type: 'status_change' | 'note_added' | 'assigned' | 'evidence_added' | 'system';
+  type: "status_change" | "note_added" | "assigned" | "evidence_added" | "system";
   text: string;
   user_id?: { _id: string; name: string; role: string };
   created_at: string;
@@ -49,8 +49,8 @@ export interface Complaint {
   title: string;
   description: string;
   anonymous: boolean;
-  priority: 'low' | 'normal' | 'high' | 'critical';
-  status: 'pending' | 'in_review' | 'resolved' | 'rejected';
+  priority: "low" | "normal" | "high" | "critical";
+  status: "pending" | "in_review" | "resolved" | "rejected";
   files: ComplaintFile[];
   internalNotes?: InternalNote[];
   internal_notes?: InternalNote[];
@@ -67,6 +67,14 @@ export interface Complaint {
   };
 }
 
+export interface ComplaintSubmitResponse {
+  id: string;
+  referenceId: string;
+  reference_id?: string;
+  filesCount: number;
+  files: ComplaintFile[];
+}
+
 export interface AnalyticsData {
   statusCounts: Record<string, number>;
   categoryStats: Array<{
@@ -77,20 +85,20 @@ export interface AnalyticsData {
 }
 
 const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('as_access_token') : null;
-  
+  const token = typeof window !== "undefined" ? localStorage.getItem("as_access_token") : null;
+
   const headers = new Headers(options.headers);
 
   if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   if (!(options.body instanceof FormData)) {
-    headers.set('Content-Type', 'application/json');
+    headers.set("Content-Type", "application/json");
   }
 
-  const baseUrlClean = BASE_URL.replace(/\/$/, '');
-  const pathClean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const baseUrlClean = BASE_URL.replace(/\/$/, "");
+  const pathClean = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
 
   const response = await fetch(`${baseUrlClean}${pathClean}`, {
     ...options,
@@ -98,18 +106,18 @@ const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<
   });
 
   if (response.status === 401) {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('as_access_token');
-      localStorage.removeItem('user');
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login?expired=true';
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("as_access_token");
+      localStorage.removeItem("user");
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login?expired=true";
       }
     }
-    throw new Error('Session expired. Please login again.');
+    throw new Error("Session expired. Please login again.");
   }
 
   if (!response.ok) {
-    let message = 'An unexpected error occurred';
+    let message = "An unexpected error occurred";
     try {
       const error = await response.json();
       message = error.message || message;
@@ -124,67 +132,69 @@ const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<
 };
 
 export const authService = {
-  login: (credentials: any) => 
-    request<{ user: User; accessToken: string; refreshToken: string }>('/auth/login', { 
-      method: 'POST', 
-      body: JSON.stringify(credentials) 
+  login: (credentials: any) =>
+    request<{ user: User; accessToken: string; refreshToken: string }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
     }),
-  register: (userData: any) => 
-    request<{ user: User; accessToken: string; refreshToken: string }>('/auth/register', { 
-      method: 'POST', 
-      body: JSON.stringify(userData) 
+  register: (userData: any) =>
+    request<{ user: User; accessToken: string; refreshToken: string }>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
     }),
-  me: () => request<User>('/auth/me'),
-  updateProfile: (data: Partial<User> & { settings?: Partial<UserSettings> }) => 
-    request<User>('/auth/me', { 
-      method: 'PATCH', 
-      body: JSON.stringify(data) 
+  me: () => request<User>("/auth/me"),
+  updateProfile: (data: Partial<User> & { settings?: Partial<UserSettings> }) =>
+    request<User>("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(data),
     }),
   getUsers: (params?: any) => {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request<any>(`/auth/admin/users${qs}`);
   },
 };
 
 export const complaintService = {
   getAll: (params?: any) => {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request<Complaint[]>(`/complaints${qs}`);
   },
-  getMine: () => request<Complaint[]>('/complaints/mine'),
+  getMine: () => request<Complaint[]>("/complaints/mine"),
   getById: (id: string) => request<Complaint>(`/complaints/${id}`),
   track: (refId: string) => request<Complaint>(`/complaints/track/${refId}`),
-  getStats: () => request<AnalyticsData>('/complaints/stats/overview'),
-  submit: (formData: FormData) => 
-    request<Complaint>('/complaints', { 
-      method: 'POST', 
-      body: formData 
+  getStats: () => request<AnalyticsData>("/complaints/stats/overview"),
+  submit: (formData: FormData) =>
+    request<ComplaintSubmitResponse>("/complaints", {
+      method: "POST",
+      body: formData,
     }),
-  updateStatus: (id: string, status: string) => 
-    request<Complaint>(`/complaints/${id}/status`, { 
-      method: 'PATCH', 
-      body: JSON.stringify({ status }) 
+  updateStatus: (id: string, status: string) =>
+    request<Complaint>(`/complaints/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
     }),
-  updatePriority: (id: string, priority: string) => 
-    request<Complaint>(`/complaints/${id}/priority`, { 
-      method: 'PATCH', 
-      body: JSON.stringify({ priority }) 
+  updatePriority: (id: string, priority: string) =>
+    request<Complaint>(`/complaints/${id}/priority`, {
+      method: "PATCH",
+      body: JSON.stringify({ priority }),
     }),
-  addInternalNote: (id: string, text: string) => 
-    request<InternalNote>(`/complaints/${id}/notes`, { 
-      method: 'POST', 
-      body: JSON.stringify({ text }) 
+  addInternalNote: (id: string, text: string) =>
+    request<InternalNote>(`/complaints/${id}/notes`, {
+      method: "POST",
+      body: JSON.stringify({ text }),
     }),
 };
 
 export const departmentService = {
-  getAll: () => request<any[]>('/departments'),
-  create: (data: any) => request<any>('/departments', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: any) => request<any>(`/departments/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  getAll: () => request<any[]>("/departments"),
+  create: (data: any) =>
+    request<any>("/departments", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) =>
+    request<any>(`/departments/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
 };
 
 export const notificationService = {
-  getMine: () => request<any[]>('/notifications'),
-  markAsRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'PATCH' }),
-  markAllAsRead: () => request<any>('/notifications/read-all', { method: 'PATCH' }),
+  getMine: () => request<any[]>("/notifications"),
+  markAsRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: "PATCH" }),
+  markAllAsRead: () => request<any>("/notifications/read-all", { method: "PATCH" }),
 };

@@ -59,11 +59,17 @@ export const trackComplaint = asyncHandler(async (req, res) => {
 export const getComplaintById = asyncHandler(async (req, res) => {
   const rawId = req.params.id;
 
-  // Detect whether the caller used a reference ID or numeric id
-  const identifier = rawId.startsWith('CMP-') ? rawId : Number(rawId);
-
-  if (typeof identifier === 'number' && isNaN(identifier)) {
-    return res.status(400).json({ success: false, message: 'Invalid complaint identifier.' });
+  // Detect whether the caller used a reference ID, hex ObjectId, or numeric id
+  let identifier;
+  if (rawId.startsWith('CMP-')) {
+    identifier = rawId;
+  } else if (/^[0-9a-fA-F]{24}$/.test(rawId)) {
+    identifier = rawId;
+  } else {
+    identifier = Number(rawId);
+    if (isNaN(identifier)) {
+      return res.status(400).json({ success: false, message: 'Invalid complaint identifier.' });
+    }
   }
 
   const complaint = await complaintService.getById(
@@ -126,8 +132,9 @@ export const addInternalNote = asyncHandler(async (req, res) => {
    Owner or admin only.
 ════════════════════════════════════════════════════════ */
 export const removeFile = asyncHandler(async (req, res) => {
+  const fileId = /^[0-9a-fA-F]{24}$/.test(req.params.fileId) ? req.params.fileId : Number(req.params.fileId);
   const result = await deleteFile(
-    Number(req.params.fileId),
+    fileId,
     req.user.id,
     req.user.role,
   );

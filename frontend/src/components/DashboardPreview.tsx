@@ -1,5 +1,12 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock, FileText, MessageSquare, ShieldCheck, TrendingUp } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  FileText,
+  MessageSquare,
+  ShieldCheck,
+  TrendingUp,
+} from "lucide-react";
 
 export function DashboardPreview() {
   const stages = [
@@ -81,14 +88,22 @@ export function DashboardPreview() {
                           : "border-border bg-background text-muted-foreground"
                       }`}
                     >
-                      {st.done ? <CheckCircle2 className="h-3 w-3" /> : <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />}
+                      {st.done ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                      )}
                     </div>
                     {i < stages.length - 1 && (
                       <span className="absolute left-1/2 top-5 h-5 w-px -translate-x-1/2 bg-border" />
                     )}
                   </div>
                   <div className="flex flex-1 items-center justify-between">
-                    <span className={`text-xs ${st.done ? "text-foreground" : "text-muted-foreground"}`}>{st.label}</span>
+                    <span
+                      className={`text-xs ${st.done ? "text-foreground" : "text-muted-foreground"}`}
+                    >
+                      {st.label}
+                    </span>
                     <span className="text-[11px] text-muted-foreground">{st.time}</span>
                   </div>
                 </li>

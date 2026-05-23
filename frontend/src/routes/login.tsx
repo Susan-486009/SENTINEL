@@ -31,7 +31,7 @@ function LoginPage() {
     setLoading(true);
     try {
       const data = await authService.login({ identifier: email, password });
-      
+
       if (rememberMe) {
         localStorage.setItem("remembered_identifier", email);
       } else {
@@ -40,9 +40,9 @@ function LoginPage() {
 
       localStorage.setItem("as_access_token", data.accessToken || (data as any).token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      
+
       toast.success("Welcome back!");
-      
+
       const role = data.user?.role;
       if (role === "admin") {
         nav({ to: "/admin" });
@@ -71,9 +71,9 @@ function LoginPage() {
     >
       <form onSubmit={submit} className="space-y-5" autoComplete="off">
         <Field
-          label="University email"
-          type="email"
-          placeholder="you@lasustech.edu.ng"
+          label="Email or Matric Number"
+          type="text"
+          placeholder="you@lasustech.edu.ng or 240303010001"
           leading={<Mail className="h-4 w-4" />}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -93,14 +93,25 @@ function LoginPage() {
         <div className="flex items-center justify-between text-sm">
           <label className="flex cursor-pointer items-center gap-2.5 text-muted-foreground select-none">
             <div className="relative flex h-5 w-5 items-center justify-center">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="peer h-full w-full appearance-none rounded-lg border border-border bg-card transition-all checked:border-accent checked:bg-accent/10" 
+                className="peer h-full w-full appearance-none rounded-lg border border-border bg-card transition-all checked:border-accent checked:bg-accent/10"
               />
               <div className="pointer-events-none absolute scale-0 text-accent transition-transform peer-checked:scale-100">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
               </div>
             </div>
             <span>Remember me</span>

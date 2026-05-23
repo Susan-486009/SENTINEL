@@ -136,8 +136,15 @@ const PORT = process.env.PORT || config.port;   // honours raw env var too
 
 const start = async () => {
   try {
-    await testConnection();                      // verify DB before accepting traffic
-    await runMigrations();                       // run automated schema and index migrations
+    const dbConn = await testConnection();                      // verify DB before accepting traffic
+    if (dbConn) {
+      await runMigrations();                     // run automated schema and index migrations
+    } else {
+      logStructured({
+        level: 'WARN',
+        message: '⚠️ Database connection failed. Bootstrapping server in RESILIENT FALLBACK MODE without applying migrations.'
+      });
+    }
 
     const server = app.listen(PORT, () => {
       logStructured({

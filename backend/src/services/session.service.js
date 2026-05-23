@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { TokenSession } from '../models/TokenSession.js';
 import { SecurityEvent } from '../models/SecurityEvent.js';
+import { User } from '../models/User.js';
 import { signAccessToken, signRefreshToken } from '../utils/auth.js';
 import { AppError } from '../utils/response.js';
 
@@ -87,9 +88,11 @@ export const sessionService = {
     );
 
     // 4. Return new tokens
+    const userDoc = await User.findById(session.user_id).select('role name').lean();
     const accessToken = signAccessToken({
       id: session.user_id.toString(),
-      role: session.user_id.role || 'student', // fallback
+      role: userDoc ? userDoc.role : 'student',
+      name: userDoc ? userDoc.name : '',
     });
 
     return {

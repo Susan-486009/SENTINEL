@@ -1,12 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { Search, Paperclip, Send, MoreHorizontal, User, Calendar, Building2, ShieldCheck, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import {
+  Search,
+  Paperclip,
+  Send,
+  MoreHorizontal,
+  User,
+  Calendar,
+  Building2,
+  ShieldCheck,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { adminNav, StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintService, type Complaint } from "@/lib/api";
 import { format } from "date-fns";
 import { toast } from "sonner";
+
+const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
 
 export const Route = createFileRoute("/admin/cases")({
   head: () => ({ meta: [{ title: "Cases — Admin" }] }),
@@ -34,7 +48,7 @@ function CasesPage() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
       complaintService.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-complaints"] });
@@ -44,7 +58,7 @@ function CasesPage() {
   });
 
   const updatePriorityMutation = useMutation({
-    mutationFn: ({ id, priority }: { id: string; priority: string }) => 
+    mutationFn: ({ id, priority }: { id: string; priority: string }) =>
       complaintService.updatePriority(id, priority),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-complaints"] });
@@ -54,7 +68,7 @@ function CasesPage() {
   });
 
   const addNoteMutation = useMutation({
-    mutationFn: ({ id, text }: { id: string; text: string }) => 
+    mutationFn: ({ id, text }: { id: string; text: string }) =>
       complaintService.addInternalNote(id, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["complaint-detail", selectedId] });
@@ -66,10 +80,11 @@ function CasesPage() {
   const filtered = useMemo(() => {
     if (!cases) return [];
     return cases.filter((c) => {
-      const matchesFilter = filter === "All" || 
-        c.status.toLowerCase().replace('_', ' ') === filter.toLowerCase();
-      const matchesQuery = query === "" || 
-        c.title.toLowerCase().includes(query.toLowerCase()) || 
+      const matchesFilter =
+        filter === "All" || c.status.toLowerCase().replace("_", " ") === filter.toLowerCase();
+      const matchesQuery =
+        query === "" ||
+        c.title.toLowerCase().includes(query.toLowerCase()) ||
         c.reference_id.toLowerCase().includes(query.toLowerCase());
       return matchesFilter && matchesQuery;
     });
@@ -79,21 +94,31 @@ function CasesPage() {
 
   const getStatusTone = (status: string) => {
     switch (status) {
-      case 'pending': return 'warning';
-      case 'in_review': return 'accent';
-      case 'resolved': return 'success';
-      case 'rejected': return 'danger';
-      default: return 'muted';
+      case "pending":
+        return "warning";
+      case "in_review":
+        return "accent";
+      case "resolved":
+        return "success";
+      case "rejected":
+        return "danger";
+      default:
+        return "muted";
     }
   };
 
   const getPriorityTone = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'danger';
-      case 'high': return 'warning';
-      case 'normal': return 'accent';
-      case 'low': return 'muted';
-      default: return 'muted';
+      case "critical":
+        return "danger";
+      case "high":
+        return "warning";
+      case "normal":
+        return "accent";
+      case "low":
+        return "muted";
+      default:
+        return "muted";
     }
   };
 
@@ -118,7 +143,9 @@ function CasesPage() {
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium transition ${
-                    filter === f ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                    filter === f
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {f}
@@ -126,32 +153,38 @@ function CasesPage() {
               ))}
             </div>
           </div>
-          
+
           <ul className="flex-1 divide-y divide-border overflow-y-auto">
             {isLoading ? (
-              <div className="flex justify-center p-10"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
-            ) : filtered.map((c) => {
-              const isActive = selectedId === c._id;
-              return (
-                <li
-                  key={c._id}
-                  onClick={() => setSelectedId(c._id)}
-                  className={`cursor-pointer px-4 py-4 transition ${isActive ? "bg-accent/5" : "hover:bg-muted/40"}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">#{c.reference_id}</span>
-                    <div className="flex items-center gap-1.5">
-                      <StatusBadge tone={getStatusTone(c.status)}>{c.status.replace('_', ' ').toUpperCase()}</StatusBadge>
+              <div className="flex justify-center p-10">
+                <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+              </div>
+            ) : (
+              filtered.map((c) => {
+                const isActive = selectedId === c._id;
+                return (
+                  <li
+                    key={c._id}
+                    onClick={() => setSelectedId(c._id)}
+                    className={`cursor-pointer px-4 py-4 transition ${isActive ? "bg-accent/5" : "hover:bg-muted/40"}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">#{c.reference_id}</span>
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge tone={getStatusTone(c.status)}>
+                          {c.status.replace("_", " ").toUpperCase()}
+                        </StatusBadge>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-1.5 line-clamp-1 font-medium">{c.title}</div>
-                  <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{formatCategory(c.category)}</span>
-                    <span>{format(new Date(c.created_at), 'MMM d')}</span>
-                  </div>
-                </li>
-              );
-            })}
+                    <div className="mt-1.5 line-clamp-1 font-medium">{c.title}</div>
+                    <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{formatCategory(c.category)}</span>
+                      <span>{format(new Date(c.created_at), "MMM d")}</span>
+                    </div>
+                  </li>
+                );
+              })
+            )}
             {!isLoading && filtered.length === 0 && (
               <li className="p-10 text-center text-sm text-muted-foreground">No cases found.</li>
             )}
@@ -165,24 +198,40 @@ function CasesPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <StatusBadge tone={getStatusTone(active.status)}>{active.status.replace('_', ' ').toUpperCase()}</StatusBadge>
-                    <StatusBadge tone={getPriorityTone(active.priority)}>{active.priority.toUpperCase()}</StatusBadge>
+                    <StatusBadge tone={getStatusTone(active.status)}>
+                      {active.status.replace("_", " ").toUpperCase()}
+                    </StatusBadge>
+                    <StatusBadge tone={getPriorityTone(active.priority)}>
+                      {active.priority.toUpperCase()}
+                    </StatusBadge>
                     <span className="text-xs text-muted-foreground">#{active.referenceId}</span>
                   </div>
                   <h2 className="mt-2 font-display text-xl font-semibold">{active.title}</h2>
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> {active.anonymous ? "Anonymous" : active.submitter?.name || "Student"}</span>
-                    <span className="flex items-center gap-1.5"><Building2 className="h-3.5 w-3.5" /> {formatCategory(active.category)}</span>
-                    <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> Submitted {format(new Date(active.created_at), 'PPP')}</span>
+                    <span className="flex items-center gap-1.5">
+                      <User className="h-3.5 w-3.5" />{" "}
+                      {active.anonymous ? "Anonymous" : active.submitter?.name || "Student"}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Building2 className="h-3.5 w-3.5" /> {formatCategory(active.category)}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" /> Submitted{" "}
+                      {format(new Date(active.created_at), "PPP")}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Status</span>
-                    <select 
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">
+                      Status
+                    </span>
+                    <select
                       className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
                       value={active.status}
-                      onChange={(e) => updateStatusMutation.mutate({ id: active._id, status: e.target.value })}
+                      onChange={(e) =>
+                        updateStatusMutation.mutate({ id: active._id, status: e.target.value })
+                      }
                       disabled={updateStatusMutation.isPending}
                     >
                       <option value="pending">Pending</option>
@@ -192,11 +241,15 @@ function CasesPage() {
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Priority</span>
-                    <select 
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">
+                      Priority
+                    </span>
+                    <select
                       className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
                       value={active.priority}
-                      onChange={(e) => updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })}
+                      onChange={(e) =>
+                        updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
+                      }
                       disabled={updatePriorityMutation.isPending}
                     >
                       <option value="low">Low</option>
@@ -228,7 +281,7 @@ function CasesPage() {
                         <div>
                           <div className="text-sm font-medium">{t.text}</div>
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(t.created_at), 'Pp')} 
+                            {format(new Date(t.created_at), "Pp")}
                             {t.user_id && ` by ${t.user_id.name}`}
                           </div>
                         </div>
@@ -240,14 +293,20 @@ function CasesPage() {
                 <Section title="Internal notes">
                   <div className="space-y-3">
                     {active.internalNotes?.map((note: any, i: number) => (
-                      <div key={i} className="rounded-xl border border-border bg-surface p-4 text-sm">
+                      <div
+                        key={i}
+                        className="rounded-xl border border-border bg-surface p-4 text-sm"
+                      >
                         <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-medium text-foreground">{note.admin_id?.name || "Admin"}</span> · {format(new Date(note.created_at), 'Pp')}
+                          <span className="font-medium text-foreground">
+                            {note.admin_id?.name || "Admin"}
+                          </span>{" "}
+                          · {format(new Date(note.created_at), "Pp")}
                         </div>
                         {note.text}
                       </div>
                     ))}
-                    
+
                     <div className="rounded-xl border border-border bg-surface p-3">
                       <textarea
                         value={noteText}
@@ -259,12 +318,16 @@ function CasesPage() {
                         <button className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
                           <Paperclip className="h-3.5 w-3.5" /> Attach
                         </button>
-                        <button 
+                        <button
                           onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
                           disabled={addNoteMutation.isPending || !noteText.trim()}
                           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                         >
-                          {addNoteMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                          {addNoteMutation.isPending ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5" />
+                          )}
                           Post note
                         </button>
                       </div>
@@ -276,12 +339,24 @@ function CasesPage() {
               <div className="space-y-6">
                 <Section title="Evidence">
                   <ul className="space-y-2 text-sm">
-                    {active.files?.length > 0 ? active.files.map((f, i) => (
-                      <li key={i} className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2">
-                        <a href={`http://localhost:5000${f.url}`} target="_blank" rel="noreferrer" className="truncate hover:text-accent">{f.originalName}</a>
-                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                      </li>
-                    )) : (
+                    {active.files?.length > 0 ? (
+                      active.files.map((f, i) => (
+                        <li
+                          key={i}
+                          className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2"
+                        >
+                          <a
+                            href={`${SERVER_URL}${f.url}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="truncate hover:text-accent"
+                          >
+                            {f.originalName}
+                          </a>
+                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                        </li>
+                      ))
+                    ) : (
                       <li className="text-xs text-muted-foreground italic">No evidence provided</li>
                     )}
                   </ul>
@@ -299,7 +374,8 @@ function CasesPage() {
                     )}
                   </div>
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <ShieldCheck className="h-3.5 w-3.5 text-success" /> All actions are audit-logged
+                    <ShieldCheck className="h-3.5 w-3.5 text-success" /> All actions are
+                    audit-logged
                   </div>
                 </Section>
               </div>
@@ -324,7 +400,9 @@ function CasesPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
+      <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </h3>
       <div className="mt-3">{children}</div>
     </div>
   );

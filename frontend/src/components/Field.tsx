@@ -21,9 +21,11 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
       <label htmlFor={inputId} className="block text-sm font-medium text-foreground">
         {label}
       </label>
-      <div className={`group relative flex items-center rounded-xl border bg-card transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${
-        error ? "border-destructive" : "border-border"
-      }`}>
+      <div
+        className={`group relative flex items-center rounded-xl border bg-card transition focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${
+          error ? "border-destructive" : "border-border"
+        }`}
+      >
         {leading && <span className="pl-3.5 text-muted-foreground">{leading}</span>}
         <input
           ref={ref}

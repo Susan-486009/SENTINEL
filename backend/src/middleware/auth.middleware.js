@@ -54,6 +54,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     
     req.user.role = user.role;
     req.user.name = user.name;
+    req.user._id = user._id;
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {

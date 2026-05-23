@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: ({ location }) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const token = localStorage.getItem("as_access_token");
       if (!token) {
         throw redirect({
@@ -29,7 +29,11 @@ const nav = [
 
 function DashboardLayout() {
   return (
-    <AppShell nav={nav} primaryAction={{ to: "/submit", label: "Submit new report" }} title="Dashboard">
+    <AppShell
+      nav={nav}
+      primaryAction={{ to: "/submit", label: "Submit new report" }}
+      title="Dashboard"
+    >
       <Outlet />
     </AppShell>
   );

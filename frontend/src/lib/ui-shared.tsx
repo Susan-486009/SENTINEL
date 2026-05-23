@@ -1,4 +1,12 @@
-import { LayoutDashboard, Inbox, Building2, BarChart3, FileText, ScrollText, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Inbox,
+  Building2,
+  BarChart3,
+  FileText,
+  ScrollText,
+  Settings,
+} from "lucide-react";
 import React from "react";
 
 export const adminNav = [
@@ -21,7 +29,11 @@ export function StatusBadge({ tone, children }: { tone: string; children: React.
     muted: "bg-muted text-muted-foreground",
   };
   return (
-    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${map[tone] || map.muted}`}>{children}</span>
+    <span
+      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${map[tone] || map.muted}`}
+    >
+      {children}
+    </span>
   );
 }
 
@@ -32,10 +44,10 @@ export function formatCategory(cat: string): string {
     "facility-maint": "Campus Facility & Maintenance",
     "facility-hostel": "Hostel & Welfare",
     "admin-staff": "Administrative & Staff Issue",
-    "security": "Security & Safety",
-    "financial": "Financial & Payments",
+    security: "Security & Safety",
+    financial: "Financial & Payments",
     "it-service": "IT Services",
-    "other": "Other Issues",
+    other: "Other Issues",
   };
   return map[cat] || cat;
 }

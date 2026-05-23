@@ -41,12 +41,24 @@ function ErrorComponent({ error, reset }: { error: any; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
       <div className="w-full max-w-lg rounded-2xl border border-border/80 bg-card p-8 shadow-xl text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-          <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            className="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
         </div>
 
-        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">Something went wrong</h1>
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
+          Something went wrong
+        </h1>
         <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
           An unexpected application error was safely caught by Sentinel security boundaries.
         </p>
@@ -78,7 +90,9 @@ function ErrorComponent({ error, reset }: { error: any; reset: () => void }) {
 
         {showDetails && (
           <div className="mt-6 text-left border-t border-border/50 pt-5">
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">Error Details</h3>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Error Details
+            </h3>
             <pre className="mt-2 max-h-48 overflow-y-auto rounded-lg bg-muted/80 p-3 text-xs font-mono text-muted-foreground border border-border/40 whitespace-pre-wrap break-all leading-normal">
               {error.stack || error.message || String(error)}
             </pre>
@@ -95,7 +109,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "LASUSTECH Student Resolution Center" },
-      { name: "description", content: "A secure platform for LASUSTECH students and staff to report academic, administrative, and campus concerns — and track them transparently." },
+      {
+        name: "description",
+        content:
+          "A secure platform for LASUSTECH students and staff to report academic, administrative, and campus concerns — and track them transparently.",
+      },
       { property: "og:title", content: "LASUSTECH Student Resolution Center" },
       { property: "og:description", content: "Report issues safely. Track them transparently." },
       { property: "og:type", content: "website" },
@@ -105,7 +123,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -117,26 +138,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  
+
   // Theme management
   useEffect(() => {
-    const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        const theme = user.settings?.theme || 'light';
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
+        const theme = user.settings?.theme || "light";
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
         } else {
-          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.remove("dark");
         }
       } catch (e) {}
     }
@@ -144,7 +170,7 @@ function RootComponent() {
 
   // Real-time network health monitor
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const handleOnline = () => {
       toast.success("Your internet connection has been restored!", {
