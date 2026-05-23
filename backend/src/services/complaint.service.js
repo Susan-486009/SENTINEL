@@ -24,7 +24,7 @@ export const complaintService = {
 
       const newComplaint = await Complaint.create({
         reference_id: referenceId,
-        user_id: anonymous ? null : userId,
+        user_id: userId,
         category,
         title: title.trim(),
         description: description.trim(),
@@ -35,7 +35,7 @@ export const complaintService = {
         timeline: [{
           type: 'system',
           text: 'Complaint submitted and reference ID issued.',
-          user_id: anonymous ? null : userId
+          user_id: userId
         }]
       });
 
@@ -99,7 +99,7 @@ export const complaintService = {
     }
 
     let submitter = null;
-    if (!complaint.anonymous || role === 'admin') {
+    if (!complaint.anonymous || complaint.user_id?.toString() === userId) {
       if (complaint.user_id) {
         submitter = await User.findById(complaint.user_id)
           .select('name matric email')
@@ -123,7 +123,15 @@ export const complaintService = {
       submitter,
       files:          complaint.files || [],
       internalNotes:  complaint.internal_notes || [],
-      timeline:       complaint.timeline || [],
+      timeline:       (complaint.timeline || []).map(t => {
+        const showUser = t.user_id && (!complaint.anonymous || t.user_id.role === 'admin');
+        return {
+          type: t.type,
+          text: t.text,
+          user_id: showUser ? t.user_id : null,
+          created_at: t.created_at,
+        };
+      }),
       createdAt:      complaint.created_at,
       updatedAt:      complaint.updated_at,
     };
@@ -148,7 +156,15 @@ export const complaintService = {
       title:        complaint.title,
       status:       complaint.status,
       anonymous:    complaint.anonymous,
-      timeline:     complaint.timeline || [],
+      timeline:     (complaint.timeline || []).map(t => {
+        const showUser = t.user_id && (!complaint.anonymous || t.user_id.role === 'admin');
+        return {
+          type: t.type,
+          text: t.text,
+          user_id: showUser ? t.user_id : null,
+          created_at: t.created_at,
+        };
+      }),
       created_at:  complaint.created_at,
       updated_at:  complaint.updated_at,
     };
@@ -184,8 +200,8 @@ export const complaintService = {
       anonymous: c.anonymous,
       created_at: c.created_at,
       updated_at: c.updated_at,
-      user_name: c.user_id ? c.user_id.name : null,
-      matric: c.user_id ? c.user_id.matric : null,
+      user_name: (c.user_id && !c.anonymous) ? c.user_id.name : null,
+      matric: (c.user_id && !c.anonymous) ? c.user_id.matric : null,
       file_count: c.files ? c.files.length : 0,
     }));
   },
@@ -212,8 +228,8 @@ export const complaintService = {
 
     await complaint.save();
 
-    // Notify student if not anonymous
-    if (complaint.user_id && !complaint.anonymous) {
+    // Notify student privately even if anonymous
+    if (complaint.user_id) {
       await Notification.create({
         recipient_id: complaint.user_id,
         title: 'Case Status Updated',
