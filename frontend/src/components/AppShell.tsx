@@ -68,6 +68,36 @@ export function AppShell({
     }
   }, []);
 
+  // Lock body scroll on mobile navigation open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (open) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [open]);
+
+  // Accessible keyboard close on dropdowns and drawer
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDropdownOpen(false);
+        setNotifOpen(false);
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => notificationService.getMine(),

@@ -74,7 +74,12 @@ function TrackPage() {
             <Search className="h-4.5 w-4.5 text-muted-foreground" />
             <input
               value={id}
-              onChange={(e) => setId(e.target.value)}
+              onChange={(e) => {
+                const formatted = e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9-]/g, "");
+                setId(formatted);
+              }}
               placeholder="e.g. RC-48201"
               className="w-full bg-transparent py-3 text-[15px] outline-none placeholder:text-muted-foreground/70"
             />

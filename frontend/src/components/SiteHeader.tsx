@@ -15,6 +15,22 @@ export function SiteHeader() {
     setIsAuth(!!token);
   }, [path]);
 
+  // Lock body scroll on mobile navigation open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (open) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [open]);
+
   const logout = () => {
     localStorage.removeItem("as_access_token");
     localStorage.removeItem("user");
