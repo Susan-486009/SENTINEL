@@ -69,12 +69,12 @@ const seed = async () => {
       const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
       const year = years[Math.floor(Math.random() * years.length)];
       // e.g. 240303010010 — YY + dept code 030301 + padded counter
-      const matric = `${year}030301${String(i).padStart(4, '0')}`;
+      const matric = i === 1 ? '220303010001' : `${year}030301${String(i).padStart(4, '0')}`;
 
       students.push({
-        name: `${fn} ${ln}`,
+        name: i === 1 ? 'Susan Student' : `${fn} ${ln}`,
         matric,
-        email: `student${i}@lasustech.edu.ng`,
+        email: i === 1 ? 'student1@lasustech.edu.ng' : `student${i}@lasustech.edu.ng`,
         password: hashedPassword,
         role: 'student'
       });
