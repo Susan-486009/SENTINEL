@@ -57,7 +57,7 @@ export const complaintService = {
   ══════════════════════════════════════════════════════ */
   async getByUser(userId) {
     const complaints = await Complaint.find({ user_id: userId })
-      .select('reference_id category title status priority anonymous files created_at updated_at')
+      .select('reference_id category title status priority anonymous files admin_feedback satisfaction_feedback created_at updated_at')
       .sort({ created_at: -1 })
       .lean();
 
@@ -69,6 +69,8 @@ export const complaintService = {
       status: c.status,
       priority: c.priority,
       anonymous: c.anonymous,
+      admin_feedback: c.admin_feedback || '',
+      satisfaction_feedback: c.satisfaction_feedback || null,
       created_at: c.created_at,
       updated_at: c.updated_at,
       file_count: c.files ? c.files.length : 0,
@@ -120,6 +122,8 @@ export const complaintService = {
       status:         complaint.status,
       priority:       complaint.priority,
       anonymous:      complaint.anonymous,
+      adminFeedback:  complaint.admin_feedback || '',
+      satisfactionFeedback: complaint.satisfaction_feedback || null,
       submitter,
       files:          complaint.files || [],
       internalNotes:  complaint.internal_notes || [],
@@ -142,7 +146,7 @@ export const complaintService = {
   ══════════════════════════════════════════════════════ */
   async trackByReference(referenceId) {
     const complaint = await Complaint.findOne({ reference_id: referenceId.trim().toUpperCase() })
-      .select('reference_id category title status anonymous timeline created_at updated_at')
+      .select('reference_id category title status anonymous admin_feedback satisfaction_feedback timeline created_at updated_at')
       .populate('timeline.user_id', 'name role')
       .lean();
 
@@ -156,6 +160,8 @@ export const complaintService = {
       title:        complaint.title,
       status:       complaint.status,
       anonymous:    complaint.anonymous,
+      admin_feedback: complaint.admin_feedback || '',
+      satisfaction_feedback: complaint.satisfaction_feedback || null,
       timeline:     (complaint.timeline || []).map(t => {
         const showUser = t.user_id && (!complaint.anonymous || t.user_id.role === 'admin');
         return {
@@ -209,7 +215,7 @@ export const complaintService = {
   /* ══════════════════════════════════════════════════════
      UPDATE STATUS
   ══════════════════════════════════════════════════════ */
-  async updateStatus(id, status, adminId) {
+  async updateStatus(id, status, adminId, adminFeedback = '') {
     if (!VALID_STATUSES.has(status)) {
       throw new AppError(`Invalid status "${status}".`, 400);
     }
@@ -220,9 +226,15 @@ export const complaintService = {
     const oldStatus = complaint.status;
     complaint.status = status;
     
+    let timelineText = `Status changed from ${oldStatus.replace('_', ' ')} to ${status.replace('_', ' ')}.`;
+    if (adminFeedback && adminFeedback.trim() !== '') {
+      complaint.admin_feedback = adminFeedback.trim();
+      timelineText += ` Official reply: "${adminFeedback.trim()}"`;
+    }
+    
     complaint.timeline.push({
       type: 'status_change',
-      text: `Status changed from ${oldStatus.replace('_', ' ')} to ${status.replace('_', ' ')}.`,
+      text: timelineText,
       user_id: adminId
     });
 
@@ -233,7 +245,7 @@ export const complaintService = {
       await Notification.create({
         recipient_id: complaint.user_id,
         title: 'Case Status Updated',
-        message: `Your case #${complaint.reference_id} status has been changed to ${status.replace('_', ' ')}.`,
+        message: `Your case #${complaint.reference_id} status has been changed to ${status.replace('_', ' ')}.${adminFeedback && adminFeedback.trim() !== '' ? ' Reply: ' + adminFeedback.trim() : ''}`,
         type: 'status_update',
         reference_link: `/track?id=${complaint.reference_id}`
       });
@@ -306,6 +318,40 @@ export const complaintService = {
     return {
       statusCounts: counts.reduce((acc, curr) => ({ ...acc, [curr._id]: curr.count }), {}),
       categoryStats: byCategory
+    };
+  },
+
+  async submitSatisfactionFeedback(id, { satisfied, comments }, userId) {
+    const complaint = await Complaint.findById(id);
+    if (!complaint) throw new AppError('Complaint not found.', 404);
+
+    // Security check: only the submitter of the complaint can rate it (if authenticated)
+    if (complaint.user_id && complaint.user_id.toString() !== userId.toString()) {
+      throw new AppError('Unauthorized to submit feedback for this complaint.', 403);
+    }
+
+    // Business rule: can only rate resolved complaints
+    if (complaint.status !== 'resolved') {
+      throw new AppError('Satisfaction feedback can only be submitted for resolved complaints.', 400);
+    }
+
+    complaint.satisfaction_feedback = {
+      satisfied: satisfied === 'yes' ? 'yes' : 'no',
+      comments: (comments || '').trim(),
+      submitted_at: new Date()
+    };
+
+    complaint.timeline.push({
+      type: 'system',
+      text: `Satisfaction feedback submitted: ${satisfied === 'yes' ? 'Satisfied' : 'Not Satisfied'}.${comments ? ' Suggestions: ' + comments : ''}`,
+      user_id: userId
+    });
+
+    await complaint.save();
+
+    return {
+      id: complaint._id.toString(),
+      satisfactionFeedback: complaint.satisfaction_feedback
     };
   },
 

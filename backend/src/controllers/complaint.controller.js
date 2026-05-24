@@ -98,13 +98,14 @@ export const getAdminStats = asyncHandler(async (req, res) => {
 
 /* ════════════════════════════════════════════════════════
    PATCH /api/v1/complaints/:id/status  (admin only)
-   Body: { status: 'pending'|'in_review'|'resolved'|'rejected' }
+   Body: { status: 'pending'|'in_review'|'resolved'|'rejected', adminFeedback?: string }
 ════════════════════════════════════════════════════════ */
 export const updateComplaintStatus = asyncHandler(async (req, res) => {
   const updated = await complaintService.updateStatus(
     req.params.id,
     req.body.status,
-    req.user.id
+    req.user.id,
+    req.body.adminFeedback
   );
   sendSuccess(res, updated, `Status updated to "${updated.status}".`);
 });
@@ -125,6 +126,20 @@ export const addInternalNote = asyncHandler(async (req, res) => {
     req.body.text
   );
   sendSuccess(res, note, 'Internal note added successfully.');
+});
+
+/* ════════════════════════════════════════════════════════
+   POST /api/v1/complaints/:id/feedback
+   Body: { satisfied: 'yes'|'no', comments: string }
+════════════════════════════════════════════════════════ */
+export const submitFeedback = asyncHandler(async (req, res) => {
+  const { satisfied, comments } = req.body;
+  const result = await complaintService.submitSatisfactionFeedback(
+    req.params.id,
+    { satisfied, comments },
+    req.user.id
+  );
+  sendSuccess(res, result, 'Thank you for your feedback! It has been submitted successfully.');
 });
 
 /* ════════════════════════════════════════════════════════

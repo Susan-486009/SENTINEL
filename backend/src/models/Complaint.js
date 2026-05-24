@@ -75,6 +75,15 @@ const complaintSchema = new mongoose.Schema(
       enum: ['pending', 'in_review', 'resolved', 'rejected'],
       default: 'pending',
     },
+    admin_feedback: {
+      type: String,
+      default: '',
+    },
+    satisfaction_feedback: {
+      satisfied: { type: String, enum: ['yes', 'no'], default: null },
+      comments: { type: String, default: '' },
+      submitted_at: { type: Date, default: null }
+    },
     files: [fileSchema],
     internal_notes: [noteSchema],
     timeline: [timelineSchema],

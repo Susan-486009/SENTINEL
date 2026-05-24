@@ -63,6 +63,12 @@ router.get('/:id', complaint.getComplaintById);
  */
 router.delete('/files/:fileId', complaint.removeFile);
 
+/**
+ * POST /api/v1/complaints/:id/feedback
+ * Submit student satisfaction feedback for resolved complaints.
+ */
+router.post('/:id/feedback', complaint.submitFeedback);
+
 /* ── Admin-only routes ───────────────────────────────── */
 
 /**

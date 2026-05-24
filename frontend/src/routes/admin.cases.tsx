@@ -35,6 +35,7 @@ function CasesPage() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [noteText, setNoteText] = useState("");
+  const [replyText, setReplyText] = useState("");
 
   const { data: cases, isLoading: listLoading } = useQuery({
     queryKey: ["all-complaints"],
@@ -48,12 +49,13 @@ function CasesPage() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      complaintService.updateStatus(id, status),
+    mutationFn: ({ id, status, adminFeedback }: { id: string; status: string; adminFeedback?: string }) =>
+      complaintService.updateStatus(id, status, adminFeedback),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-complaints"] });
       queryClient.invalidateQueries({ queryKey: ["complaint-detail", selectedId] });
-      toast.success("Status updated");
+      setReplyText("");
+      toast.success("Case updated successfully");
     },
   });
 
@@ -290,6 +292,70 @@ function CasesPage() {
                   </ol>
                 </Section>
 
+                <Section title="Official Response / Reply (Visible to Student)">
+                  <div className="space-y-3">
+                    {(active.admin_feedback || active.adminFeedback) && (
+                      <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm">
+                        <div className="mb-1 text-[10px] text-accent font-bold uppercase tracking-wider">
+                          Current Official Reply
+                        </div>
+                        <p className="text-foreground font-medium leading-relaxed">
+                          {active.admin_feedback || active.adminFeedback}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="rounded-xl border border-border bg-surface p-3 space-y-3">
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Type your official reply, follow-up, or resolution notes to the student here..."
+                        className="h-20 w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                      />
+                      <div className="flex items-center justify-between border-t border-border pt-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-muted-foreground font-semibold">Change Status To:</span>
+                          <select
+                            className="rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-semibold"
+                            value={active.status}
+                            onChange={(e) =>
+                              updateStatusMutation.mutate({
+                                id: active._id,
+                                status: e.target.value,
+                                adminFeedback: replyText,
+                              })
+                            }
+                            disabled={updateStatusMutation.isPending}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in_review">In Review</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="rejected">Rejected</option>
+                          </select>
+                        </div>
+                        <button
+                          onClick={() =>
+                            updateStatusMutation.mutate({
+                              id: active._id,
+                              status: active.status,
+                              adminFeedback: replyText,
+                            })
+                          }
+                          disabled={updateStatusMutation.isPending || !replyText.trim()}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+                        >
+                          {updateStatusMutation.isPending ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5" />
+                          )}
+                          Send Reply
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </Section>
+
                 <Section title="Internal notes">
                   <div className="space-y-3">
                     {active.internalNotes?.map((note: any, i: number) => (
@@ -361,6 +427,51 @@ function CasesPage() {
                     )}
                   </ul>
                 </Section>
+
+                {(active.satisfaction_feedback || active.satisfactionFeedback) && (
+                  <Section title="Student Satisfaction">
+                    <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 space-y-3 shadow-soft">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Student Rating
+                        </span>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                            (active.satisfaction_feedback?.satisfied ||
+                              active.satisfactionFeedback?.satisfied) === "yes"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-600 border border-rose-500/20"
+                          }`}
+                        >
+                          {(active.satisfaction_feedback?.satisfied ||
+                            active.satisfactionFeedback?.satisfied) === "yes"
+                            ? "😄 Satisfied"
+                            : "😞 Unsatisfied"}
+                        </span>
+                      </div>
+                      {(active.satisfaction_feedback?.comments ||
+                        active.satisfactionFeedback?.comments) && (
+                        <p className="text-xs leading-normal italic text-muted-foreground bg-card border border-border rounded-lg p-2.5">
+                          &ldquo;
+                          {active.satisfaction_feedback?.comments ||
+                            active.satisfactionFeedback?.comments}
+                          &rdquo;
+                        </p>
+                      )}
+                      <div className="text-[10px] text-muted-foreground font-mono text-right">
+                        Submitted:{" "}
+                        {format(
+                          new Date(
+                            active.satisfaction_feedback?.submitted_at ||
+                              active.satisfactionFeedback?.submitted_at ||
+                              Date.now(),
+                          ),
+                          "MMM dd, yyyy HH:mm",
+                        )}
+                      </div>
+                    </div>
+                  </Section>
+                )}
 
                 <Section title="System Audit">
                   <div className="space-y-2 text-sm">

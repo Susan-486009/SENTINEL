@@ -1,30 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import {
-  Search,
-  FileText,
-  Paperclip,
-  MessageSquare,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  ArrowRight,
-  XCircle,
-} from "lucide-react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { useQuery } from "@tanstack/react-query";
 import { complaintService, type Complaint } from "@/lib/api";
-import { formatCategory } from "@/lib/ui-shared";
-import { toast } from "sonner";
+import { useState } from "react";
+import {
+  ArrowLeft,
+  Loader2,
+  AlertCircle,
+  Clock,
+  MessageSquare,
+  Paperclip,
+  CheckCircle2,
+} from "lucide-react";
+import { formatCategory, StatusBadge } from "@/lib/ui-shared";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/dashboard/reports/$id")({
+  head: () => ({ meta: [{ title: "Report Details — LASUSTECH Resolution Center" }] }),
+  component: ReportDetailPage,
+});
 
 const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
-
-export const Route = createFileRoute("/track")({
-  head: () => ({ meta: [{ title: "Track a case — LASUSTECH Resolution Center" }] }),
-  component: TrackPage,
-});
 
 const STAGES = [
   { key: "pending", label: "Submitted", desc: "Report received and reference ID issued." },
@@ -32,152 +29,112 @@ const STAGES = [
   { key: "resolved", label: "Resolved", desc: "Outcome shared and case closed." },
 ];
 
-function TrackPage() {
-  const [id, setId] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Complaint | null>(null);
+function ReportDetailPage() {
+  const { id } = Route.useParams();
 
-  const performSearch = async (targetId: string) => {
-    if (!targetId.trim()) return;
-    setLoading(true);
-    setResult(null);
-    try {
-      const data = await complaintService.track(targetId.trim().toUpperCase());
-      setResult(data);
-    } catch (err: any) {
-      toast.error(err.message || "Case not found");
-    } finally {
-      setLoading(false);
+  const {
+    data: complaint,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["complaint-detail", id],
+    queryFn: () => complaintService.getById(id),
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          <p className="text-sm text-muted-foreground">Loading report details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !complaint) {
+    return (
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+        <AlertCircle className="mx-auto h-8 w-8 text-destructive" />
+        <h3 className="mt-3 font-semibold text-destructive">Failed to load report</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : "An error occurred"}
+        </p>
+        <Link
+          to="/dashboard/reports"
+          className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to reports
+        </Link>
+      </div>
+    );
+  }
+
+  const currentStageIndex = STAGES.findIndex((s) => s.key === complaint.status);
+  const isRejected = complaint.status === "rejected";
+
+  const getStatusTone = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "warning";
+      case "in_review":
+        return "accent";
+      case "resolved":
+        return "success";
+      case "rejected":
+        return "danger";
+      default:
+        return "muted";
     }
   };
-
-  const search = async (e: React.FormEvent) => {
-    e.preventDefault();
-    performSearch(id);
-  };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const queryId = params.get("id");
-      if (queryId) {
-        setId(queryId.toUpperCase());
-        performSearch(queryId.toUpperCase());
-      }
-    }
-  }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <SiteHeader />
-      <section className="container-page py-12 md:py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5 text-success" /> Transparent case tracking
-          </span>
-          <h1 className="mt-4 font-display text-3xl font-semibold md:text-5xl">Track your case</h1>
-          <p className="mt-3 text-muted-foreground">
-            Enter the reference ID you received when you submitted your report.
+    <div className="space-y-6 pb-20">
+      <div className="flex items-center gap-4">
+        <Link
+          to="/dashboard/reports"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+        <div>
+          <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight">
+            Report Details
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Reference ID: <span className="font-mono font-bold text-accent">#{complaint.reference_id || complaint.referenceId}</span>
           </p>
         </div>
+      </div>
 
-        <form
-          onSubmit={search}
-          className="mx-auto mt-8 flex w-full max-w-2xl flex-col gap-3 rounded-2xl border border-border bg-card p-2.5 shadow-card sm:flex-row"
-        >
-          <div className="flex flex-1 items-center gap-2.5 rounded-xl px-3.5">
-            <Search className="h-4.5 w-4.5 text-muted-foreground" />
-            <input
-              value={id}
-              onChange={(e) => {
-                const formatted = e.target.value
-                  .toUpperCase()
-                  .replace(/[^A-Z0-9-]/g, "");
-                setId(formatted);
-              }}
-              placeholder="e.g. RC-48201"
-              className="w-full bg-transparent py-3 text-[15px] outline-none placeholder:text-muted-foreground/70"
-            />
-          </div>
-          <button
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-70"
-          >
-            {loading ? "Searching..." : "Track case"} <ArrowRight className="h-4 w-4" />
-          </button>
-        </form>
-
-        <div className="mx-auto mt-10 max-w-3xl">
-          {loading && <TrackSkeleton />}
-          {result && <TrackResult data={result} />}
-          {!loading && !result && (
-            <div className="rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-                <FileText className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">No case loaded yet</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Don't have a reference ID?{" "}
-                <Link to="/submit" className="font-medium text-accent hover:underline">
-                  Submit a new report
-                </Link>
-                .
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
-      <SiteFooter />
-    </div>
-  );
-}
-
-function TrackSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="h-32 animate-pulse rounded-2xl bg-muted" />
-      <div className="h-64 animate-pulse rounded-2xl bg-muted" />
-    </div>
-  );
-}
-
-function TrackResult({ data }: { data: Complaint }) {
-  const currentStageIndex = STAGES.findIndex((s) => s.key === data.status);
-  const isRejected = data.status === "rejected";
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-6"
-    >
       <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  isRejected ? "bg-destructive/10 text-destructive" : "bg-accent/10 text-accent"
-                }`}
-              >
-                {data.status.replace("_", " ").toUpperCase()}
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge tone={getStatusTone(complaint.status)}>
+                {complaint.status.replace("_", " ").toUpperCase()}
+              </StatusBadge>
+              <span className="text-xs text-muted-foreground">•</span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {formatCategory(complaint.category)}
               </span>
-              <span className="text-xs text-muted-foreground">Case #{data.reference_id}</span>
             </div>
-            <h2 className="mt-2 font-display text-xl font-semibold">{data.title}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {formatCategory(data.category)} · Submitted {format(new Date(data.created_at), "PPP")}
+            <h2 className="mt-2 font-display text-lg sm:text-xl font-bold text-foreground">
+              {complaint.title}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Submitted {format(new Date(complaint.created_at || complaint.createdAt || Date.now()), "PPP")}
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5" /> Last updated {format(new Date(data.updated_at), "p")}
+            <Clock className="h-3.5 w-3.5" /> Last updated {format(new Date(complaint.updated_at || complaint.updatedAt || Date.now()), "p")}
           </div>
         </div>
       </div>
 
       {/* Official Admin Feedback Reply */}
-      {(data.admin_feedback || data.adminFeedback) && (
+      {(complaint.admin_feedback || complaint.adminFeedback) && (
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
@@ -189,25 +146,25 @@ function TrackResult({ data }: { data: Complaint }) {
               Official Administrator Reply
             </h3>
           </div>
-          <p className="mt-2 text-sm leading-relaxed text-foreground font-medium">
-            {data.admin_feedback || data.adminFeedback}
+          <p className="mt-2 text-sm leading-relaxed text-foreground font-medium font-display">
+            {complaint.admin_feedback || complaint.adminFeedback}
           </p>
         </motion.div>
       )}
 
       {/* Student Satisfaction Survey */}
-      {data.status === "resolved" && (
+      {complaint.status === "resolved" && (
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <SatisfactionSurvey complaint={data} />
+          <SatisfactionSurvey complaint={complaint} />
         </motion.div>
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-display text-base font-bold text-primary">Progress Timeline</h3>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+          <h3 className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">Progress Timeline</h3>
           <ol className="mt-5 space-y-5">
             {STAGES.map((s, i) => {
               const done = i < currentStageIndex;
@@ -248,11 +205,11 @@ function TrackResult({ data }: { data: Complaint }) {
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-display text-base font-semibold">Activity log</h3>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+          <h3 className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">Activity log</h3>
           <div className="mt-5 space-y-4 max-h-[300px] overflow-y-auto pr-2">
-            {data.timeline?.length > 0 ? (
-              [...data.timeline].reverse().map((t: any, i: number) => (
+            {complaint.timeline?.length > 0 ? (
+              [...complaint.timeline].reverse().map((t: any, i: number) => (
                 <div key={i} className="flex gap-3">
                   <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                   <div>
@@ -272,33 +229,21 @@ function TrackResult({ data }: { data: Complaint }) {
         </div>
       </div>
 
-      {isRejected && (
-        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 flex items-start gap-4">
-          <XCircle className="h-6 w-6 text-destructive shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-display text-base font-semibold text-destructive">Case Rejected</h3>
-            <p className="mt-1 text-sm text-destructive/80">
-              This case has been rejected and closed. Please contact the administration if you
-              believe this is an error.
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="flex items-center gap-2 font-display text-base font-semibold">
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+          <h3 className="flex items-center gap-2 font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
             <MessageSquare className="h-4 w-4 text-accent" /> Description
           </h3>
-          <p className="mt-3 text-sm text-muted-foreground">{data.description}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{complaint.description}</p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="flex items-center gap-2 font-display text-base font-semibold">
-            <Paperclip className="h-4 w-4 text-accent" /> Evidence
+
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+          <h3 className="flex items-center gap-2 font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <Paperclip className="h-4 w-4 text-accent" /> Evidence Files
           </h3>
           <ul className="mt-3 space-y-2 text-sm">
-            {data.files.length > 0 ? (
-              data.files.map((file, idx) => (
+            {complaint.files && complaint.files.length > 0 ? (
+              complaint.files.map((file, idx) => (
                 <li
                   key={idx}
                   className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2"
@@ -307,7 +252,7 @@ function TrackResult({ data }: { data: Complaint }) {
                     href={`${SERVER_URL}${file.url}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:text-accent truncate"
+                    className="hover:text-accent truncate font-medium"
                   >
                     {file.originalName}
                   </a>
@@ -322,7 +267,7 @@ function TrackResult({ data }: { data: Complaint }) {
           </ul>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -339,7 +284,7 @@ function SatisfactionSurvey({ complaint }: { complaint: Complaint }) {
     if (!satisfied) return;
     setSubmitting(true);
     try {
-      const updated = await complaintService.submitFeedback(complaint._id || complaint.id || "", {
+      await complaintService.submitFeedback(complaint._id || complaint.id || "", {
         satisfied,
         comments,
       });
@@ -389,7 +334,7 @@ function SatisfactionSurvey({ complaint }: { complaint: Complaint }) {
           Was this resolved to your satisfaction?
         </h3>
         <p className="text-xs text-muted-foreground">
-          Your feedback is anonymous and helps us improve our school resolution services.
+          Your feedback helps us monitor and improve our resolution speed and quality.
         </p>
       </div>
 

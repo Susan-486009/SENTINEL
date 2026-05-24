@@ -59,6 +59,10 @@ export interface Complaint {
   createdAt?: string;
   updated_at: string;
   updatedAt?: string;
+  admin_feedback?: string;
+  adminFeedback?: string;
+  satisfaction_feedback?: { satisfied: "yes" | "no"; comments: string; submitted_at?: string } | null;
+  satisfactionFeedback?: { satisfied: "yes" | "no"; comments: string; submitted_at?: string } | null;
   submitter?: {
     id: string;
     name: string;
@@ -168,10 +172,10 @@ export const complaintService = {
       method: "POST",
       body: formData,
     }),
-  updateStatus: (id: string, status: string) =>
+  updateStatus: (id: string, status: string, adminFeedback?: string) =>
     request<Complaint>(`/complaints/${id}/status`, {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, adminFeedback }),
     }),
   updatePriority: (id: string, priority: string) =>
     request<Complaint>(`/complaints/${id}/priority`, {
@@ -182,6 +186,11 @@ export const complaintService = {
     request<InternalNote>(`/complaints/${id}/notes`, {
       method: "POST",
       body: JSON.stringify({ text }),
+    }),
+  submitFeedback: (id: string, feedback: { satisfied: "yes" | "no"; comments: string }) =>
+    request<any>(`/complaints/${id}/feedback`, {
+      method: "POST",
+      body: JSON.stringify(feedback),
     }),
 };
 
