@@ -4,6 +4,7 @@ import { User } from '../models/User.js';
 import { AppError } from '../utils/response.js';
 import { generateIdWithRetry, VALID_STATUSES } from '../utils/complaint.utils.js';
 import { Notification } from '../models/Notification.js';
+import { extractTextFromPdf } from '../utils/pdf_ocr.js';
 import {
   processAndStore,
   safeCleanRaw,
@@ -22,12 +23,27 @@ export const complaintService = {
 
       const attachedFiles = await processAndStore(files);
 
+      // Run Python OCR on attached PDFs
+      let extractedText = "";
+      for (const file of attachedFiles) {
+        if (file.mimeType === 'application/pdf') {
+          // Construct absolute path using url or fallback
+          const filePath = file.path || `src/uploads/compressed/${file.filename}`;
+          const text = await extractTextFromPdf(filePath);
+          if (text) {
+            extractedText += `\n\n[OCR from ${file.originalName}]:\n${text}`;
+          }
+        }
+      }
+
+      const finalDescription = (description + extractedText).trim();
+
       const newComplaint = await Complaint.create({
         reference_id: referenceId,
         user_id: userId,
         category,
         title: title.trim(),
-        description: description.trim(),
+        description: finalDescription,
         anonymous: anonymous ? true : false,
         priority,
         status: 'pending',
@@ -37,6 +53,16 @@ export const complaintService = {
           text: 'Complaint submitted and reference ID issued.',
           user_id: userId
         }]
+      });
+      
+      // Asynchronously generate an AI draft reply
+      import('./ai.service.js').then(({ aiService }) => {
+        aiService.analyzeComplaint(finalDescription).then(async (analysis) => {
+          if (analysis && analysis.suggestedResponse) {
+            newComplaint.ai_draft_reply = analysis.suggestedResponse;
+            await newComplaint.save();
+          }
+        }).catch(err => console.error("AI Draft Generation failed:", err));
       });
 
       return {
@@ -123,6 +149,7 @@ export const complaintService = {
       priority:       complaint.priority,
       anonymous:      complaint.anonymous,
       adminFeedback:  complaint.admin_feedback || '',
+      aiDraftReply:   complaint.ai_draft_reply || null,
       satisfactionFeedback: complaint.satisfaction_feedback || null,
       submitter,
       files:          complaint.files || [],

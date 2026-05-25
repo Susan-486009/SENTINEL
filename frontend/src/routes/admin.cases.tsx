@@ -328,6 +328,25 @@ function CasesPage() {
                         </p>
                       </div>
                     )}
+                    
+                    {active.aiDraftReply && !(active.admin_feedback || active.adminFeedback) && (
+                      <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-sm relative">
+                        <div className="absolute top-3 right-3">
+                          <button
+                            onClick={() => setReplyText(active.aiDraftReply)}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-500/20 transition-colors"
+                          >
+                            Use Draft
+                          </button>
+                        </div>
+                        <div className="mb-2 text-[10px] text-indigo-500 font-bold uppercase tracking-wider flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" /> Auto-Generated AI Draft
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed pr-20 italic">
+                          "{active.aiDraftReply}"
+                        </p>
+                      </div>
+                    )}
 
                       <div className="flex items-center justify-between">
                         <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Draft Reply</label>

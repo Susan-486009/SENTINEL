@@ -362,28 +362,104 @@ function Step2({
   form: FormState;
   update: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
 }) {
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  const handleEnhance = async () => {
+    if (form.details.length < 10) return toast.error("Write a bit more before enhancing.");
+    setIsEnhancing(true);
+    try {
+      const response = await fetch("https://sentinel-olive-five.vercel.app/api/v1/ai/rewrite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("as_access_token")}`,
+        },
+        body: JSON.stringify({ text: form.details }),
+      });
+      const data = await response.json();
+      if (data.success && data.data?.rewrittenText) {
+        update("details", data.data.rewrittenText);
+        toast.success("Text enhanced by AI!");
+      } else {
+        toast.error("Failed to enhance text.");
+      }
+    } catch (err) {
+      toast.error("An error occurred while communicating with AI.");
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
+  const handleHighlight = () => {
+    const textarea = document.getElementById('details-textarea') as HTMLTextAreaElement;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    if (start === end) {
+      toast.info("Select some text to highlight first.");
+      return;
+    }
+    
+    const selectedText = form.details.substring(start, end);
+    const newText = form.details.substring(0, start) + `**[HIGHLIGHT: ${selectedText}]**` + form.details.substring(end);
+    update("details", newText);
+    toast.success("Text highlighted for reviewers!");
+  };
+
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
         <Label>Describe what happened</Label>
+        
+        {/* Rich Text / AI Toolbar */}
+        <div className="flex items-center gap-2 mb-2 p-1.5 rounded-lg border border-border bg-surface/50">
+          <button 
+            type="button"
+            onClick={handleHighlight}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md hover:bg-muted text-muted-foreground hover:text-accent transition-colors"
+          >
+            <span className="h-3 w-3 rounded-sm bg-accent/40 block border border-accent"></span>
+            Highlight Important
+          </button>
+          
+          <div className="flex-1"></div>
+          
+          <button 
+            type="button"
+            onClick={handleEnhance}
+            disabled={isEnhancing}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
+          >
+            {isEnhancing ? (
+              <span className="animate-spin text-indigo-500">⏳</span>
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {isEnhancing ? "Enhancing..." : "Rewrite with AI"}
+          </button>
+        </div>
+
         <textarea
-          rows={9}
+          id="details-textarea"
+          rows={8}
           className={inputCls()}
           placeholder="Share the full context, dates, people involved, and what outcome you'd like."
           value={form.details}
           onChange={(e) => update("details", e.target.value)}
         />
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
           <span>Minimum 30 characters</span>
           <span>{form.details.length} / 2000</span>
         </div>
       </div>
       {form.details.length > 30 && form.category && (
-        <div className="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent/5 p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-accent/20 bg-accent/5 p-4 animate-in fade-in slide-in-from-bottom-2">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <div className="text-sm">
-            <p className="font-medium">Suggested category</p>
-            <p className="mt-0.5 text-muted-foreground">
+            <p className="font-medium text-accent">AI Auto-Triage Active</p>
+            <p className="mt-0.5 text-muted-foreground leading-relaxed">
               Based on your description, this looks like a{" "}
               <span className="font-medium text-foreground">{form.category}</span> matter for the{" "}
               <span className="font-medium text-foreground">

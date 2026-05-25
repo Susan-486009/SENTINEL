@@ -1,4 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import {
   Bell,
   Search,
@@ -148,23 +149,24 @@ export function AppShell({
           {nav.map((n) => {
             const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
             return (
-              <Link
-                key={n.to}
-                to={n.to}
-                onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 hover:translate-x-0.5 ${
-                  active
-                    ? "border-l-4 border-accent bg-primary/5 font-semibold text-primary shadow-soft"
-                    : "text-muted-foreground hover:bg-secondary hover:text-primary"
-                }`}
-              >
-                <n.icon
-                  className={`h-4.5 w-4.5 transition-colors ${
-                    active ? "text-accent" : "text-muted-foreground group-hover:text-primary"
+              <motion.div whileHover={{ x: 4 }} whileTap={{ scale: 0.96 }} key={n.to}>
+                <Link
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300 ${
+                    active
+                      ? "bg-accent/10 font-bold text-accent shadow-sm ring-1 ring-accent/20"
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   }`}
-                />
-                {n.label}
-              </Link>
+                >
+                  <n.icon
+                    className={`h-4.5 w-4.5 transition-colors ${
+                      active ? "text-accent" : "text-muted-foreground"
+                    }`}
+                  />
+                  {n.label}
+                </Link>
+              </motion.div>
             );
           })}
         </nav>

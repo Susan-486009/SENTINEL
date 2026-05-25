@@ -79,6 +79,10 @@ const complaintSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    ai_draft_reply: {
+      type: String,
+      default: null,
+    },
     satisfaction_feedback: {
       satisfied: { type: String, enum: ['yes', 'no'], default: null },
       comments: { type: String, default: '' },
