@@ -152,6 +152,11 @@ export const authService = {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
+  changePassword: (data: any) =>
+    request<any>("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
   getUsers: (params?: any) => {
     const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request<any>(`/auth/admin/users${qs}`);
