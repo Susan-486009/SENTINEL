@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { complaintService, adminService, type Complaint } from "@/lib/api";
+import { complaintService, authService, type Complaint } from "@/lib/api";
 import { Shield, Users, Inbox, Activity } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/superadmin/")({
   component: SuperadminDashboard,
@@ -9,15 +10,26 @@ export const Route = createFileRoute("/superadmin/")({
 
 function SuperadminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [recentCases, setRecentCases] = useState<Complaint[]>([]);
   
   useEffect(() => {
-    // In a real app we would have a dedicated endpoint for these high level metrics
-    // For now we just mock some command center data or fetch basic stats
+    // Fetch basic stats
     complaintService.getStats().then(setStats).catch(console.error);
+    
+    // Fetch total users (we just need the count, so limit 1 is fine if supported, otherwise it returns all and we take length)
+    authService.getUsers({ limit: 1 }).then((data) => {
+      setTotalUsers(data?.pagination?.total || data?.users?.length || 0);
+    }).catch(console.error);
+
+    // Fetch recent cases for activity feed
+    complaintService.getAll({ limit: 5 }).then((data) => {
+      setRecentCases(Array.isArray(data) ? data : data?.complaints || []);
+    }).catch(console.error);
   }, []);
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-8 space-y-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">System Command Center</h1>
         <p className="text-muted-foreground">Global overview of the Sentinel platform.</p>
@@ -30,7 +42,7 @@ function SuperadminDashboard() {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-            <h2 className="text-2xl font-bold">1,248</h2>
+            <h2 className="text-2xl font-bold">{totalUsers.toLocaleString()}</h2>
           </div>
         </div>
         
@@ -62,7 +74,7 @@ function SuperadminDashboard() {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Security Flags</p>
-            <h2 className="text-2xl font-bold">3</h2>
+            <h2 className="text-2xl font-bold">0</h2>
           </div>
         </div>
       </div>
@@ -73,7 +85,7 @@ function SuperadminDashboard() {
           <div className="grid grid-cols-2 gap-4">
             <button className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border p-4 hover:bg-accent/5 hover:border-accent/40 transition-colors">
               <Users className="h-6 w-6 text-muted-foreground" />
-              <span className="text-sm font-medium">Create Admin</span>
+              <span className="text-sm font-medium">Manage Users</span>
             </button>
             <button className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border p-4 hover:bg-accent/5 hover:border-accent/40 transition-colors">
               <Shield className="h-6 w-6 text-muted-foreground" />
@@ -83,18 +95,21 @@ function SuperadminDashboard() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h3 className="font-semibold text-lg mb-4">Recent System Activity</h3>
+          <h3 className="font-semibold text-lg mb-4">Recent Case Submissions</h3>
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-success"></div>
-              <p className="text-sm">Database backup completed successfully.</p>
-              <span className="ml-auto text-xs text-muted-foreground">2m ago</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-warning"></div>
-              <p className="text-sm">New admin account created (Dean Office).</p>
-              <span className="ml-auto text-xs text-muted-foreground">1h ago</span>
-            </div>
+            {recentCases.length > 0 ? (
+              recentCases.slice(0, 4).map((c) => (
+                <div key={c._id} className="flex items-center gap-3">
+                  <div className={`h-2 w-2 rounded-full ${c.priority === 'high' || c.priority === 'critical' ? 'bg-destructive' : 'bg-success'}`}></div>
+                  <p className="text-sm truncate flex-1">{c.title}</p>
+                  <span className="ml-auto text-xs text-muted-foreground whitespace-nowrap">
+                    {formatDistanceToNow(new Date(c.created_at || new Date()), { addSuffix: true })}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent cases.</p>
+            )}
           </div>
         </div>
       </div>

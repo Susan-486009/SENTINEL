@@ -1,8 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BarChart3, TrendingUp, CheckCircle2, Clock, AlertCircle, Inbox } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { adminNav } from "@/lib/ui-shared";
-import { AnalyticCard } from "@/components/AnalyticCard";
 import { useQuery } from "@tanstack/react-query";
 import { complaintService } from "@/lib/api";
 import {
@@ -71,7 +68,7 @@ function AnalyticsPage() {
     .slice(0, 5);
 
   return (
-    <AppShell nav={adminNav} title="Analytics Dashboard">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-8 pb-10">
         {/* Metric Cards */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -206,6 +203,6 @@ function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </div>
   );
 }

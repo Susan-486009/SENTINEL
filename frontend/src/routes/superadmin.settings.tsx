@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Settings, Lock } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { adminNav } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/superadmin/settings")({
   head: () => ({ meta: [{ title: "Settings — Superadmin" }] }),
@@ -10,7 +8,7 @@ export const Route = createFileRoute("/superadmin/settings")({
 
 function AdminSettingsPage() {
   return (
-    <AppShell nav={adminNav} title="Settings">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted text-muted-foreground/30">
           <Settings className="h-10 w-10" />
@@ -23,6 +21,6 @@ function AdminSettingsPage() {
           <Lock className="h-4 w-4" /> Restricted to Super Administrators
         </div>
       </div>
-    </AppShell>
+    </div>
   );
 }

@@ -135,7 +135,7 @@ export function SuperadminShell({
     : "??";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dark min-h-screen bg-background text-foreground">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-800 bg-slate-950 text-slate-100 transition-transform lg:translate-x-0 ${

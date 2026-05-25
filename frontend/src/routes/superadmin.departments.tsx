@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Building2, Plus, Search } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { adminNav } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/superadmin/departments")({
   head: () => ({ meta: [{ title: "Departments — Superadmin" }] }),
@@ -10,7 +8,7 @@ export const Route = createFileRoute("/superadmin/departments")({
 
 function DepartmentsPage() {
   return (
-    <AppShell nav={adminNav} title="Departments">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted text-muted-foreground/30">
           <Building2 className="h-10 w-10" />
@@ -26,6 +24,6 @@ function DepartmentsPage() {
           Add Department <Plus className="h-4 w-4" />
         </button>
       </div>
-    </AppShell>
+    </div>
   );
 }
