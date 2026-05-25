@@ -392,7 +392,6 @@ function CasesPage() {
                         </button>
                       </div>
                     </div>
-                  </div>
                 </Section>
 
                 <Section title="Internal notes">
