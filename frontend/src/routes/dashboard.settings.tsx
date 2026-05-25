@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService, type UserSettings } from "@/lib/api";
+import { applyTheme } from "@/lib/theme";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -333,12 +334,14 @@ function SettingsPage() {
               </div>
               <select
                 value={formData.settings.theme}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newTheme = e.target.value as any;
                   setFormData((p) => ({
                     ...p,
-                    settings: { ...p.settings, theme: e.target.value as any },
-                  }))
-                }
+                    settings: { ...p.settings, theme: newTheme },
+                  }));
+                  applyTheme(newTheme);
+                }}
                 className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium outline-none focus:border-accent"
               >
                 <option value="light">Light</option>

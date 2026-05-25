@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster, toast } from "sonner";
+import { applyTheme } from "@/lib/theme";
 
 import appCss from "../styles.css?url";
 
@@ -156,17 +157,30 @@ function RootComponent() {
   // Theme management
   useEffect(() => {
     const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    let theme: "light" | "dark" | "system" = "light";
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        const theme = user.settings?.theme || "light";
-        if (theme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
+        theme = user.settings?.theme || "light";
       } catch (e) {}
     }
+    applyTheme(theme);
+
+    // Listen for OS theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = () => {
+      // Re-evaluate if current theme is system
+      const currentStr = localStorage.getItem("user");
+      let currentTheme = "light";
+      if (currentStr) {
+        try { currentTheme = JSON.parse(currentStr).settings?.theme || "light"; } catch (e) {}
+      }
+      if (currentTheme === "system") {
+        applyTheme("system");
+      }
+    };
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   // Real-time network health monitor
