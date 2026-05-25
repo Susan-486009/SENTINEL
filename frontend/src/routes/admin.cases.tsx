@@ -284,7 +284,7 @@ function CasesPage() {
                       <option value="critical">Critical</option>
                     </select>
                   </div>
-                  <button className="rounded-xl border border-border bg-surface p-2.5 hover:bg-muted mt-4">
+                  <button className="rounded-xl border border-border bg-surface p-2.5 hover:bg-muted mt-4" onClick={() => toast.info("More actions coming in v2")}>
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </div>
@@ -419,7 +419,7 @@ function CasesPage() {
                         className="h-20 w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                       />
                       <div className="flex items-center justify-between border-t border-border pt-2">
-                        <button className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
+                        <button className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted" onClick={() => toast.info("Attachment support coming in v2")}>
                           <Paperclip className="h-3.5 w-3.5" /> Attach
                         </button>
                         <button

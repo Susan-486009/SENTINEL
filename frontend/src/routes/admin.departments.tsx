@@ -19,7 +19,10 @@ function DepartmentsPage() {
         <p className="mt-2 max-w-sm text-muted-foreground">
           Configure resolution departments, assign leads, and manage triage routing rules.
         </p>
-        <button className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition active:scale-[0.98]">
+        <button
+          onClick={() => import("sonner").then(m => m.toast.info("Department configuration coming in v2"))}
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition active:scale-[0.98]"
+        >
           Add Department <Plus className="h-4 w-4" />
         </button>
       </div>

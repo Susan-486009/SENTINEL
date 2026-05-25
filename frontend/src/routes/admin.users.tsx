@@ -110,7 +110,7 @@ function AdminUsersPage() {
                       <span className="text-xs">Active</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="rounded-lg p-1 hover:bg-muted">
+                      <button className="rounded-lg p-1 hover:bg-muted" onClick={() => import("sonner").then(m => m.toast.info("User editing coming in v2"))}>
                         <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                       </button>
                     </td>
