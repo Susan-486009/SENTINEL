@@ -13,7 +13,7 @@ function SuperadminDashboard() {
   useEffect(() => {
     // In a real app we would have a dedicated endpoint for these high level metrics
     // For now we just mock some command center data or fetch basic stats
-    complaintService.getAdminStats().then(setStats).catch(console.error);
+    complaintService.getStats().then(setStats).catch(console.error);
   }, []);
 
   return (
