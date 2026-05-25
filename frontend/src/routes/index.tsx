@@ -153,7 +153,7 @@ function HowItWorks() {
               key={s.title}
               {...fade}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="relative rounded-2xl border border-border bg-card p-6 shadow-soft"
+              className="relative rounded-2xl border border-border bg-card p-6 shadow-soft hover-lift"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
                 <s.icon className="h-5 w-5" />
@@ -214,7 +214,7 @@ function TrustSection() {
               key={it.title}
               {...fade}
               transition={{ duration: 0.45, delay: i * 0.05 }}
-              className="rounded-2xl border border-border bg-card p-6 transition hover:shadow-card"
+              className="rounded-2xl border border-border bg-card p-6 transition hover:shadow-card hover-lift"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5 text-primary">
                 <it.icon className="h-5 w-5" />
@@ -300,7 +300,7 @@ function CTASection({ isAuth }: { isAuth: boolean }) {
   return (
     <section className="border-t border-border">
       <div className="container-page py-16">
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground md:p-14">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground md:p-14 hover-lift">
           <div
             className="absolute inset-0 -z-0 opacity-[0.08]"
             style={{

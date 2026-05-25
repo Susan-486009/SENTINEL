@@ -151,7 +151,7 @@ function SubmitPage() {
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8 hover-lift">
           <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">
             {STEPS[step].title}
           </h2>
@@ -535,7 +535,7 @@ function SuccessScreen({ referenceId }: { referenceId: string }) {
           Thank you for reaching out. We'll review your case and respond as soon as possible.
         </p>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-left">
+        <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-left hover-lift shadow-soft">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Your reference ID</p>
           <div className="mt-2 flex items-center justify-between gap-3">
             <span className="font-display text-2xl font-semibold tracking-tight">

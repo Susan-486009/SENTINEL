@@ -330,9 +330,9 @@ export const complaintService = {
       throw new AppError('Unauthorized to submit feedback for this complaint.', 403);
     }
 
-    // Business rule: can only rate resolved complaints
-    if (complaint.status !== 'resolved') {
-      throw new AppError('Satisfaction feedback can only be submitted for resolved complaints.', 400);
+    // Business rule: can only rate resolved or fixed complaints
+    if (complaint.status !== 'resolved' && complaint.status !== 'fixed') {
+      throw new AppError('Satisfaction feedback can only be submitted for resolved or fixed complaints.', 400);
     }
 
     complaint.satisfaction_feedback = {

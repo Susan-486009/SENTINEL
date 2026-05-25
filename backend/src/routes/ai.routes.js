@@ -10,6 +10,7 @@ router.post('/chat', ai.chat);
 // Protected AI routes
 router.use(authenticate);
 router.post('/analyze', ai.analyzeComplaint);
+router.post('/rewrite', ai.rewriteText);
 router.get('/history', ai.getChatHistory);
 router.post('/history', ai.saveChatMessage);
 

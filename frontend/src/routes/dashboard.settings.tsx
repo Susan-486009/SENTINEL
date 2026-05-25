@@ -105,11 +105,11 @@ function SettingsPage() {
   const sections = [
     {
       id: "profile",
-      title: "Profile information",
+      title: "Profile Information",
       subtitle: "Manage your personal details and university identity.",
       icon: UserIcon,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      color: "text-foreground",
+      bg: "bg-muted/50",
       content: (
         <div className="p-6 space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
@@ -125,7 +125,7 @@ function SettingsPage() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm transition focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm transition focus:border-foreground focus:ring-1 focus:ring-foreground outline-none shadow-sm"
               />
             </div>
             <div>
@@ -140,7 +140,7 @@ function SettingsPage() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm transition focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2 text-sm transition focus:border-foreground focus:ring-1 focus:ring-foreground outline-none shadow-sm"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ function SettingsPage() {
               type="text"
               value={user?.matric}
               disabled
-              className="mt-2 w-full rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-sm text-muted-foreground cursor-not-allowed outline-none"
+              className="mt-2 w-full rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground cursor-not-allowed outline-none shadow-sm"
             />
             <p className="mt-2 text-[10px] text-muted-foreground italic">
               Your ID is managed by the institution and cannot be changed manually.
@@ -167,11 +167,11 @@ function SettingsPage() {
     },
     {
       id: "security",
-      title: "Security & privacy",
+      title: "Security & Privacy",
       subtitle: "Protect your account with modern security standards.",
       icon: ShieldCheck,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
+      color: "text-foreground",
+      bg: "bg-muted/50",
       content: (
         <div className="divide-y divide-border">
           <button
@@ -202,11 +202,11 @@ function SettingsPage() {
     },
     {
       id: "notifications",
-      title: "Notification preferences",
+      title: "Notification Preferences",
       subtitle: "Choose how and when you want to stay updated.",
       icon: Bell,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
+      color: "text-foreground",
+      bg: "bg-muted/50",
       content: (
         <div className="divide-y divide-border">
           <div className="flex items-center justify-between p-5">
@@ -255,8 +255,8 @@ function SettingsPage() {
       title: "Interface & Experience",
       subtitle: "Customize the portal to suit your workflow.",
       icon: Moon,
-      color: "text-purple-500",
-      bg: "bg-purple-500/10",
+      color: "text-foreground",
+      bg: "bg-muted/50",
       content: (
         <div className="p-5">
           <div className="flex items-center justify-between">
@@ -299,15 +299,15 @@ function SettingsPage() {
       <div className="grid gap-8 lg:grid-cols-12 px-4 lg:px-0">
         {/* Navigation Sidebar - Hidden on small screens or turned into a horizontal scroll */}
         <aside className="lg:col-span-4 lg:block overflow-x-auto">
-          <nav className="flex lg:flex-col gap-1 rounded-2xl border border-border bg-card p-2 shadow-soft min-w-max lg:min-w-0">
+          <nav className="flex lg:flex-col gap-1 rounded-xl border border-border bg-card p-2 shadow-sm min-w-max lg:min-w-0">
             {sections.map((s) => (
               <a
                 key={s.id}
                 href={`#${s.id}`}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-muted whitespace-nowrap"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition hover:bg-muted whitespace-nowrap"
               >
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg ${s.bg} ${s.color}`}
+                  className={`flex h-7 w-7 items-center justify-center rounded-md ${s.bg} ${s.color}`}
                 >
                   <s.icon className="h-4 w-4" />
                 </div>
@@ -317,9 +317,9 @@ function SettingsPage() {
             <hr className="hidden lg:block my-2 border-border" />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive transition hover:bg-destructive/5 whitespace-nowrap lg:w-full"
+              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-destructive transition hover:bg-destructive/5 whitespace-nowrap lg:w-full"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-destructive/10">
                 <LogOut className="h-4 w-4" />
               </div>
               Sign out
@@ -343,7 +343,7 @@ function SettingsPage() {
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                 {s.content}
               </div>
             </section>
@@ -352,19 +352,19 @@ function SettingsPage() {
           <div className="fixed bottom-0 left-0 right-0 lg:relative flex justify-end gap-3 pt-6 lg:pt-0 lg:border-t lg:border-border bg-background/95 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none p-4 lg:p-0 border-t border-border lg:border-0 shadow-2xl lg:shadow-none z-50 lg:z-auto">
             <button
               onClick={() => navigate({ to: "/dashboard" })}
-              className="rounded-xl border border-border bg-background lg:bg-card px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition hover:bg-muted w-full sm:w-auto"
+              className="rounded-md border border-border bg-background lg:bg-card px-4 py-2 text-sm font-medium transition hover:bg-muted w-full sm:w-auto"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={updateMutation.isPending}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50 w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 rounded-md bg-foreground px-5 py-2 text-sm font-medium text-background shadow-sm transition-colors hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-50 w-full sm:w-auto"
             >
               {updateMutation.isPending ? (
-                <Loader2 className="h-3.5 sm:h-4 w-3.5 sm:w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : null}
-              Save changes
+              Save Changes
             </button>
           </div>
           {/* Spacer for fixed footer on mobile */}

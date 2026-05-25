@@ -72,3 +72,19 @@ export const saveChatMessage = asyncHandler(async (req, res) => {
 
   sendSuccess(res, message, 'Message saved.', 201);
 });
+
+/**
+ * POST /api/v1/ai/rewrite
+ * Rewrites admin text to be more professional.
+ */
+export const rewriteText = asyncHandler(async (req, res) => {
+  const { text } = req.body;
+
+  if (!text || text.trim().length === 0) {
+    throw new AppError('Text is required for rewriting.', 400);
+  }
+
+  const rewrittenText = await aiService.rewrite(text);
+
+  sendSuccess(res, { rewrittenText }, 'Text rewritten successfully.');
+});

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { adminNav, StatusBadge, formatCategory } from "@/lib/ui-shared";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/admin/cases")({
   component: CasesPage,
 });
 
-const filters = ["All", "Pending", "In review", "Resolved", "Rejected"];
+const filters = ["All", "Pending", "In review", "Resolved", "Fixed", "Rejected"];
 
 function CasesPage() {
   const queryClient = useQueryClient();
@@ -79,6 +80,27 @@ function CasesPage() {
     },
   });
 
+  const aiEnhanceMutation = useMutation({
+    mutationFn: async (text: string) => {
+      const token = localStorage.getItem("as_access_token") || localStorage.getItem("token");
+      const res = await fetch(`${SERVER_URL}/ai/rewrite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to enhance text");
+      return data.data.rewrittenText;
+    },
+    onSuccess: (enhancedText) => {
+      setReplyText(enhancedText);
+      toast.success("Text enhanced with AI");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to connect to AI service.");
+    }
+  });
+
   const filtered = useMemo(() => {
     if (!cases) return [];
     return cases.filter((c) => {
@@ -101,6 +123,7 @@ function CasesPage() {
       case "in_review":
         return "accent";
       case "resolved":
+      case "fixed":
         return "success";
       case "rejected":
         return "danger";
@@ -239,6 +262,7 @@ function CasesPage() {
                       <option value="pending">Pending</option>
                       <option value="in_review">In Review</option>
                       <option value="resolved">Resolved</option>
+                      <option value="fixed">Fixed</option>
                       <option value="rejected">Rejected</option>
                     </select>
                   </div>
@@ -305,7 +329,21 @@ function CasesPage() {
                       </div>
                     )}
 
-                    <div className="rounded-xl border border-border bg-surface p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Draft Reply</label>
+                        <button
+                          onClick={() => aiEnhanceMutation.mutate(replyText)}
+                          disabled={aiEnhanceMutation.isPending || !replyText.trim() || replyText.trim().length < 5}
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-accent hover:bg-accent/10 transition disabled:opacity-50"
+                        >
+                          {aiEnhanceMutation.isPending ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3 w-3" />
+                          )}
+                          Enhance with AI
+                        </button>
+                      </div>
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -330,6 +368,7 @@ function CasesPage() {
                             <option value="pending">Pending</option>
                             <option value="in_review">In Review</option>
                             <option value="resolved">Resolved</option>
+                            <option value="fixed">Fixed</option>
                             <option value="rejected">Rejected</option>
                           </select>
                         </div>

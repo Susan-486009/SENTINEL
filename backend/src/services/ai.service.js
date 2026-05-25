@@ -169,4 +169,60 @@ STRICT RULES:
       throw new AppError('An unexpected error occurred in the chat service.', 500);
     }
   },
+
+  /**
+   * Rewrite text to be professional and suitable for an official admin reply.
+   *
+   * @param {string} text - The draft text.
+   * @returns {Promise<string>} The rewritten text.
+   */
+  async rewrite(text) {
+    if (!config.ai.groqApiKey) {
+      throw new AppError('AI service is not configured.', 503);
+    }
+
+    screenPromptInput(text);
+
+    const runRewrite = async () => {
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.ai.groqApiKey}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          model: config.ai.groqModel,
+          messages: [
+            {
+              role: 'system',
+              content: `You are an AI assistant helping a university administrator write official replies to student complaints.
+Rewrite the following draft to be highly professional, polite, and clear. 
+DO NOT include any conversational filler (e.g. "Here is your rewritten text:").
+Just output the rewritten official reply. Keep it concise.`
+            },
+            {
+              role: 'user',
+              content: text,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new AppError('Failed to communicate with AI service.', 502);
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || text;
+    };
+
+    try {
+      return await groqBreaker.execute(runRewrite, text);
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+      throw new AppError('An unexpected error occurred in the AI service.', 500);
+    }
+  },
 };

@@ -163,5 +163,6 @@ export const VALID_STATUSES = new Set([
   'pending',
   'in_review',
   'resolved',
+  'fixed',
   'rejected',
 ]);

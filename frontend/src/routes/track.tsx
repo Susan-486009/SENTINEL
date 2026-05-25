@@ -30,6 +30,7 @@ const STAGES = [
   { key: "pending", label: "Submitted", desc: "Report received and reference ID issued." },
   { key: "in_review", label: "Under review", desc: "Initial review by the resolution office." },
   { key: "resolved", label: "Resolved", desc: "Outcome shared and case closed." },
+  { key: "fixed", label: "Fixed", desc: "Issue has been physically or technically fixed." },
 ];
 
 function TrackPage() {
@@ -152,7 +153,7 @@ function TrackResult({ data }: { data: Complaint }) {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-soft hover-lift">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -181,7 +182,7 @@ function TrackResult({ data }: { data: Complaint }) {
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-accent/25 bg-accent/5 p-6 shadow-soft"
+          className="rounded-2xl border border-accent/25 bg-accent/5 p-6 shadow-soft hover-lift"
         >
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-accent animate-pulse" />
@@ -196,7 +197,7 @@ function TrackResult({ data }: { data: Complaint }) {
       )}
 
       {/* Student Satisfaction Survey */}
-      {data.status === "resolved" && (
+      {(data.status === "resolved" || data.status === "fixed") && (
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
@@ -206,7 +207,7 @@ function TrackResult({ data }: { data: Complaint }) {
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 hover-lift shadow-soft">
           <h3 className="font-display text-base font-bold text-primary">Progress Timeline</h3>
           <ol className="mt-5 space-y-5">
             {STAGES.map((s, i) => {
@@ -248,7 +249,7 @@ function TrackResult({ data }: { data: Complaint }) {
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 hover-lift shadow-soft">
           <h3 className="font-display text-base font-semibold">Activity log</h3>
           <div className="mt-5 space-y-4 max-h-[300px] overflow-y-auto pr-2">
             {data.timeline?.length > 0 ? (
@@ -286,13 +287,13 @@ function TrackResult({ data }: { data: Complaint }) {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 hover-lift shadow-soft">
           <h3 className="flex items-center gap-2 font-display text-base font-semibold">
             <MessageSquare className="h-4 w-4 text-accent" /> Description
           </h3>
           <p className="mt-3 text-sm text-muted-foreground">{data.description}</p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 hover-lift shadow-soft">
           <h3 className="flex items-center gap-2 font-display text-base font-semibold">
             <Paperclip className="h-4 w-4 text-accent" /> Evidence
           </h3>

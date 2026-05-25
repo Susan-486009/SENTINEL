@@ -87,38 +87,34 @@ function DashboardIndex() {
       animate="show"
       className="space-y-10 pb-20"
     >
-      {/* 1. Glassmorphic Hero Greeting Section */}
+      {/* 1. Sleek Hero Greeting Section */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-primary/10 via-background to-accent/5 p-6 md:p-8 shadow-soft"
+        className="relative overflow-hidden rounded-xl border border-border bg-card p-6 md:p-8 shadow-sm"
       >
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
-        <div className="absolute left-1/3 bottom-0 -mb-20 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.03] grid-bg" />
 
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-3.5 py-1 text-xs font-semibold text-accent border border-accent/20 shadow-sm">
-              <Sparkles className="h-3 w-3" />
-              <span>LASUSTECH Student Resolution Hub</span>
+            <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border border-border">
+              LASUSTECH Resolution Hub
             </div>
             <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              {greeting}, <span className="text-accent">{user?.name || "Student"}</span>!
+              {greeting}, {user?.name || "Student"}.
             </h2>
             <p className="text-sm text-muted-foreground max-w-xl">
               Report academic, facility, or administrative concerns safely. Your voice drives
-              transparency and change across LASUSTECH.
+              transparency and change across the institution.
             </p>
           </div>
 
-          <div className="flex flex-col gap-1 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-md p-4 text-xs font-mono text-muted-foreground shadow-sm max-w-max self-start md:self-center border-l-4 border-l-accent">
-            <span className="font-bold text-foreground">UNIVERSITY ACCOUNT IDENTITY</span>
-            <span className="mt-1">
-              Matric ID:{" "}
-              <span className="text-foreground font-semibold">{user?.matric || "N/A"}</span>
+          <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 text-xs font-mono text-muted-foreground self-start md:self-center">
+            <span className="font-bold text-foreground">ACCOUNT IDENTITY</span>
+            <span className="mt-1 flex items-center justify-between gap-4">
+              ID: <span className="text-foreground font-semibold">{user?.matric || "N/A"}</span>
             </span>
-            <span>
-              Role Type:{" "}
-              <span className="text-foreground font-semibold capitalize">{user?.role}</span>
+            <span className="flex items-center justify-between gap-4">
+              Role: <span className="text-foreground font-semibold capitalize">{user?.role}</span>
             </span>
           </div>
         </div>
@@ -162,18 +158,13 @@ function DashboardIndex() {
         ].map((item, index) => (
           <motion.div
             key={index}
-            whileHover={{ y: -4 }}
-            className={`rounded-2xl border ${item.border} bg-card p-5 transition-all duration-300 shadow-soft hover:shadow-[0_12px_24px_-10px_rgba(0,0,0,0.06)]`}
+            className="rounded-xl border border-border bg-card p-5 transition-all duration-150 shadow-sm hover:-translate-y-[1px] hover:shadow-md"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {item.label}
               </span>
-              <div
-                className={`flex h-9 w-9 items-center justify-center rounded-xl ${item.bg} ${item.color}`}
-              >
-                <item.icon className="h-5 w-5" />
-              </div>
+              <item.icon className={`h-4 w-4 ${item.color}`} />
             </div>
             <p className="mt-4 text-3xl font-semibold tracking-tight">{item.value}</p>
           </motion.div>
@@ -221,20 +212,20 @@ function DashboardIndex() {
             ) : (
               <div className="divide-y divide-border/60">
                 {list.slice(0, 5).map((complaint: Complaint) => {
-                  let badgeBg = "bg-amber-500/10 text-amber-600 border-amber-500/20";
+                  let badgeBg = "text-amber-600 bg-amber-500/10 border-amber-500/20";
                   if (complaint.status === "in_review")
-                    badgeBg = "bg-indigo-500/10 text-indigo-600 border-indigo-500/20";
-                  if (complaint.status === "resolved")
-                    badgeBg = "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+                    badgeBg = "text-indigo-600 bg-indigo-500/10 border-indigo-500/20";
+                  if (complaint.status === "resolved" || complaint.status === "fixed")
+                    badgeBg = "text-emerald-600 bg-emerald-500/10 border-emerald-500/20";
                   if (complaint.status === "rejected")
-                    badgeBg = "bg-rose-500/10 text-rose-600 border-rose-500/20";
+                    badgeBg = "text-rose-600 bg-rose-500/10 border-rose-500/20";
 
                   const refCode = complaint.reference_id || complaint.referenceId || "REF-UNKNOWN";
 
                   return (
                     <div
                       key={complaint._id}
-                      className="group relative p-5 hover:bg-muted/30 transition duration-300"
+                      className="group relative p-4 sm:px-6 hover:bg-muted/40 transition duration-150"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="space-y-1">
@@ -267,11 +258,11 @@ function DashboardIndex() {
                       </div>
 
                       {/* Complaint progress bar */}
-                      <div className="mt-4 flex items-center gap-2">
-                        <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                      <div className="mt-3 flex items-center gap-3">
+                        <div className="h-[2px] w-full rounded-full bg-border overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              complaint.status === "resolved"
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              complaint.status === "resolved" || complaint.status === "fixed"
                                 ? "bg-emerald-500 w-full"
                                 : complaint.status === "rejected"
                                   ? "bg-rose-500 w-full"
@@ -303,75 +294,65 @@ function DashboardIndex() {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {/* Quick Action 1: File Report */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              className="rounded-2xl border border-border bg-card p-5 relative overflow-hidden group shadow-soft"
-            >
-              <div className="absolute right-0 top-0 -mr-6 -mt-6 h-20 w-20 rounded-full bg-accent/5 transition-transform group-hover:scale-125" />
-              <h4 className="font-semibold text-sm text-foreground">File a New Report</h4>
-              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+            <div className="rounded-xl border border-border bg-card p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4 text-accent" /> File a New Report
+              </h4>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                 Submit a concern with files/evidence directly to reviewers.
               </p>
               <Link
                 to="/submit"
                 className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-accent group-hover:underline"
               >
-                Launch Submission{" "}
-                <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                Launch Submission <ArrowRight className="h-3 w-3" />
               </Link>
-            </motion.div>
+            </div>
 
             {/* Quick Action 2: Track ID */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              className="rounded-2xl border border-border bg-card p-5 relative overflow-hidden group shadow-soft"
-            >
-              <div className="absolute right-0 top-0 -mr-6 -mt-6 h-20 w-20 rounded-full bg-blue-500/5 transition-transform group-hover:scale-125" />
-              <h4 className="font-semibold text-sm text-foreground">Public Case Tracker</h4>
-              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+            <div className="rounded-xl border border-border bg-card p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                <HelpCircle className="h-4 w-4 text-blue-500" /> Public Case Tracker
+              </h4>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                 Track complaints directly by reference ID without logging in.
               </p>
               <Link
                 to="/track"
                 className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-accent group-hover:underline"
               >
-                Open Case Tracker{" "}
-                <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                Open Case Tracker <ArrowRight className="h-3 w-3" />
               </Link>
-            </motion.div>
+            </div>
 
             {/* Quick Action 3: Settings */}
-            <motion.div
-              whileHover={{ y: -3 }}
-              className="rounded-2xl border border-border bg-card p-5 relative overflow-hidden group shadow-soft"
-            >
-              <div className="absolute right-0 top-0 -mr-6 -mt-6 h-20 w-20 rounded-full bg-indigo-500/5 transition-transform group-hover:scale-125" />
-              <h4 className="font-semibold text-sm text-foreground">Manage Credentials</h4>
-              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+            <div className="rounded-xl border border-border bg-card p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-indigo-500" /> Manage Credentials
+              </h4>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                 Update password, notification options, and theme controls.
               </p>
               <Link
                 to="/dashboard/settings"
                 className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-accent group-hover:underline"
               >
-                Account Settings{" "}
-                <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                Account Settings <ArrowRight className="h-3 w-3" />
               </Link>
-            </motion.div>
+            </div>
           </div>
 
           {/* Security Advisory */}
-          <div className="rounded-2xl border border-accent/20 bg-accent/5 p-5 border-l-4 border-l-accent shadow-soft">
+          <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
             <div className="flex items-start gap-3">
-              <ShieldAlert className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+              <ShieldAlert className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Sentinel Security Boundary
+                <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Sentinel Security
                 </h4>
                 <p className="mt-1.5 text-[11px] text-muted-foreground leading-relaxed">
-                  LASUSTECH implements cryptographic correlation hashing on complaints. Stored
-                  uploads are automatically compressed and sanitized to preserve student
-                  confidentiality.
+                  LASUSTECH implements strict data governance. Submissions are encrypted and
+                  only viewable by authorized administrative staff.
                 </p>
               </div>
             </div>
