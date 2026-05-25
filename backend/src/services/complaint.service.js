@@ -206,11 +206,23 @@ export const complaintService = {
   /* ══════════════════════════════════════════════════════
      ADMIN — paginated list
   ══════════════════════════════════════════════════════ */
-  async getAll({ status, category, priority, page = 1, limit = 50 } = {}) {
+  async getAll({ status, category, priority, page = 1, limit = 50, userRole, userDepartment } = {}) {
     const filter = {};
     if (status) filter.status = status;
-    if (category) filter.category = category;
     if (priority) filter.priority = priority;
+
+    // Staff can only see their department's cases
+    if (userRole === 'staff') {
+      if (userDepartment) {
+        filter.category = userDepartment;
+      } else {
+        // If staff has no department assigned, they see nothing
+        filter.category = '__none__';
+      }
+    } else {
+      // Admins/Superadmins can filter freely
+      if (category) filter.category = category;
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
 

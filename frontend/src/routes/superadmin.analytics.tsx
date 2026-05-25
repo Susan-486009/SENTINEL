@@ -18,7 +18,7 @@ import {
   Cell,
 } from "recharts";
 
-export const Route = createFileRoute("/admin/analytics")({
+export const Route = createFileRoute("/superadmin/analytics")({
   head: () => ({ meta: [{ title: "Analytics — Admin" }] }),
   component: AnalyticsPage,
 });

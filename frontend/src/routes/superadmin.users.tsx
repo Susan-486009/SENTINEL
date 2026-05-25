@@ -4,7 +4,7 @@ import { authService, User } from "@/lib/api";
 import { Search, Filter, Mail, Shield, User as UserIcon, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/admin/users")({
+export const Route = createFileRoute("/superadmin/users")({
   component: AdminUsersPage,
 });
 

@@ -3,8 +3,8 @@ import { Building2, Plus, Search } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { adminNav } from "@/lib/ui-shared";
 
-export const Route = createFileRoute("/admin/departments")({
-  head: () => ({ meta: [{ title: "Departments — Admin" }] }),
+export const Route = createFileRoute("/superadmin/departments")({
+  head: () => ({ meta: [{ title: "Departments — Superadmin" }] }),
   component: DepartmentsPage,
 });
 

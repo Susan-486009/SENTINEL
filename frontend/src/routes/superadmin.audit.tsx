@@ -3,7 +3,7 @@ import { ScrollText, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { adminNav } from "@/lib/ui-shared";
 
-export const Route = createFileRoute("/admin/audit")({
+export const Route = createFileRoute("/superadmin/audit")({
   head: () => ({ meta: [{ title: "Audit logs — Admin" }] }),
   component: AuditPage,
 });

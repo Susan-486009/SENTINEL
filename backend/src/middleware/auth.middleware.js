@@ -47,7 +47,11 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     req.user = verifyToken(token, 'access');
     
     // Quick validation check to confirm user still exists and is not disabled
-    const user = await User.findById(req.user.id).select('_id role name').lean();
+    const user = await User.findById(req.user.id)
+      .select('_id role name department_id')
+      .populate('department_id', 'name')
+      .lean();
+      
     if (!user) {
       return next(new AppError('Your account has been deleted or disabled.', 401));
     }
@@ -55,6 +59,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     req.user.role = user.role;
     req.user.name = user.name;
     req.user._id = user._id;
+    req.user.departmentName = user.department_id ? user.department_id.name : null;
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
@@ -69,6 +74,11 @@ export const authenticate = asyncHandler(async (req, res, next) => {
    Must be called AFTER authenticate().
  ───────────────────────────────────────────────────────────── */
 export const authorize = (...roles) => (req, _res, next) => {
+  // Superadmins can bypass all specific role restrictions
+  if (req.user?.role === 'superadmin') {
+    return next();
+  }
+  
   if (!roles.includes(req.user?.role)) {
     return next(
       new AppError(`Access denied. Requires role: ${roles.join(' or ')}.`, 403)

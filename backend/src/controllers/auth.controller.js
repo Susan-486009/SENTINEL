@@ -103,6 +103,12 @@ export const changePassword = asyncHandler(async (req, res) => {
 
 /* ── GET /api/v1/auth/admin/users ───────────────────── */
 export const getUsers = asyncHandler(async (req, res) => {
-  const result = await authService.getAllUsers(req.query);
+  const result = await authService.getAllUsers({ ...req.query, requesterRole: req.user.role });
   sendSuccess(res, result);
+});
+
+/* ── POST /api/v1/auth/admin/users ──────────────────── */
+export const createUser = asyncHandler(async (req, res) => {
+  const user = await authService.createUser(req.body);
+  sendSuccess(res, user, 'User created successfully.', 201);
 });

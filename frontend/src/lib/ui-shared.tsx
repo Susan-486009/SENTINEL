@@ -6,18 +6,29 @@ import {
   FileText,
   ScrollText,
   Settings,
+  Users,
+  ShieldAlert,
 } from "lucide-react";
 import React from "react";
 
 export const adminNav = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/cases", label: "Cases", icon: Inbox },
-  { to: "/admin/users", label: "Users", icon: Building2 },
-  { to: "/admin/departments", label: "Departments", icon: Building2 },
-  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", label: "Reports", icon: FileText },
-  { to: "/admin/audit", label: "Audit logs", icon: ScrollText },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
+];
+
+export const staffNav = [
+  { to: "/staff", label: "Department Board", icon: LayoutDashboard },
+];
+
+export const superadminNav = [
+  { to: "/superadmin", label: "Command Center", icon: LayoutDashboard },
+  { to: "/superadmin/cases", label: "All Cases", icon: Inbox },
+  { to: "/superadmin/users", label: "User Management", icon: Users },
+  { to: "/superadmin/departments", label: "Departments", icon: Building2 },
+  { to: "/superadmin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/superadmin/audit", label: "Audit Logs", icon: ShieldAlert },
+  { to: "/superadmin/settings", label: "Settings", icon: Settings },
 ];
 
 export function StatusBadge({ tone, children }: { tone: string; children: React.ReactNode }) {

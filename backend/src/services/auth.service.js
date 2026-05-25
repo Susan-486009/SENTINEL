@@ -170,7 +170,7 @@ export const authService = {
   /* ══════════════════════════════════════════════════════
      GET ALL USERS (ADMIN)
   ══════════════════════════════════════════════════════ */
-  async getAllUsers({ role, search, page = 1, limit = 50 }) {
+  async getAllUsers({ role, search, page = 1, limit = 50, requesterRole }) {
     const query = {};
     if (role) query.role = role;
     if (search) {
@@ -192,11 +192,30 @@ export const authService = {
       User.countDocuments(query),
     ]);
 
-    const formattedUsers = users.map(u => ({
-      ...u,
-      id: u._id.toString(),
-      _id: undefined,
-    }));
+    const formattedUsers = users.map(u => {
+      let isCloaked = false;
+      let name = u.name;
+      let email = u.email;
+      let matric = u.matric;
+
+      // Superadmins cannot see student identities (whistleblower protection)
+      if (requesterRole === 'superadmin' && u.role === 'student') {
+        isCloaked = true;
+        name = "Student - [ID CLOAKED]";
+        email = "***@lasustech.edu.ng";
+        matric = "HIDDEN";
+      }
+
+      return {
+        ...u,
+        name,
+        email,
+        matric,
+        isCloaked,
+        id: u._id.toString(),
+        _id: undefined,
+      };
+    });
 
     return {
       users: formattedUsers,
@@ -207,5 +226,40 @@ export const authService = {
         pages: Math.ceil(total / limit),
       },
     };
+  },
+
+  /* ══════════════════════════════════════════════════════
+     CREATE USER (SUPERADMIN)
+  ══════════════════════════════════════════════════════ */
+  async createUser({ name, matric, email, password, role, department_id }) {
+    const normEmail = email ? email.trim().toLowerCase() : undefined;
+    const normMatric = matric.trim().toUpperCase();
+    const normName = name.trim();
+    const safeRole = ['student', 'staff', 'admin', 'superadmin'].includes(role) ? role : 'student';
+
+    if (normEmail) {
+      const byEmail = await User.findOne({ email: normEmail }).select('_id').lean();
+      if (byEmail) throw new AppError('Email address is already in use.', 409);
+    }
+    const byMatric = await User.findOne({ matric: normMatric }).select('_id').lean();
+    if (byMatric) throw new AppError('Matric/Staff number is already registered.', 409);
+
+    const hashedPassword = await hashPassword(password);
+    
+    const newUser = await User.create({
+      name: normName,
+      matric: normMatric,
+      ...(normEmail && { email: normEmail }),
+      password: hashedPassword,
+      role: safeRole,
+      ...(department_id && { department_id }),
+    });
+
+    const user = newUser.toObject();
+    delete user.password;
+    user.id = user._id.toString();
+    delete user._id;
+
+    return user;
   },
 };

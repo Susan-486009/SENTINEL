@@ -10,25 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackRouteImport } from './routes/track'
+import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as SubmitRouteImport } from './routes/submit'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SuperadminIndexRouteImport } from './routes/superadmin.index'
+import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SuperadminUsersRouteImport } from './routes/superadmin.users'
+import { Route as SuperadminSettingsRouteImport } from './routes/superadmin.settings'
+import { Route as SuperadminDepartmentsRouteImport } from './routes/superadmin.departments'
+import { Route as SuperadminAuditRouteImport } from './routes/superadmin.audit'
+import { Route as SuperadminAnalyticsRouteImport } from './routes/superadmin.analytics'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
 import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
-import { Route as AdminDepartmentsRouteImport } from './routes/admin.departments'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
-import { Route as AdminAuditRouteImport } from './routes/admin.audit'
-import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as DashboardReportsIdRouteImport } from './routes/dashboard.reports.$id'
 
 const TrackRoute = TrackRouteImport.update({
@@ -36,9 +40,19 @@ const TrackRoute = TrackRouteImport.update({
   path: '/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminRoute = SuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -71,6 +85,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminIndexRoute = SuperadminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const StaffIndexRoute = StaffIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffRoute,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -80,6 +104,31 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const SuperadminUsersRoute = SuperadminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminSettingsRoute = SuperadminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminDepartmentsRoute = SuperadminDepartmentsRouteImport.update({
+  id: '/departments',
+  path: '/departments',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAuditRoute = SuperadminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => SuperadminRoute,
+} as any)
+const SuperadminAnalyticsRoute = SuperadminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => SuperadminRoute,
 } as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
@@ -101,34 +150,9 @@ const DashboardActivityRoute = DashboardActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => DashboardRoute,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminDepartmentsRoute = AdminDepartmentsRouteImport.update({
-  id: '/departments',
-  path: '/departments',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminCasesRoute = AdminCasesRouteImport.update({
   id: '/cases',
   path: '/cases',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAuditRoute = AdminAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
 const DashboardReportsIdRoute = DashboardReportsIdRouteImport.update({
@@ -144,20 +168,24 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/staff': typeof StaffRouteWithChildren
   '/submit': typeof SubmitRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
   '/track': typeof TrackRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/audit': typeof AdminAuditRoute
   '/admin/cases': typeof AdminCasesRoute
-  '/admin/departments': typeof AdminDepartmentsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/superadmin/analytics': typeof SuperadminAnalyticsRoute
+  '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/departments': typeof SuperadminDepartmentsRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/staff/': typeof StaffIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
   '/dashboard/reports/$id': typeof DashboardReportsIdRoute
 }
 export interface FileRoutesByTo {
@@ -167,18 +195,20 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/submit': typeof SubmitRoute
   '/track': typeof TrackRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/audit': typeof AdminAuditRoute
   '/admin/cases': typeof AdminCasesRoute
-  '/admin/departments': typeof AdminDepartmentsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/superadmin/analytics': typeof SuperadminAnalyticsRoute
+  '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/departments': typeof SuperadminDepartmentsRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/staff': typeof StaffIndexRoute
+  '/superadmin': typeof SuperadminIndexRoute
   '/dashboard/reports/$id': typeof DashboardReportsIdRoute
 }
 export interface FileRoutesById {
@@ -189,20 +219,24 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/staff': typeof StaffRouteWithChildren
   '/submit': typeof SubmitRoute
+  '/superadmin': typeof SuperadminRouteWithChildren
   '/track': typeof TrackRoute
-  '/admin/analytics': typeof AdminAnalyticsRoute
-  '/admin/audit': typeof AdminAuditRoute
   '/admin/cases': typeof AdminCasesRoute
-  '/admin/departments': typeof AdminDepartmentsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/superadmin/analytics': typeof SuperadminAnalyticsRoute
+  '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/departments': typeof SuperadminDepartmentsRoute
+  '/superadmin/settings': typeof SuperadminSettingsRoute
+  '/superadmin/users': typeof SuperadminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/staff/': typeof StaffIndexRoute
+  '/superadmin/': typeof SuperadminIndexRoute
   '/dashboard/reports/$id': typeof DashboardReportsIdRoute
 }
 export interface FileRouteTypes {
@@ -214,20 +248,24 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/staff'
     | '/submit'
+    | '/superadmin'
     | '/track'
-    | '/admin/analytics'
-    | '/admin/audit'
     | '/admin/cases'
-    | '/admin/departments'
-    | '/admin/settings'
-    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/superadmin/analytics'
+    | '/superadmin/audit'
+    | '/superadmin/departments'
+    | '/superadmin/settings'
+    | '/superadmin/users'
     | '/admin/'
     | '/dashboard/'
+    | '/staff/'
+    | '/superadmin/'
     | '/dashboard/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -237,18 +275,20 @@ export interface FileRouteTypes {
     | '/register'
     | '/submit'
     | '/track'
-    | '/admin/analytics'
-    | '/admin/audit'
     | '/admin/cases'
-    | '/admin/departments'
-    | '/admin/settings'
-    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/superadmin/analytics'
+    | '/superadmin/audit'
+    | '/superadmin/departments'
+    | '/superadmin/settings'
+    | '/superadmin/users'
     | '/admin'
     | '/dashboard'
+    | '/staff'
+    | '/superadmin'
     | '/dashboard/reports/$id'
   id:
     | '__root__'
@@ -258,20 +298,24 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/register'
+    | '/staff'
     | '/submit'
+    | '/superadmin'
     | '/track'
-    | '/admin/analytics'
-    | '/admin/audit'
     | '/admin/cases'
-    | '/admin/departments'
-    | '/admin/settings'
-    | '/admin/users'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
     | '/dashboard/settings'
+    | '/superadmin/analytics'
+    | '/superadmin/audit'
+    | '/superadmin/departments'
+    | '/superadmin/settings'
+    | '/superadmin/users'
     | '/admin/'
     | '/dashboard/'
+    | '/staff/'
+    | '/superadmin/'
     | '/dashboard/reports/$id'
   fileRoutesById: FileRoutesById
 }
@@ -282,7 +326,9 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  StaffRoute: typeof StaffRouteWithChildren
   SubmitRoute: typeof SubmitRoute
+  SuperadminRoute: typeof SuperadminRouteWithChildren
   TrackRoute: typeof TrackRoute
 }
 
@@ -295,11 +341,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin': {
+      id: '/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submit': {
       id: '/submit'
       path: '/submit'
       fullPath: '/submit'
       preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -344,6 +404,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin/': {
+      id: '/superadmin/'
+      path: '/'
+      fullPath: '/superadmin/'
+      preLoaderRoute: typeof SuperadminIndexRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/staff/': {
+      id: '/staff/'
+      path: '/'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexRouteImport
+      parentRoute: typeof StaffRoute
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/'
@@ -357,6 +431,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/superadmin/users': {
+      id: '/superadmin/users'
+      path: '/users'
+      fullPath: '/superadmin/users'
+      preLoaderRoute: typeof SuperadminUsersRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/settings': {
+      id: '/superadmin/settings'
+      path: '/settings'
+      fullPath: '/superadmin/settings'
+      preLoaderRoute: typeof SuperadminSettingsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/departments': {
+      id: '/superadmin/departments'
+      path: '/departments'
+      fullPath: '/superadmin/departments'
+      preLoaderRoute: typeof SuperadminDepartmentsRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/audit': {
+      id: '/superadmin/audit'
+      path: '/audit'
+      fullPath: '/superadmin/audit'
+      preLoaderRoute: typeof SuperadminAuditRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
+    '/superadmin/analytics': {
+      id: '/superadmin/analytics'
+      path: '/analytics'
+      fullPath: '/superadmin/analytics'
+      preLoaderRoute: typeof SuperadminAnalyticsRouteImport
+      parentRoute: typeof SuperadminRoute
     }
     '/dashboard/settings': {
       id: '/dashboard/settings'
@@ -386,46 +495,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardActivityRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/departments': {
-      id: '/admin/departments'
-      path: '/departments'
-      fullPath: '/admin/departments'
-      preLoaderRoute: typeof AdminDepartmentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/cases': {
       id: '/admin/cases'
       path: '/cases'
       fullPath: '/admin/cases'
       preLoaderRoute: typeof AdminCasesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/audit': {
-      id: '/admin/audit'
-      path: '/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/analytics': {
-      id: '/admin/analytics'
-      path: '/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/dashboard/reports/$id': {
@@ -439,22 +513,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
-  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
-  AdminAuditRoute: typeof AdminAuditRoute
   AdminCasesRoute: typeof AdminCasesRoute
-  AdminDepartmentsRoute: typeof AdminDepartmentsRoute
-  AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAnalyticsRoute: AdminAnalyticsRoute,
-  AdminAuditRoute: AdminAuditRoute,
   AdminCasesRoute: AdminCasesRoute,
-  AdminDepartmentsRoute: AdminDepartmentsRoute,
-  AdminSettingsRoute: AdminSettingsRoute,
-  AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -491,6 +555,38 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface StaffRouteChildren {
+  StaffIndexRoute: typeof StaffIndexRoute
+}
+
+const StaffRouteChildren: StaffRouteChildren = {
+  StaffIndexRoute: StaffIndexRoute,
+}
+
+const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
+
+interface SuperadminRouteChildren {
+  SuperadminAnalyticsRoute: typeof SuperadminAnalyticsRoute
+  SuperadminAuditRoute: typeof SuperadminAuditRoute
+  SuperadminDepartmentsRoute: typeof SuperadminDepartmentsRoute
+  SuperadminSettingsRoute: typeof SuperadminSettingsRoute
+  SuperadminUsersRoute: typeof SuperadminUsersRoute
+  SuperadminIndexRoute: typeof SuperadminIndexRoute
+}
+
+const SuperadminRouteChildren: SuperadminRouteChildren = {
+  SuperadminAnalyticsRoute: SuperadminAnalyticsRoute,
+  SuperadminAuditRoute: SuperadminAuditRoute,
+  SuperadminDepartmentsRoute: SuperadminDepartmentsRoute,
+  SuperadminSettingsRoute: SuperadminSettingsRoute,
+  SuperadminUsersRoute: SuperadminUsersRoute,
+  SuperadminIndexRoute: SuperadminIndexRoute,
+}
+
+const SuperadminRouteWithChildren = SuperadminRoute._addFileChildren(
+  SuperadminRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -498,7 +594,9 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  StaffRoute: StaffRouteWithChildren,
   SubmitRoute: SubmitRoute,
+  SuperadminRoute: SuperadminRouteWithChildren,
   TrackRoute: TrackRoute,
 }
 export const routeTree = rootRouteImport

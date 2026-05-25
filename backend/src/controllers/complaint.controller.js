@@ -78,6 +78,18 @@ export const getComplaintById = asyncHandler(async (req, res) => {
     req.user.role,
   );
 
+  // LOG THE VIEW ACTION FOR SURVEILLANCE
+  const { AuditLog } = await import('../models/AuditLog.js');
+  await AuditLog.create({
+    actor_id: req.user.id,
+    action: 'complaint_viewed',
+    target_id: complaint._id,
+    target_type: 'Complaint',
+    ip_address: req.ip,
+    user_agent: req.get('user-agent'),
+    expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // Keep for 1 year
+  }).catch(err => console.error("Failed to log view:", err));
+
   sendSuccess(res, complaint);
 });
 
@@ -87,7 +99,15 @@ export const getComplaintById = asyncHandler(async (req, res) => {
 ════════════════════════════════════════════════════════ */
 export const getAllComplaints = asyncHandler(async (req, res) => {
   const { status, category, priority, page, limit } = req.query;
-  const result = await complaintService.getAll({ status, category, priority, page, limit });
+  const result = await complaintService.getAll({ 
+    status, 
+    category, 
+    priority, 
+    page, 
+    limit,
+    userRole: req.user.role,
+    userDepartment: req.user.departmentName
+  });
   sendSuccess(res, result);
 });
 

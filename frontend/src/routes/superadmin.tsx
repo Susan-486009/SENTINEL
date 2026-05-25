@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { AdminShell } from "@/components/AdminShell";
+import { SuperadminShell } from "@/components/SuperadminShell";
 import { User } from "@/lib/api";
-import { adminNav } from "@/lib/ui-shared";
+import { superadminNav } from "@/lib/ui-shared";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/superadmin")({
   beforeLoad: ({ location }) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("as_access_token");
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin")({
         user = userStr ? JSON.parse(userStr) : null;
       } catch (e) {}
 
-      if (!token || user?.role !== "admin") {
+      if (!token || user?.role !== "superadmin") {
         throw redirect({
           to: "/login",
           search: {
@@ -24,13 +24,13 @@ export const Route = createFileRoute("/admin")({
       }
     }
   },
-  component: AdminLayout,
+  component: SuperadminLayout,
 });
 
-function AdminLayout() {
+function SuperadminLayout() {
   return (
-    <AdminShell nav={adminNav} title="Central Resolution">
+    <SuperadminShell nav={superadminNav} title="Command Center">
       <Outlet />
-    </AdminShell>
+    </SuperadminShell>
   );
 }

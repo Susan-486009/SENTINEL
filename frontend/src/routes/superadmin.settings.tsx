@@ -3,8 +3,8 @@ import { Settings, Lock } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { adminNav } from "@/lib/ui-shared";
 
-export const Route = createFileRoute("/admin/settings")({
-  head: () => ({ meta: [{ title: "Settings — Admin" }] }),
+export const Route = createFileRoute("/superadmin/settings")({
+  head: () => ({ meta: [{ title: "Settings — Superadmin" }] }),
   component: AdminSettingsPage,
 });
 

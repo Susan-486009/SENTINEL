@@ -65,4 +65,11 @@ router.post('/change-password', authenticate, validateChangePassword, auth.chang
  */
 router.get('/admin/users', authenticate, authorize('admin'), auth.getUsers);
 
+/**
+ * POST /api/v1/auth/admin/users
+ * Body: { name, matric, email, password, role, department_id? }
+ * Returns: { user }
+ */
+router.post('/admin/users', authenticate, authorize('superadmin'), auth.createUser);
+
 export default router;

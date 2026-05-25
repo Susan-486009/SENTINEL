@@ -44,8 +44,12 @@ function LoginPage() {
       toast.success("Welcome back!");
 
       const role = data.user?.role;
-      if (role === "admin") {
+      if (role === "superadmin") {
+        nav({ to: "/superadmin" });
+      } else if (role === "admin") {
         nav({ to: "/admin" });
+      } else if (role === "staff") {
+        nav({ to: "/staff" });
       } else {
         nav({ to: "/dashboard" });
       }

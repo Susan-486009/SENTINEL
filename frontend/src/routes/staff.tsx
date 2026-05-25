@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { AdminShell } from "@/components/AdminShell";
+import { StaffShell } from "@/components/StaffShell";
 import { User } from "@/lib/api";
-import { adminNav } from "@/lib/ui-shared";
+import { staffNav } from "@/lib/ui-shared";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/staff")({
   beforeLoad: ({ location }) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("as_access_token");
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin")({
         user = userStr ? JSON.parse(userStr) : null;
       } catch (e) {}
 
-      if (!token || user?.role !== "admin") {
+      if (!token || user?.role !== "staff") {
         throw redirect({
           to: "/login",
           search: {
@@ -24,13 +24,13 @@ export const Route = createFileRoute("/admin")({
       }
     }
   },
-  component: AdminLayout,
+  component: StaffLayout,
 });
 
-function AdminLayout() {
+function StaffLayout() {
   return (
-    <AdminShell nav={adminNav} title="Central Resolution">
+    <StaffShell nav={staffNav} title="Department Board">
       <Outlet />
-    </AdminShell>
+    </StaffShell>
   );
 }
