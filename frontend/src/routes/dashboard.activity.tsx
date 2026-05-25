@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { complaintService, type Complaint } from "@/lib/api";
 import { History, Loader2, AlertCircle, Clock } from "lucide-react";
@@ -116,9 +116,11 @@ function ActivityPage() {
           };
 
           return (
-            <div
+            <Link
+              to="/dashboard/reports/$id"
+              params={{ id: activity.complaint._id || (activity.complaint as any).id }}
               key={index}
-              className="rounded-2xl border border-border bg-card p-4 sm:p-5 hover:bg-muted/50 transition"
+              className="block rounded-2xl border border-border bg-card p-4 sm:p-5 hover:bg-muted/50 hover:border-accent/40 transition-all cursor-pointer group"
             >
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 {/* Timeline dot and line */}
@@ -139,14 +141,14 @@ function ActivityPage() {
                 <div className="flex-1 pt-1">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                     <div>
-                      <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                      <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-accent transition-colors">
                         {activity.title}
                       </h3>
                       <p className="text-xs mt-1 text-muted-foreground">{activity.description}</p>
                       {activity.complaint && (
                         <p className="text-xs mt-2 font-mono text-accent">
                           {activity.complaint.reference_id ||
-                            activity.complaint.referenceId ||
+                            (activity.complaint as any).referenceId ||
                             "N/A"}
                         </p>
                       )}
@@ -157,7 +159,7 @@ function ActivityPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
