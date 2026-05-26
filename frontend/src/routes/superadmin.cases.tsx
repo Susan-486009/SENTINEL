@@ -13,12 +13,23 @@ import {
   Loader2,
   AlertCircle,
   Sparkles,
+  AlertTriangle,
+  ChevronDown,
+  Info,
+  Clock,
+  CheckCircle,
+  XCircle,
+  CornerDownRight,
+  Database,
+  ArrowRight,
+  FileText
 } from "lucide-react";
 import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintService, type Complaint } from "@/lib/api";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
 
@@ -34,11 +45,20 @@ function safeFormatDate(dateStr: string | Date | undefined | null, formatStr: st
 }
 
 export const Route = createFileRoute("/superadmin/cases")({
-  head: () => ({ meta: [{ title: "Cases — Admin" }] }),
+  head: () => ({ meta: [{ title: "Platform Cases — Administrator Panel" }] }),
   component: CasesPage,
 });
 
 const filters = ["All", "Pending", "In review", "Resolved", "Fixed", "Rejected"];
+
+// Color mappings for different categories to give visual pops
+function getCategoryStyle(category: string) {
+  const cat = category.toLowerCase();
+  if (cat.includes("academic")) return "bg-blue-500/10 text-blue-400 border-blue-500/15";
+  if (cat.includes("hostel") || cat.includes("facilities")) return "bg-purple-500/10 text-purple-400 border-purple-500/15";
+  if (cat.includes("finance") || cat.includes("bursary")) return "bg-emerald-500/10 text-emerald-400 border-emerald-500/15";
+  return "bg-zinc-500/10 text-zinc-400 border-zinc-500/15";
+}
 
 function CasesPage() {
   const queryClient = useQueryClient();
@@ -66,8 +86,9 @@ function CasesPage() {
       queryClient.invalidateQueries({ queryKey: ["all-complaints"] });
       queryClient.invalidateQueries({ queryKey: ["complaint-detail", selectedId] });
       setReplyText("");
-      toast.success("Case updated successfully");
+      toast.success("Complaint status updated successfully");
     },
+    onError: (err: any) => toast.error(err.message || "Failed to update status"),
   });
 
   const updatePriorityMutation = useMutation({
@@ -76,8 +97,9 @@ function CasesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["all-complaints"] });
       queryClient.invalidateQueries({ queryKey: ["complaint-detail", selectedId] });
-      toast.success("Priority updated");
+      toast.success("Priority updated successfully");
     },
+    onError: (err: any) => toast.error(err.message || "Failed to update priority"),
   });
 
   const addNoteMutation = useMutation({
@@ -86,8 +108,9 @@ function CasesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["complaint-detail", selectedId] });
       setNoteText("");
-      toast.success("Note added");
+      toast.success("Internal note logged");
     },
+    onError: (err: any) => toast.error(err.message || "Failed to add note"),
   });
 
   const aiEnhanceMutation = useMutation({
@@ -104,10 +127,10 @@ function CasesPage() {
     },
     onSuccess: (enhancedText) => {
       setReplyText(enhancedText);
-      toast.success("Text enhanced with AI");
+      toast.success("Official reply optimized with AI rewriting");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to connect to AI service.");
+      toast.error(err.message || "AI rewriter service is currently unreachable.");
     }
   });
 
@@ -131,63 +154,58 @@ function CasesPage() {
     });
   }, [casesList, filter, query]);
 
-  const isLoading = listLoading;
-
   const getStatusTone = (status: string) => {
     switch (status) {
-      case "pending":
-        return "warning";
-      case "in_review":
-        return "accent";
+      case "pending": return "warning";
+      case "in_review": return "accent";
       case "resolved":
-      case "fixed":
-        return "success";
-      case "rejected":
-        return "danger";
-      default:
-        return "muted";
+      case "fixed": return "success";
+      case "rejected": return "danger";
+      default: return "muted";
     }
   };
 
   const getPriorityTone = (priority: string) => {
     switch (priority) {
-      case "critical":
-        return "danger";
-      case "high":
-        return "warning";
-      case "normal":
-        return "accent";
-      case "low":
-        return "muted";
-      default:
-        return "muted";
+      case "critical": return "danger";
+      case "high": return "warning";
+      case "normal": return "accent";
+      case "low": return "muted";
+      default: return "muted";
     }
   };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid h-[calc(100vh-6rem)] grid-cols-1 gap-6 lg:grid-cols-[380px_1fr]">
-        {/* List */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="border-b border-border p-4">
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+      <div className="grid h-[calc(100vh-7.5rem)] grid-cols-1 gap-6 lg:grid-cols-[400px_1fr]">
+        
+        {/* Left Column - Beautiful Case list */}
+        <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
+          <div className="border-b border-border p-4 space-y-3 bg-muted/20">
+            {/* Elegant Search with glow rings */}
+            <div className="relative flex items-center rounded-xl border border-border bg-background px-3 py-2.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
+              <Search className="h-4 w-4 text-muted-foreground shrink-0 mr-2" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search cases..."
-                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                placeholder="Search by case title, ID, tag..."
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground"
               />
             </div>
-            <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1">
+            
+            {/* Dynamic capsule selectors without horizontal scrollbar track */}
+            <div 
+              className="flex items-center gap-1.5 overflow-x-auto pb-1"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               {filters.map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium transition ${
+                  className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 ${
                     filter === f
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                      : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-muted/40"
                   }`}
                 >
                   {f}
@@ -196,207 +214,225 @@ function CasesPage() {
             </div>
           </div>
 
-          <ul className="flex-1 divide-y divide-border overflow-y-auto">
-            {isLoading ? (
-              <div className="flex justify-center p-10">
-                <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+          {/* Clean scrolling list */}
+          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto bg-muted/5">
+            {listLoading ? (
+              <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
+                <Loader2 className="animate-spin h-7 w-7 text-primary mb-2" />
+                <span className="text-xs">Fetching active registry...</span>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
+                <AlertCircle className="h-8 w-8 opacity-20 mb-2" />
+                <span className="text-sm font-semibold">No registry records found</span>
+                <span className="text-xs mt-1 opacity-70">Try relaxing your search descriptors</span>
               </div>
             ) : (
               filtered.map((c) => {
                 const isActive = selectedId === c._id;
                 return (
-                  <li
+                  <motion.li
                     key={c._id}
                     onClick={() => setSelectedId(c._id)}
-                    className={`cursor-pointer px-4 py-4 transition ${isActive ? "bg-accent/5" : "hover:bg-muted/40"}`}
+                    whileHover={{ x: 3 }}
+                    className={`cursor-pointer px-5 py-4.5 transition-all duration-200 border-l-2 relative ${
+                      isActive 
+                        ? "bg-primary/[0.03] border-primary" 
+                        : "hover:bg-muted/30 border-transparent"
+                    }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">#{c.reference_id || c.referenceId || "N/A"}</span>
-                      <div className="flex items-center gap-1.5">
-                        <StatusBadge tone={getStatusTone(c.status || "pending")}>
-                          {(c.status || "pending").replace("_", " ").toUpperCase()}
-                        </StatusBadge>
-                      </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-[10px] tracking-wider text-muted-foreground font-semibold uppercase">
+                        #{c.reference_id || c.referenceId || "N/A"}
+                      </span>
+                      <StatusBadge tone={getStatusTone(c.status || "pending")}>
+                        {(c.status || "pending").replace("_", " ").toUpperCase()}
+                      </StatusBadge>
                     </div>
-                    <div className="mt-1.5 line-clamp-1 font-medium">{c.title || "Untitled"}</div>
-                    <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{formatCategory(c.category)}</span>
-                      <span>{safeFormatDate(c.created_at, "MMM d")}</span>
+                    <div className="mt-2 line-clamp-1 font-semibold text-sm text-foreground hover:text-primary transition-colors">
+                      {c.title || "Untitled Issue"}
                     </div>
-                  </li>
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-medium ${getCategoryStyle(c.category)}`}>
+                        {formatCategory(c.category)}
+                      </span>
+                      <span className="font-medium text-[10.5px]">
+                        {safeFormatDate(c.created_at, "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  </motion.li>
                 );
               })
-            )}
-            {!isLoading && filtered.length === 0 && (
-              <li className="p-10 text-center text-sm text-muted-foreground">No cases found.</li>
             )}
           </ul>
         </div>
 
-        {/* Detail */}
-        {active ? (
-          <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="border-b border-border p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge tone={getStatusTone(active.status || "pending")}>
-                      {(active.status || "pending").replace("_", " ").toUpperCase()}
-                    </StatusBadge>
-                    <StatusBadge tone={getPriorityTone(active.priority || "normal")}>
-                      {(active.priority || "normal").toUpperCase()}
-                    </StatusBadge>
-                    <span className="text-xs text-muted-foreground">#{active.referenceId || active.reference_id || "N/A"}</span>
-                  </div>
-                  <h2 className="mt-2 font-display text-xl font-semibold">{active.title || "Untitled"}</h2>
-                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5" />{" "}
-                      {active.anonymous ? "Anonymous" : active.submitter?.name || "Student"}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Building2 className="h-3.5 w-3.5" /> {formatCategory(active.category)}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" /> Submitted{" "}
-                      {safeFormatDate(active.created_at, "PPP")}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">
-                      Status
-                    </span>
-                    <select
-                      className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
-                      value={active.status}
-                      onChange={(e) =>
-                        updateStatusMutation.mutate({ id: active._id, status: e.target.value })
-                      }
-                      disabled={updateStatusMutation.isPending}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in_review">In Review</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="fixed">Fixed</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">
-                      Priority
-                    </span>
-                    <select
-                      className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs"
-                      value={active.priority}
-                      onChange={(e) =>
-                        updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
-                      }
-                      disabled={updatePriorityMutation.isPending}
-                    >
-                      <option value="low">Low</option>
-                      <option value="normal">Normal</option>
-                      <option value="high">High</option>
-                      <option value="critical">Critical</option>
-                    </select>
-                  </div>
-                  <button className="rounded-xl border border-border bg-surface p-2.5 hover:bg-muted mt-4" onClick={() => toast.info("More actions coming in v2")}>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid flex-1 gap-6 overflow-y-auto p-6 md:grid-cols-3">
-              <div className="space-y-6 md:col-span-2">
-                <Section title="Issue summary">
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {active.description}
-                  </p>
-                </Section>
-
-                <Section title="Activity Timeline">
-                  <ol className="space-y-4">
-                    {active.timeline?.map((t: any, i: number) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <div className="mt-1.5 h-2 w-2 rounded-full bg-accent" />
-                        <div>
-                          <div className="text-sm font-medium">{t.text || ""}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {safeFormatDate(t.created_at, "Pp")}
-                            {t.user_id && ` by ${t.user_id.name}`}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </Section>
-
-                <Section title="Official Response / Reply (Visible to Student)">
-                  <div className="space-y-3">
-                    {(active.admin_feedback || active.adminFeedback) && (
-                      <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm">
-                        <div className="mb-1 text-[10px] text-accent font-bold uppercase tracking-wider">
-                          Current Official Reply
-                        </div>
-                        <p className="text-foreground font-medium leading-relaxed">
-                          {active.admin_feedback || active.adminFeedback}
-                        </p>
+        {/* Right Column - Beautiful splits workspace */}
+        <div className="overflow-hidden">
+          <AnimatePresence mode="wait">
+            {active ? (
+              <motion.div 
+                key={active._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg"
+              >
+                {/* Header card area */}
+                <div className="border-b border-border p-6 bg-muted/10">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-xs font-semibold text-muted-foreground bg-background px-2.5 py-1 rounded-md border border-border">
+                          #{active.referenceId || active.reference_id || "N/A"}
+                        </span>
+                        <StatusBadge tone={getStatusTone(active.status || "pending")}>
+                          {(active.status || "pending").replace("_", " ").toUpperCase()}
+                        </StatusBadge>
+                        <StatusBadge tone={getPriorityTone(active.priority || "normal")}>
+                          {(active.priority || "normal").toUpperCase()}
+                        </StatusBadge>
                       </div>
-                    )}
+                      <h2 className="font-display text-xl font-bold tracking-tight text-foreground leading-snug">
+                        {active.title || "Untitled Complaint"}
+                      </h2>
+                      
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1">
+                        <span className="flex items-center gap-1.5">
+                          <User className="h-3.5 w-3.5 opacity-60 text-primary" />{" "}
+                          {active.anonymous ? (
+                            <span className="inline-flex items-center gap-1 text-amber-400/90 font-medium">
+                              <AlertTriangle className="h-3 w-3" /> Anonymous Student
+                            </span>
+                          ) : (
+                            <span className="font-semibold text-foreground">{active.submitter?.name || "Student Submittee"}</span>
+                          )}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Building2 className="h-3.5 w-3.5 opacity-60" /> {formatCategory(active.category)}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 opacity-60" /> Submitted {safeFormatDate(active.created_at, "PPP")}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Split main area (70% workspace, 30% control sidebar) */}
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden">
+                  
+                  {/* Left Workspace Panel - Issues & Actions (2 columns) */}
+                  <div className="md:col-span-2 overflow-y-auto p-6 space-y-6">
                     
-                    {active.aiDraftReply && !(active.admin_feedback || active.adminFeedback) && (
-                      <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-sm relative">
-                        <div className="absolute top-3 right-3">
-                          <button
-                            onClick={() => setReplyText(active.aiDraftReply)}
-                            className="inline-flex items-center gap-1.5 rounded-md bg-indigo-500/10 px-2 py-1 text-xs font-semibold text-indigo-600 hover:bg-indigo-500/20 transition-colors"
-                          >
-                            Use Draft
-                          </button>
-                        </div>
-                        <div className="mb-2 text-[10px] text-indigo-500 font-bold uppercase tracking-wider flex items-center gap-1">
-                          <Sparkles className="h-3 w-3" /> Auto-Generated AI Draft
-                        </div>
-                        <p className="text-muted-foreground leading-relaxed pr-20 italic">
-                          "{active.aiDraftReply}"
-                        </p>
-                      </div>
-                    )}
+                    {/* Summary */}
+                    <div className="rounded-xl border border-border bg-muted/15 p-5 space-y-2.5">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <FileText className="h-3.5 w-3.5 text-primary" /> Incident Summary Description
+                      </h3>
+                      <p className="text-sm leading-relaxed text-foreground select-text font-medium whitespace-pre-wrap">
+                        {active.description || "No description provided."}
+                      </p>
+                    </div>
 
-                      <div className="flex items-center justify-between">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Draft Reply</label>
+                    {/* Timeline */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-accent" /> Resolution Activity Timeline
+                      </h3>
+                      <ol className="relative border-l border-border/80 ml-2.5 pl-5 space-y-5">
+                        {active.timeline?.map((t: any, i: number) => (
+                          <li key={i} className="relative group">
+                            {/* Connectors */}
+                            <div className="absolute -left-[25px] mt-1 h-2.5 w-2.5 rounded-full bg-accent border-2 border-card ring-4 ring-accent/10 transition-transform group-hover:scale-110" />
+                            <div className="space-y-0.5">
+                              <div className="text-sm font-semibold text-foreground leading-none">{t.text || "Timeline Action"}</div>
+                              <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1 font-medium">
+                                <span>{safeFormatDate(t.created_at, "Pp")}</span>
+                                {t.user_id && (
+                                  <>
+                                    <span className="opacity-30">|</span>
+                                    <span className="text-primary/95 flex items-center gap-1">
+                                      <User className="h-3 w-3" /> {t.user_id.name} ({t.user_id.role})
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+
+                    {/* Action form */}
+                    <div className="rounded-xl border border-border bg-card p-5 space-y-4 shadow-sm">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <CornerDownRight className="h-3.5 w-3.5 text-accent" /> Official Resolution Reply (Student Visible)
+                        </h3>
+                        {/* Shimmer AI button */}
                         <button
                           onClick={() => aiEnhanceMutation.mutate(replyText)}
                           disabled={aiEnhanceMutation.isPending || !replyText.trim() || replyText.trim().length < 5}
-                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-accent hover:bg-accent/10 transition disabled:opacity-50"
+                          className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 disabled:opacity-50 transition active:scale-95 shadow-md shadow-indigo-500/10 overflow-hidden group"
                         >
                           {aiEnhanceMutation.isPending ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <Sparkles className="h-3 w-3" />
                           )}
-                          Enhance with AI
+                          AI Copy Rewrite
                         </button>
                       </div>
+
+                      {/* Display current reply card */}
+                      {(active.admin_feedback || active.adminFeedback) && (
+                        <div className="rounded-xl border border-success/15 bg-success/5 p-4 text-xs space-y-1">
+                          <div className="text-[10px] text-success font-bold uppercase tracking-wider flex items-center gap-1">
+                            <CheckCircle className="h-3.5 w-3.5" /> Dispatched Resolution Reply
+                          </div>
+                          <p className="text-foreground font-medium leading-relaxed">
+                            {active.admin_feedback || active.adminFeedback}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* AI Draft quick toggle */}
+                      {active.aiDraftReply && !(active.admin_feedback || active.adminFeedback) && (
+                        <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-xs relative space-y-1">
+                          <button
+                            onClick={() => setReplyText(active.aiDraftReply)}
+                            className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors"
+                          >
+                            Apply Draft
+                          </button>
+                          <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" /> Pre-Synthesized AI Recommendation
+                          </div>
+                          <p className="text-muted-foreground leading-relaxed pr-20 italic">
+                            "{active.aiDraftReply}"
+                          </p>
+                        </div>
+                      )}
+
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Type your official reply, follow-up, or resolution notes to the student here..."
-                        className="h-20 w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        placeholder="Draft your official dispatch response, feedback instructions, or case final resolution to students here..."
+                        className="w-full h-24 rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 resize-none transition"
                       />
-                      <div className="flex items-center justify-between border-t border-border pt-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-muted-foreground font-semibold">Change Status To:</span>
+
+                      <div className="flex items-center justify-between border-t border-border/80 pt-3 flex-wrap gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground font-semibold">Change State To:</span>
                           <select
-                            className="rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-semibold"
+                            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold cursor-pointer focus:border-primary"
                             value={active.status}
                             onChange={(e) =>
                               updateStatusMutation.mutate({
                                 id: active._id,
                                 status: e.target.value,
-                                adminFeedback: replyText,
+                                adminFeedback: replyText || undefined,
                               })
                             }
                             disabled={updateStatusMutation.isPending}
@@ -408,6 +444,7 @@ function CasesPage() {
                             <option value="rejected">Rejected</option>
                           </select>
                         </div>
+
                         <button
                           onClick={() =>
                             updateStatusMutation.mutate({
@@ -417,7 +454,7 @@ function CasesPage() {
                             })
                           }
                           disabled={updateStatusMutation.isPending || !replyText.trim()}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition active:scale-95"
                         >
                           {updateStatusMutation.isPending ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -428,174 +465,265 @@ function CasesPage() {
                         </button>
                       </div>
                     </div>
-                </Section>
 
-                <Section title="Internal notes">
-                  <div className="space-y-3">
-                    {active.internalNotes?.map((note: any, i: number) => (
-                      <div
-                        key={i}
-                        className="rounded-xl border border-border bg-surface p-4 text-sm"
-                      >
-                        <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-medium text-foreground">
-                            {note.admin_id?.name || "Admin"}
-                          </span>{" "}
-                          · {safeFormatDate(note.created_at, "Pp")}
+                    {/* Internal Notes */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <Info className="h-3.5 w-3.5 text-accent" /> Private Internal Annotations (Admins Only)
+                      </h3>
+
+                      <div className="space-y-3">
+                        {active.internalNotes?.map((note: any, i: number) => (
+                          <div
+                            key={i}
+                            className="rounded-xl border border-border/80 bg-muted/10 p-4 text-xs space-y-1.5"
+                          >
+                            <div className="flex items-center justify-between text-muted-foreground">
+                              <span className="font-bold text-foreground">{note.admin_id?.name || "Administrator"}</span>
+                              <span className="font-medium">{safeFormatDate(note.created_at, "Pp")}</span>
+                            </div>
+                            <p className="text-foreground/90 leading-relaxed font-medium">{note.text}</p>
+                          </div>
+                        ))}
+
+                        <div className="rounded-xl border border-border bg-muted/10 p-3 space-y-3">
+                          <textarea
+                            value={noteText}
+                            onChange={(e) => setNoteText(e.target.value)}
+                            placeholder="Add administrative notes, assignment details, or internal briefs..."
+                            className="w-full h-16 rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary placeholder:text-muted-foreground/80 resize-none transition"
+                          />
+                          <div className="flex items-center justify-between">
+                            <button 
+                              type="button" 
+                              onClick={() => toast.info("Evidence attaching is coming in platform release v2")} 
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-[10px] font-semibold text-muted-foreground transition"
+                            >
+                              <Paperclip className="h-3 w-3" /> Attach private file
+                            </button>
+                            <button
+                              onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
+                              disabled={addNoteMutation.isPending || !noteText.trim()}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition active:scale-95"
+                            >
+                              {addNoteMutation.isPending ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Send className="h-3 w-3" />
+                              )}
+                              Save Private Note
+                            </button>
+                          </div>
                         </div>
-                        {note.text}
-                      </div>
-                    ))}
-
-                    <div className="rounded-xl border border-border bg-surface p-3">
-                      <textarea
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        placeholder="Add an internal note (only visible to administrators)..."
-                        className="h-20 w-full resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                      />
-                      <div className="flex items-center justify-between border-t border-border pt-2">
-                        <button className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted" onClick={() => toast.info("Attachment support coming in v2")}>
-                          <Paperclip className="h-3.5 w-3.5" /> Attach
-                        </button>
-                        <button
-                          onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
-                          disabled={addNoteMutation.isPending || !noteText.trim()}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-                        >
-                          {addNoteMutation.isPending ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Send className="h-3.5 w-3.5" />
-                          )}
-                          Post note
-                        </button>
                       </div>
                     </div>
                   </div>
-                </Section>
-              </div>
 
-              <div className="space-y-6">
-                <Section title="Evidence">
-                  <ul className="space-y-2 text-sm">
-                    {active.files?.length > 0 ? (
-                      active.files.map((f, i) => (
-                        <li
-                          key={i}
-                          className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2"
-                        >
-                          <a
-                            href={`${SERVER_URL}${f.url}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="truncate hover:text-accent"
+                  {/* Right Control Sidebar (1 column) */}
+                  <div className="overflow-y-auto p-6 space-y-6 bg-muted/5">
+                    
+                    {/* Quick Config Cards */}
+                    <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
+                        Control Board
+                      </div>
+                      
+                      {/* Status select card */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                          Case Status
+                        </label>
+                        <div className="relative">
+                          <select
+                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                            value={active.status}
+                            onChange={(e) =>
+                              updateStatusMutation.mutate({ id: active._id, status: e.target.value })
+                            }
+                            disabled={updateStatusMutation.isPending}
                           >
-                            {f.originalName}
-                          </a>
-                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                        </li>
-                      ))
-                    ) : (
-                      <li className="text-xs text-muted-foreground italic">No evidence provided</li>
-                    )}
-                  </ul>
-                </Section>
+                            <option value="pending">Pending Dispatch</option>
+                            <option value="in_review">In Active Review</option>
+                            <option value="resolved">Mark Resolved</option>
+                            <option value="fixed">Mark Fixed</option>
+                            <option value="rejected">Mark Rejected</option>
+                          </select>
+                          <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                        </div>
+                      </div>
 
-                {(active.satisfaction_feedback || active.satisfactionFeedback) && (
-                  <Section title="Student Satisfaction">
-                    <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 space-y-3 shadow-soft">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Student Rating
-                        </span>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                            (active.satisfaction_feedback?.satisfied ||
-                              active.satisfactionFeedback?.satisfied) === "yes"
-                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-                              : "bg-rose-500/10 text-rose-600 border border-rose-500/20"
-                          }`}
-                        >
-                          {(active.satisfaction_feedback?.satisfied ||
-                            active.satisfactionFeedback?.satisfied) === "yes"
-                            ? "😄 Satisfied"
-                            : "😞 Unsatisfied"}
+                      {/* Priority select card */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
+                          Response Severity
+                        </label>
+                        <div className="relative">
+                          <select
+                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                            value={active.priority}
+                            onChange={(e) =>
+                              updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
+                            }
+                            disabled={updatePriorityMutation.isPending}
+                          >
+                            <option value="low">Low Priority</option>
+                            <option value="normal">Normal Priority</option>
+                            <option value="high">High Priority</option>
+                            <option value="critical">Critical Severity</option>
+                          </select>
+                          <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Evidence Document Links */}
+                    <div className="space-y-3">
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                        <span>Submitted Attachments</span>
+                        <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded border border-border bg-background">
+                          {active.files?.length || 0}
                         </span>
                       </div>
-                      {(active.satisfaction_feedback?.comments ||
-                        active.satisfactionFeedback?.comments) && (
-                        <p className="text-xs leading-normal italic text-muted-foreground bg-card border border-border rounded-lg p-2.5">
-                          &ldquo;
-                          {active.satisfaction_feedback?.comments ||
-                            active.satisfactionFeedback?.comments}
-                          &rdquo;
-                        </p>
-                      )}
-                      <div className="text-[10px] text-muted-foreground font-mono text-right">
-                        Submitted:{" "}
-                        {safeFormatDate(
-                          active.satisfaction_feedback?.submitted_at ||
-                            active.satisfactionFeedback?.submitted_at ||
-                            active.created_at,
-                          "MMM dd, yyyy HH:mm"
+                      <ul className="space-y-2">
+                        {active.files?.length > 0 ? (
+                          active.files.map((f, i) => (
+                            <li key={i}>
+                              <a
+                                href={`${SERVER_URL}${f.url}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center justify-between rounded-xl border border-border bg-card hover:bg-muted/40 px-3.5 py-3 text-xs transition group shadow-sm"
+                              >
+                                <div className="flex items-center gap-2 truncate pr-4">
+                                  <FileText className="h-4 w-4 text-primary shrink-0" />
+                                  <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors" title={f.originalName}>
+                                    {f.originalName}
+                                  </span>
+                                </div>
+                                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                              </a>
+                            </li>
+                          ))
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-border rounded-xl bg-card">
+                            <Paperclip className="h-5 w-5 text-muted-foreground/30 mb-1" />
+                            <span className="text-[11px] text-muted-foreground italic font-medium">No attachments provided</span>
+                          </div>
+                        )}
+                      </ul>
+                    </div>
+
+                    {/* Glowing Premium Student Feedback Card */}
+                    {(active.satisfaction_feedback || active.satisfactionFeedback) && (
+                      <div className="space-y-2.5">
+                        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          Student Satisfaction
+                        </div>
+                        {/* soft emerald glow vs soft rose glow depending on feedback */}
+                        {((active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes") ? (
+                          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4.5 space-y-3 shadow-md shadow-emerald-500/[0.02]">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">
+                                Student Rating
+                              </span>
+                              <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                                😄 Satisfied
+                              </span>
+                            </div>
+                            {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
+                              <p className="text-xs leading-relaxed italic text-emerald-300/90 bg-black/20 border border-emerald-500/10 rounded-lg p-3 select-all">
+                                &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
+                              </p>
+                            )}
+                            <div className="text-[9.5px] text-muted-foreground/80 font-mono text-right">
+                              Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.03] p-4.5 space-y-3 shadow-md shadow-rose-500/[0.02]">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] uppercase font-bold tracking-wider text-rose-400">
+                                Student Rating
+                              </span>
+                              <span className="inline-flex items-center rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-0.5 text-[10px] font-bold">
+                                😞 Unsatisfied
+                              </span>
+                            </div>
+                            {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
+                              <p className="text-xs leading-relaxed italic text-rose-300/90 bg-black/20 border border-rose-500/10 rounded-lg p-3 select-all">
+                                &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
+                              </p>
+                            )}
+                            <div className="text-[9.5px] text-muted-foreground/80 font-mono text-right">
+                              Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
+                            </div>
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </Section>
-                )}
-
-                <Section title="System Audit">
-                  <div className="space-y-2 text-sm">
-                    <Row k="Department" v={formatCategory(active.category)} />
-                    <Row k="Anonymous" v={active.anonymous ? "Yes" : "No"} />
-                    {!active.anonymous && (
-                      <>
-                        <Row k="Matric" v={active.submitter?.matric || "N/A"} />
-                        <Row k="Email" v={active.submitter?.email || "N/A"} />
-                      </>
                     )}
+
+                    {/* System Audit Details */}
+                    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm">
+                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                        <Database className="h-3.5 w-3.5 text-primary" /> Incident Parameters
+                      </div>
+                      
+                      <div className="space-y-2 text-xs divide-y divide-border/60">
+                        <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                          <span className="text-muted-foreground font-medium">Department Unit</span>
+                          <span className="truncate max-w-[140px]" title={formatCategory(active.category)}>
+                            {formatCategory(active.category)}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                          <span className="text-muted-foreground font-medium">Privacy Status</span>
+                          <span>{active.anonymous ? "Anonymous Submission" : "Public Submission"}</span>
+                        </div>
+
+                        {!active.anonymous && (
+                          <>
+                            <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                              <span className="text-muted-foreground font-medium">Matric ID</span>
+                              <span className="font-mono text-[11px] bg-muted/60 px-1.5 py-0.5 rounded border border-border">{active.submitter?.matric || "N/A"}</span>
+                            </div>
+                            
+                            <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                              <span className="text-muted-foreground font-medium">Contact Endpoint</span>
+                              <span className="truncate max-w-[125px] font-mono text-[11px]" title={active.submitter?.email}>
+                                {active.submitter?.email || "N/A"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <div className="pt-2 border-t border-border/80 flex items-center gap-1.5 text-[10px] text-muted-foreground/90 font-medium">
+                        <ShieldCheck className="h-4 w-4 text-success shrink-0" /> State updates are logged securely in ledger
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <ShieldCheck className="h-3.5 w-3.5 text-success" /> All actions are
-                    audit-logged
-                  </div>
-                </Section>
+                </div>
+              </motion.div>
+            ) : detailLoading ? (
+              <div className="flex flex-col items-center justify-center h-full rounded-2xl border border-border bg-card">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="mt-3 text-sm font-semibold text-muted-foreground">Retrieving incident documents...</p>
               </div>
-            </div>
-          </div>
-        ) : detailLoading ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card">
-            <Loader2 className="h-10 w-10 animate-spin text-muted-foreground/40" />
-            <p className="mt-3 text-sm text-muted-foreground">Loading details...</p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card">
-            <AlertCircle className="h-10 w-10 text-muted-foreground/40" />
-            <p className="mt-3 text-sm text-muted-foreground">Select a case to view details</p>
-          </div>
-        )}
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full rounded-2xl border border-border bg-card text-center p-6 bg-muted/5">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/65 text-muted-foreground/30 mb-4 border border-border">
+                  <ArrowRight className="h-8 w-8 text-muted-foreground/50" />
+                </div>
+                <p className="font-semibold text-foreground text-base">Platform Action Workspace</p>
+                <p className="text-xs text-muted-foreground mt-1.5 max-w-xs leading-normal">
+                  Select a student complaint incident from the sidebar ledger to initialize the resolving panel.
+                </p>
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        {title}
-      </h3>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
-
-function Row({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-muted-foreground">{k}</span>
-      <span className="font-medium">{v}</span>
     </div>
   );
 }
