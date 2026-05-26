@@ -20,7 +20,8 @@ import {
   CheckCircle,
   FileText,
   Database,
-  ArrowRight
+  ArrowRight,
+  CornerDownRight
 } from "lucide-react";
 import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
