@@ -122,7 +122,7 @@ export function SuperadminShell({
     localStorage.removeItem("as_access_token");
     localStorage.removeItem("user");
     toast.success("Logged out successfully");
-    nav_({ to: "/login" });
+    window.location.href = "/login";
   };
 
   const initials = user?.name

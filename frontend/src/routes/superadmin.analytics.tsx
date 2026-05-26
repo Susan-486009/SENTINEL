@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BarChart3, TrendingUp, CheckCircle2, Clock, AlertCircle, Inbox } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { complaintService } from "@/lib/api";
+import { AnalyticCard } from "@/components/AnalyticCard";
 import {
   AreaChart,
   Area,
