@@ -22,6 +22,17 @@ import { toast } from "sonner";
 
 const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
 
+function safeFormatDate(dateStr: string | Date | undefined | null, formatStr: string, fallback: string = "N/A"): string {
+  if (!dateStr) return fallback;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return fallback;
+    return format(d, formatStr);
+  } catch (e) {
+    return fallback;
+  }
+}
+
 export const Route = createFileRoute("/superadmin/cases")({
   head: () => ({ meta: [{ title: "Cases — Admin" }] }),
   component: CasesPage,
@@ -100,18 +111,25 @@ function CasesPage() {
     }
   });
 
+  const casesList = useMemo(() => {
+    return Array.isArray(cases) ? cases : (cases as any)?.data || [];
+  }, [cases]);
+
   const filtered = useMemo(() => {
-    if (!cases) return [];
-    return cases.filter((c) => {
+    return casesList.filter((c) => {
+      const status = c.status || "pending";
+      const title = c.title || "";
+      const refId = c.reference_id || c.referenceId || "";
+
       const matchesFilter =
-        filter === "All" || c.status.toLowerCase().replace("_", " ") === filter.toLowerCase();
+        filter === "All" || status.toLowerCase().replace("_", " ") === filter.toLowerCase();
       const matchesQuery =
         query === "" ||
-        c.title.toLowerCase().includes(query.toLowerCase()) ||
-        c.reference_id.toLowerCase().includes(query.toLowerCase());
+        title.toLowerCase().includes(query.toLowerCase()) ||
+        refId.toLowerCase().includes(query.toLowerCase());
       return matchesFilter && matchesQuery;
     });
-  }, [cases, filter, query]);
+  }, [casesList, filter, query]);
 
   const isLoading = listLoading;
 
@@ -193,17 +211,17 @@ function CasesPage() {
                     className={`cursor-pointer px-4 py-4 transition ${isActive ? "bg-accent/5" : "hover:bg-muted/40"}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">#{c.reference_id}</span>
+                      <span className="text-xs text-muted-foreground">#{c.reference_id || c.referenceId || "N/A"}</span>
                       <div className="flex items-center gap-1.5">
-                        <StatusBadge tone={getStatusTone(c.status)}>
-                          {c.status.replace("_", " ").toUpperCase()}
+                        <StatusBadge tone={getStatusTone(c.status || "pending")}>
+                          {(c.status || "pending").replace("_", " ").toUpperCase()}
                         </StatusBadge>
                       </div>
                     </div>
-                    <div className="mt-1.5 line-clamp-1 font-medium">{c.title}</div>
+                    <div className="mt-1.5 line-clamp-1 font-medium">{c.title || "Untitled"}</div>
                     <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground">
                       <span>{formatCategory(c.category)}</span>
-                      <span>{format(new Date(c.created_at), "MMM d")}</span>
+                      <span>{safeFormatDate(c.created_at, "MMM d")}</span>
                     </div>
                   </li>
                 );
@@ -222,15 +240,15 @@ function CasesPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <StatusBadge tone={getStatusTone(active.status)}>
-                      {active.status.replace("_", " ").toUpperCase()}
+                    <StatusBadge tone={getStatusTone(active.status || "pending")}>
+                      {(active.status || "pending").replace("_", " ").toUpperCase()}
                     </StatusBadge>
-                    <StatusBadge tone={getPriorityTone(active.priority)}>
-                      {active.priority.toUpperCase()}
+                    <StatusBadge tone={getPriorityTone(active.priority || "normal")}>
+                      {(active.priority || "normal").toUpperCase()}
                     </StatusBadge>
-                    <span className="text-xs text-muted-foreground">#{active.referenceId}</span>
+                    <span className="text-xs text-muted-foreground">#{active.referenceId || active.reference_id || "N/A"}</span>
                   </div>
-                  <h2 className="mt-2 font-display text-xl font-semibold">{active.title}</h2>
+                  <h2 className="mt-2 font-display text-xl font-semibold">{active.title || "Untitled"}</h2>
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <User className="h-3.5 w-3.5" />{" "}
@@ -241,7 +259,7 @@ function CasesPage() {
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Calendar className="h-3.5 w-3.5" /> Submitted{" "}
-                      {format(new Date(active.created_at), "PPP")}
+                      {safeFormatDate(active.created_at, "PPP")}
                     </span>
                   </div>
                 </div>
@@ -304,9 +322,9 @@ function CasesPage() {
                       <li key={i} className="flex items-start gap-3">
                         <div className="mt-1.5 h-2 w-2 rounded-full bg-accent" />
                         <div>
-                          <div className="text-sm font-medium">{t.text}</div>
+                          <div className="text-sm font-medium">{t.text || ""}</div>
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(t.created_at), "Pp")}
+                            {safeFormatDate(t.created_at, "Pp")}
                             {t.user_id && ` by ${t.user_id.name}`}
                           </div>
                         </div>
@@ -423,7 +441,7 @@ function CasesPage() {
                           <span className="font-medium text-foreground">
                             {note.admin_id?.name || "Admin"}
                           </span>{" "}
-                          · {format(new Date(note.created_at), "Pp")}
+                          · {safeFormatDate(note.created_at, "Pp")}
                         </div>
                         {note.text}
                       </div>
@@ -516,13 +534,11 @@ function CasesPage() {
                       )}
                       <div className="text-[10px] text-muted-foreground font-mono text-right">
                         Submitted:{" "}
-                        {format(
-                          new Date(
-                            active.satisfaction_feedback?.submitted_at ||
-                              active.satisfactionFeedback?.submitted_at ||
-                              Date.now(),
-                          ),
-                          "MMM dd, yyyy HH:mm",
+                        {safeFormatDate(
+                          active.satisfaction_feedback?.submitted_at ||
+                            active.satisfactionFeedback?.submitted_at ||
+                            active.created_at,
+                          "MMM dd, yyyy HH:mm"
                         )}
                       </div>
                     </div>
