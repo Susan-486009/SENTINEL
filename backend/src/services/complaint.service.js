@@ -122,7 +122,7 @@ export const complaintService = {
       );
     }
 
-    if (role !== 'admin' && complaint.user_id?.toString() !== userId) {
+    if (role !== 'admin' && role !== 'superadmin' && complaint.user_id?.toString() !== userId) {
       throw new AppError('Complaint not found.', 404);
     }
 

@@ -51,6 +51,14 @@ export function SuperadminShell({
   const [notifOpen, setNotifOpen] = useState(false);
   const nav_ = useNavigate();
 
+  // Apply dark mode to document element on mount, remove on unmount
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+    return () => {
+      document.documentElement.classList.remove("dark");
+    };
+  }, []);
+
   // Redirect logic moved to beforeLoad in routes
 
   const [user, setUser] = useState<User | null>(null);
@@ -135,7 +143,7 @@ export function SuperadminShell({
     : "??";
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-800 bg-slate-950 text-slate-100 transition-transform lg:translate-x-0 ${
