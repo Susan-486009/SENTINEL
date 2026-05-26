@@ -88,6 +88,26 @@ export interface AnalyticsData {
   }>;
 }
 
+export interface AuditLogEntry {
+  _id: string;
+  actor_id?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  action: string;
+  target_id?: string;
+  target_type?: string;
+  previous_state?: any;
+  new_state?: any;
+  ip_address?: string;
+  user_agent?: string;
+  requestId?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
   const token = typeof window !== "undefined" ? localStorage.getItem("as_access_token") : null;
 
@@ -213,4 +233,11 @@ export const notificationService = {
   getMine: () => request<any[]>("/notifications"),
   markAsRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: "PATCH" }),
   markAllAsRead: () => request<any>("/notifications/read-all", { method: "PATCH" }),
+};
+
+export const auditService = {
+  getLogs: (limit?: number) => {
+    const qs = limit ? `?limit=${limit}` : "";
+    return request<AuditLogEntry[]>(`/audit${qs}`);
+  },
 };
