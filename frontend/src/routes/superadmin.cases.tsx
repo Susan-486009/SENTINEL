@@ -18,11 +18,9 @@ import {
   Info,
   Clock,
   CheckCircle,
-  XCircle,
-  CornerDownRight,
+  FileText,
   Database,
-  ArrowRight,
-  FileText
+  ArrowRight
 } from "lucide-react";
 import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -51,7 +49,6 @@ export const Route = createFileRoute("/superadmin/cases")({
 
 const filters = ["All", "Pending", "In review", "Resolved", "Fixed", "Rejected"];
 
-// Color mappings for different categories to give visual pops
 function getCategoryStyle(category: string) {
   const cat = category.toLowerCase();
   if (cat.includes("academic")) return "bg-blue-500/10 text-blue-400 border-blue-500/15";
@@ -176,12 +173,46 @@ function CasesPage() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid h-[calc(100vh-7.5rem)] grid-cols-1 gap-6 lg:grid-cols-[400px_1fr]">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full flex flex-col overflow-hidden">
+      
+      {/* 
+        Injected Global Custom Style Sheet
+        Renders native macOS style overlay scrollbars and completely hides horizontal scrollbars tracks globally!
+      */}
+      <style dangerouslySetInnerHTML={{__html: `
+        /* Ultra thin visual scrollbar system */
+        ::-webkit-scrollbar {
+          width: 5px !important;
+          height: 0px !important; /* Hide horizontal scrollbar track globally */
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent !important;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.18) !important;
+          border-radius: 9999px !important;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.35) !important;
+        }
+        
+        /* Strict capsule menu scrollbar hider */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none !important;
+          height: 0px !important;
+          width: 0px !important;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      `}} />
+
+      <div className="grid h-[calc(100vh-7.5rem)] grid-cols-1 gap-6 lg:grid-cols-[400px_1fr] overflow-hidden min-h-0">
         
         {/* Left Column - Beautiful Case list */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
-          <div className="border-b border-border p-4 space-y-3 bg-muted/20">
+        <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg h-full min-h-0">
+          <div className="border-b border-border p-4 space-y-3 bg-muted/20 shrink-0">
             {/* Elegant Search with glow rings */}
             <div className="relative flex items-center rounded-xl border border-border bg-background px-3 py-2.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
               <Search className="h-4 w-4 text-muted-foreground shrink-0 mr-2" />
@@ -193,11 +224,8 @@ function CasesPage() {
               />
             </div>
             
-            {/* Dynamic capsule selectors without horizontal scrollbar track */}
-            <div 
-              className="flex items-center gap-1.5 overflow-x-auto pb-1"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
+            {/* Dynamic capsule selectors with no scrollbar */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
               {filters.map((f) => (
                 <button
                   key={f}
@@ -215,7 +243,7 @@ function CasesPage() {
           </div>
 
           {/* Clean scrolling list */}
-          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto overflow-x-hidden bg-muted/5">
+          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto overflow-x-hidden bg-muted/5 min-h-0">
             {listLoading ? (
               <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
                 <Loader2 className="animate-spin h-7 w-7 text-primary mb-2" />
@@ -249,7 +277,7 @@ function CasesPage() {
                         {(c.status || "pending").replace("_", " ").toUpperCase()}
                       </StatusBadge>
                     </div>
-                    <div className="mt-2 line-clamp-1 font-semibold text-sm text-foreground hover:text-primary transition-colors">
+                    <div className="mt-2 line-clamp-1 font-semibold text-sm text-foreground hover:text-primary transition-colors break-words">
                       {c.title || "Untitled Issue"}
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -268,7 +296,7 @@ function CasesPage() {
         </div>
 
         {/* Right Column - Beautiful splits workspace */}
-        <div className="overflow-hidden">
+        <div className="overflow-hidden h-full flex flex-col min-h-0">
           <AnimatePresence mode="wait">
             {active ? (
               <motion.div 
@@ -276,12 +304,12 @@ function CasesPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg"
+                className="flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg min-h-0"
               >
                 {/* Header card area */}
-                <div className="border-b border-border p-6 bg-muted/10">
+                <div className="border-b border-border p-6 bg-muted/10 shrink-0">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-w-full overflow-hidden">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-xs font-semibold text-muted-foreground bg-background px-2.5 py-1 rounded-md border border-border">
                           #{active.referenceId || active.reference_id || "N/A"}
@@ -293,13 +321,13 @@ function CasesPage() {
                           {(active.priority || "normal").toUpperCase()}
                         </StatusBadge>
                       </div>
-                      <h2 className="font-display text-xl font-bold tracking-tight text-foreground leading-snug">
+                      <h2 className="font-display text-xl font-bold tracking-tight text-foreground leading-snug break-words">
                         {active.title || "Untitled Complaint"}
                       </h2>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1">
                         <span className="flex items-center gap-1.5">
-                          <User className="h-3.5 w-3.5 opacity-60 text-primary" />{" "}
+                          <User className="h-3.5 w-3.5 opacity-60 text-primary animate-pulse" />{" "}
                           {active.anonymous ? (
                             <span className="inline-flex items-center gap-1 text-amber-400/90 font-medium">
                               <AlertTriangle className="h-3 w-3" /> Anonymous Student
@@ -308,7 +336,7 @@ function CasesPage() {
                             <span className="font-semibold text-foreground">{active.submitter?.name || "Student Submittee"}</span>
                           )}
                         </span>
-                        <span className="flex items-center gap-1.5">
+                        <span className="flex items-center gap-1.5 flex-wrap">
                           <Building2 className="h-3.5 w-3.5 opacity-60" /> {formatCategory(active.category)}
                         </span>
                         <span className="flex items-center gap-1.5">
@@ -320,17 +348,18 @@ function CasesPage() {
                 </div>
 
                 {/* Split main area (70% workspace, 30% control sidebar) */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden min-h-0">
                   
                   {/* Left Workspace Panel - Issues & Actions (2 columns) */}
-                  <div className="md:col-span-2 overflow-y-auto overflow-x-hidden p-6 space-y-6">
+                  <div className="md:col-span-2 overflow-y-auto overflow-x-hidden p-6 space-y-6 min-h-0">
                     
                     {/* Summary */}
                     <div className="rounded-xl border border-border bg-muted/15 p-5 space-y-2.5">
                       <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <FileText className="h-3.5 w-3.5 text-primary" /> Incident Summary Description
                       </h3>
-                      <p className="text-sm leading-relaxed text-foreground select-text font-medium whitespace-pre-wrap">
+                      {/* Enforce strict word-breaking and safe wrapping to stop scrollbars */}
+                      <p className="text-sm leading-relaxed text-foreground select-text font-medium whitespace-pre-wrap break-all break-words">
                         {active.description || "No description provided."}
                       </p>
                     </div>
@@ -346,8 +375,8 @@ function CasesPage() {
                             {/* Connectors */}
                             <div className="absolute -left-[25px] mt-1 h-2.5 w-2.5 rounded-full bg-accent border-2 border-card ring-4 ring-accent/10 transition-transform group-hover:scale-110" />
                             <div className="space-y-0.5">
-                              <div className="text-sm font-semibold text-foreground leading-none">{t.text || "Timeline Action"}</div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1 font-medium">
+                              <div className="text-sm font-semibold text-foreground leading-none break-all break-words">{t.text || "Timeline Action"}</div>
+                              <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1 font-medium flex-wrap">
                                 <span>{safeFormatDate(t.created_at, "Pp")}</span>
                                 {t.user_id && (
                                   <>
@@ -391,7 +420,7 @@ function CasesPage() {
                           <div className="text-[10px] text-success font-bold uppercase tracking-wider flex items-center gap-1">
                             <CheckCircle className="h-3.5 w-3.5" /> Dispatched Resolution Reply
                           </div>
-                          <p className="text-foreground font-medium leading-relaxed">
+                          <p className="text-foreground font-medium leading-relaxed break-all break-words">
                             {active.admin_feedback || active.adminFeedback}
                           </p>
                         </div>
@@ -402,14 +431,14 @@ function CasesPage() {
                         <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-xs relative space-y-1">
                           <button
                             onClick={() => setReplyText(active.aiDraftReply)}
-                            className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors"
+                            className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors shadow-sm"
                           >
                             Apply Draft
                           </button>
                           <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1">
                             <Sparkles className="h-3 w-3" /> Pre-Synthesized AI Recommendation
                           </div>
-                          <p className="text-muted-foreground leading-relaxed pr-20 italic">
+                          <p className="text-muted-foreground leading-relaxed pr-20 italic break-all break-words">
                             "{active.aiDraftReply}"
                           </p>
                         </div>
@@ -419,14 +448,14 @@ function CasesPage() {
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Draft your official dispatch response, feedback instructions, or case final resolution to students here..."
-                        className="w-full h-24 rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 resize-none transition"
+                        className="w-full h-24 rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 resize-none transition text-foreground"
                       />
 
                       <div className="flex items-center justify-between border-t border-border/80 pt-3 flex-wrap gap-3">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground font-semibold">Change State To:</span>
                           <select
-                            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold cursor-pointer focus:border-primary"
+                            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold cursor-pointer focus:border-primary outline-none"
                             value={active.status}
                             onChange={(e) =>
                               updateStatusMutation.mutate({
@@ -478,11 +507,11 @@ function CasesPage() {
                             key={i}
                             className="rounded-xl border border-border/80 bg-muted/10 p-4 text-xs space-y-1.5"
                           >
-                            <div className="flex items-center justify-between text-muted-foreground">
+                            <div className="flex items-center justify-between text-muted-foreground flex-wrap gap-2">
                               <span className="font-bold text-foreground">{note.admin_id?.name || "Administrator"}</span>
                               <span className="font-medium">{safeFormatDate(note.created_at, "Pp")}</span>
                             </div>
-                            <p className="text-foreground/90 leading-relaxed font-medium">{note.text}</p>
+                            <p className="text-foreground/90 leading-relaxed font-medium break-all break-words">{note.text}</p>
                           </div>
                         ))}
 
@@ -490,10 +519,10 @@ function CasesPage() {
                           <textarea
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Add administrative notes, assignment details, or internal briefs..."
-                            className="w-full h-16 rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary placeholder:text-muted-foreground/80 resize-none transition"
+                            placeholder="Add administrative notes, assignment briefs, or internal notes..."
+                            className="w-full h-16 rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary placeholder:text-muted-foreground/80 resize-none transition text-foreground"
                           />
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
                             <button 
                               type="button" 
                               onClick={() => toast.info("Evidence attaching is coming in platform release v2")} 
@@ -520,7 +549,7 @@ function CasesPage() {
                   </div>
 
                   {/* Right Control Sidebar (1 column) */}
-                  <div className="overflow-y-auto overflow-x-hidden p-6 space-y-6 bg-muted/5">
+                  <div className="overflow-y-auto overflow-x-hidden p-6 space-y-6 bg-muted/5 min-h-0">
                     
                     {/* Quick Config Cards */}
                     <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
@@ -535,7 +564,7 @@ function CasesPage() {
                         </label>
                         <div className="relative">
                           <select
-                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2.5 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
                             value={active.status}
                             onChange={(e) =>
                               updateStatusMutation.mutate({ id: active._id, status: e.target.value })
@@ -548,7 +577,7 @@ function CasesPage() {
                             <option value="fixed">Mark Fixed</option>
                             <option value="rejected">Mark Rejected</option>
                           </select>
-                          <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                          <ChevronDown className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                         </div>
                       </div>
 
@@ -559,7 +588,7 @@ function CasesPage() {
                         </label>
                         <div className="relative">
                           <select
-                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2.5 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
                             value={active.priority}
                             onChange={(e) =>
                               updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
@@ -571,7 +600,7 @@ function CasesPage() {
                             <option value="high">High Priority</option>
                             <option value="critical">Critical Severity</option>
                           </select>
-                          <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                          <ChevronDown className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                         </div>
                       </div>
                     </div>
@@ -596,7 +625,7 @@ function CasesPage() {
                               >
                                 <div className="flex items-center gap-2 truncate pr-4">
                                   <FileText className="h-4 w-4 text-primary shrink-0" />
-                                  <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors" title={f.originalName}>
+                                  <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors break-all break-words" title={f.originalName}>
                                     {f.originalName}
                                   </span>
                                 </div>
@@ -619,7 +648,6 @@ function CasesPage() {
                         <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           Student Satisfaction
                         </div>
-                        {/* soft emerald glow vs soft rose glow depending on feedback */}
                         {((active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes") ? (
                           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4.5 space-y-3 shadow-md shadow-emerald-500/[0.02]">
                             <div className="flex items-center justify-between">
@@ -631,7 +659,7 @@ function CasesPage() {
                               </span>
                             </div>
                             {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                              <p className="text-xs leading-relaxed italic text-emerald-300/90 bg-black/20 border border-emerald-500/10 rounded-lg p-3 select-all">
+                              <p className="text-xs leading-relaxed italic text-emerald-300/90 bg-black/20 border border-emerald-500/10 rounded-lg p-3 select-all break-all break-words">
                                 &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
                               </p>
                             )}
@@ -650,7 +678,7 @@ function CasesPage() {
                               </span>
                             </div>
                             {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                              <p className="text-xs leading-relaxed italic text-rose-300/90 bg-black/20 border border-rose-500/10 rounded-lg p-3 select-all">
+                              <p className="text-xs leading-relaxed italic text-rose-300/90 bg-black/20 border border-rose-500/10 rounded-lg p-3 select-all break-all break-words">
                                 &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
                               </p>
                             )}
@@ -669,9 +697,9 @@ function CasesPage() {
                       </div>
                       
                       <div className="space-y-2 text-xs divide-y divide-border/60">
-                        <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                        <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                           <span className="text-muted-foreground font-medium">Department Unit</span>
-                          <span className="truncate max-w-[140px]" title={formatCategory(active.category)}>
+                          <span className="truncate max-w-[140px] break-all" title={formatCategory(active.category)}>
                             {formatCategory(active.category)}
                           </span>
                         </div>
@@ -683,14 +711,14 @@ function CasesPage() {
 
                         {!active.anonymous && (
                           <>
-                            <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                               <span className="text-muted-foreground font-medium">Matric ID</span>
-                              <span className="font-mono text-[11px] bg-muted/60 px-1.5 py-0.5 rounded border border-border">{active.submitter?.matric || "N/A"}</span>
+                              <span className="font-mono text-[11px] bg-muted/60 px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
                             </div>
                             
-                            <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+                            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                               <span className="text-muted-foreground font-medium">Contact Endpoint</span>
-                              <span className="truncate max-w-[125px] font-mono text-[11px]" title={active.submitter?.email}>
+                              <span className="truncate max-w-[125px] font-mono text-[11px] break-all" title={active.submitter?.email}>
                                 {active.submitter?.email || "N/A"}
                               </span>
                             </div>
