@@ -205,6 +205,8 @@ export const departmentService = {
     request<any>("/departments", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: any) =>
     request<any>(`/departments/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: (id: string) =>
+    request<any>(`/departments/${id}`, { method: "DELETE" }),
 };
 
 export const notificationService = {

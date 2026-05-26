@@ -10,8 +10,8 @@ router.use(authenticate);
 router.get('/', department.getAllDepartments);
 
 // Admin only CRUD
-router.post('/', authorize('admin'), department.createDepartment);
-router.patch('/:id', authorize('admin'), department.updateDepartment);
-router.delete('/:id', authorize('admin'), department.deleteDepartment);
+router.post('/', authorize('admin', 'superadmin'), department.createDepartment);
+router.patch('/:id', authorize('admin', 'superadmin'), department.updateDepartment);
+router.delete('/:id', authorize('admin', 'superadmin'), department.deleteDepartment);
 
 export default router;
