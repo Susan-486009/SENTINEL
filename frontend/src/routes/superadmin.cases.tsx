@@ -215,7 +215,7 @@ function CasesPage() {
           </div>
 
           {/* Clean scrolling list */}
-          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto bg-muted/5">
+          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto overflow-x-hidden bg-muted/5">
             {listLoading ? (
               <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
                 <Loader2 className="animate-spin h-7 w-7 text-primary mb-2" />
@@ -323,7 +323,7 @@ function CasesPage() {
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden">
                   
                   {/* Left Workspace Panel - Issues & Actions (2 columns) */}
-                  <div className="md:col-span-2 overflow-y-auto p-6 space-y-6">
+                  <div className="md:col-span-2 overflow-y-auto overflow-x-hidden p-6 space-y-6">
                     
                     {/* Summary */}
                     <div className="rounded-xl border border-border bg-muted/15 p-5 space-y-2.5">
@@ -520,7 +520,7 @@ function CasesPage() {
                   </div>
 
                   {/* Right Control Sidebar (1 column) */}
-                  <div className="overflow-y-auto p-6 space-y-6 bg-muted/5">
+                  <div className="overflow-y-auto overflow-x-hidden p-6 space-y-6 bg-muted/5">
                     
                     {/* Quick Config Cards */}
                     <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
