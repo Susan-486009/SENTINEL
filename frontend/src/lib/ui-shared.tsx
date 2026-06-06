@@ -13,7 +13,6 @@ import React from "react";
 
 export const adminNav = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
-  { to: "/admin/cases", label: "Cases", icon: Inbox },
   { to: "/admin/reports", label: "Complaints", icon: FileText },
 ];
 

@@ -21,9 +21,9 @@ const seed = async () => {
     console.log('Seeding Admins...');
     const admins = [
       {
-        name: 'Super Admin',
+        name: 'Admin',
         matric: 'ADMIN001',
-        email: 'superadmin@lasustech.edu.ng',
+        email: 'admin@lasustech.edu.ng',
         password: hashedPassword,
         role: 'admin'
       },
@@ -86,7 +86,7 @@ const seed = async () => {
     console.log('\n--- Test Credentials (all share the same password) ---');
     console.log('Password for ALL accounts: Password123!\n');
     console.log('Admins:');
-    console.log('  superadmin@lasustech.edu.ng  | matric: ADMIN001');
+    console.log('  admin@lasustech.edu.ng       | matric: ADMIN001');
     console.log('  feedback@lasustech.edu.ng    | matric: ADMIN002');
     console.log('  support@lasustech.edu.ng     | matric: ADMIN003');
     console.log('\nStudents:');

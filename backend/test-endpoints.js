@@ -47,7 +47,7 @@ const runTests = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        identifier: 'superadmin@lasustech.edu.ng',
+        identifier: 'admin@lasustech.edu.ng',
         password: 'Password123!'
       })
     });

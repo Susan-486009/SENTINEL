@@ -105,10 +105,10 @@ function AdminDashboardOverview() {
           <p className="text-muted-foreground">Real-time resolution metrics and student complaints intelligence.</p>
         </div>
         <Link
-          to="/admin/cases"
+          to="/admin/reports"
           className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition shadow-sm"
         >
-          View Case Registry <ArrowRight className="h-3.5 w-3.5" />
+          View Complaints Registry <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
@@ -213,10 +213,10 @@ function AdminDashboardOverview() {
                 <p className="text-xs text-muted-foreground">Latest complaints requiring review or dispatching</p>
               </div>
               <Link
-                to="/admin/cases"
+                to="/admin/reports"
                 className="text-xs font-bold text-accent hover:underline flex items-center gap-1"
               >
-                Go to case registry <ChevronRight className="h-3 w-3" />
+                Go to complaints registry <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
 
@@ -237,7 +237,7 @@ function AdminDashboardOverview() {
                     recentCases.slice(0, 5).map((c: any) => (
                       <tr key={c._id} className="hover:bg-muted/10 transition-colors">
                         <td className="px-4 py-3.5 font-mono font-semibold text-accent">
-                          <Link to="/admin/cases" className="hover:underline">
+                          <Link to="/admin/reports" className="hover:underline">
                             #{c.reference_id || c.referenceId}
                           </Link>
                         </td>
@@ -245,7 +245,7 @@ function AdminDashboardOverview() {
                           {c.title}
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="inline-flex px-2 py-0.5 rounded border border-border bg-slate-950/20 text-[10px]">
+                          <span className="inline-flex px-2 py-0.5 rounded border border-border bg-muted text-[10px]">
                             {formatCategory(c.category)}
                           </span>
                         </td>

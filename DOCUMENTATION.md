@@ -556,7 +556,7 @@ These require a JWT from an admin account.
 
 | Name              | Email                       | Matric   | Role  |
 | ----------------- | --------------------------- | -------- | ----- |
-| Super Admin       | superadmin@lasustech.edu.ng | ADMIN001 | admin |
+| Admin             | admin@lasustech.edu.ng      | ADMIN001 | admin |
 | Feedback Reviewer | feedback@lasustech.edu.ng   | ADMIN002 | admin |
 | Support Head      | support@lasustech.edu.ng    | ADMIN003 | admin |
 

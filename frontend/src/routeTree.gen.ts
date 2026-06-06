@@ -33,6 +33,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settin
 import { Route as DashboardReportsRouteImport } from './routes/dashboard.reports'
 import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
 import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminCasesRouteImport } from './routes/admin.cases'
 import { Route as DashboardReportsIdRouteImport } from './routes/dashboard.reports.$id'
 
@@ -156,6 +157,11 @@ const DashboardActivityRoute = DashboardActivityRouteImport.update({
   path: '/activity',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCasesRoute = AdminCasesRouteImport.update({
   id: '/cases',
   path: '/cases',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/superadmin': typeof SuperadminRouteWithChildren
   '/track': typeof TrackRoute
   '/admin/cases': typeof AdminCasesRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/submit': typeof SubmitRoute
   '/track': typeof TrackRoute
   '/admin/cases': typeof AdminCasesRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/superadmin': typeof SuperadminRouteWithChildren
   '/track': typeof TrackRoute
   '/admin/cases': typeof AdminCasesRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/notifications': typeof DashboardNotificationsRoute
   '/dashboard/reports': typeof DashboardReportsRouteWithChildren
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/track'
     | '/admin/cases'
+    | '/admin/reports'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/submit'
     | '/track'
     | '/admin/cases'
+    | '/admin/reports'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/track'
     | '/admin/cases'
+    | '/admin/reports'
     | '/dashboard/activity'
     | '/dashboard/notifications'
     | '/dashboard/reports'
@@ -514,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardActivityRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/cases': {
       id: '/admin/cases'
       path: '/cases'
@@ -533,11 +552,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminCasesRoute: typeof AdminCasesRoute
+  AdminReportsRoute: typeof AdminReportsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCasesRoute: AdminCasesRoute,
+  AdminReportsRoute: AdminReportsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

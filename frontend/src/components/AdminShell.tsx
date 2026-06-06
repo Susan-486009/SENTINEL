@@ -125,8 +125,10 @@ export function AdminShell({
     nav_({ to: "/login" });
   };
 
-  const initials = user?.name
-    ? user.name
+  const displayName = user?.role === "admin" && user?.name === "Super Admin" ? "Admin" : user?.name || "User";
+
+  const initials = displayName
+    ? displayName
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -296,7 +298,7 @@ export function AdminShell({
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
                   {initials}
                 </div>
-                <span className="hidden text-sm font-medium md:inline">{user?.name || "User"}</span>
+                <span className="hidden text-sm font-medium md:inline">{displayName}</span>
                 <ChevronDown
                   className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
                     dropdownOpen ? "rotate-180" : ""
@@ -307,7 +309,7 @@ export function AdminShell({
               {dropdownOpen && (
                 <div className="absolute right-0 z-50 mt-2 w-48 animate-in fade-in slide-in-from-top-2 rounded-xl border border-border bg-card p-1 shadow-lg">
                   <div className="mb-1 border-b border-border px-3 py-2">
-                    <p className="truncate text-xs font-bold">{user?.name}</p>
+                    <p className="truncate text-xs font-bold">{displayName}</p>
                     <p className="truncate text-[10px] text-muted-foreground">{user?.email}</p>
                   </div>
                   <button
