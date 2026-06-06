@@ -141,7 +141,7 @@ export const testConnection = async () => {
   await conn.ping();
   conn.release();
   console.log(
-    `✅ MySQL connected → ${config.db.user}@${config.db.host}:${config.db.port}/${config.db.database}`,
+    `. MySQL connected → ${config.db.user}@${config.db.host}:${config.db.port}/${config.db.database}`,
   );
 };
 

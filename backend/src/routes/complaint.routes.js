@@ -77,7 +77,7 @@ router.post('/:id/feedback', complaint.submitFeedback);
  */
 router.get(
   '/',
-  authorize('admin'),
+  authorize('admin', 'staff'),
   sanitiseListQuery,
   complaint.getAllComplaints,
 );
@@ -96,7 +96,7 @@ router.get(
  */
 router.patch(
   '/:id/status',
-  authorize('admin'),
+  authorize('admin', 'staff'),
   validateStatusUpdate,
   complaint.updateComplaintStatus,
 );
@@ -115,7 +115,7 @@ router.patch(
  */
 router.post(
   '/:id/notes',
-  authorize('admin'),
+  authorize('admin', 'staff'),
   complaint.addInternalNote
 );
 

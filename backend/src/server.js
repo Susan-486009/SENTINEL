@@ -168,10 +168,10 @@ const start = async () => {
 
       // Stop receiving new connections
       server.close(async () => {
-        logStructured({ level: 'INFO', message: '✅ HTTP server closed.' });
+        logStructured({ level: 'INFO', message: '. HTTP server closed.' });
         try {
           await disconnectDB();
-          logStructured({ level: 'INFO', message: '✅ Database connections disconnected cleanly.' });
+          logStructured({ level: 'INFO', message: '. Database connections disconnected cleanly.' });
           process.exit(0);
         } catch (dbErr) {
           logStructured({

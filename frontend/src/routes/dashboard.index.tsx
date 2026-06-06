@@ -184,7 +184,7 @@ function DashboardIndex() {
                 to="/dashboard/reports"
                 className="text-xs font-bold uppercase tracking-wider text-accent hover:underline flex items-center gap-1"
               >
-                All Reports <ChevronRight className="h-3 w-3" />
+                All Complaints <ChevronRight className="h-3 w-3" />
               </Link>
             )}
           </div>
@@ -196,7 +196,7 @@ function DashboardIndex() {
                   <FileText className="h-8 w-8" />
                 </div>
                 <h4 className="font-display text-lg font-bold text-foreground">
-                  No reports filed yet
+                  No complaints filed yet
                 </h4>
                 <p className="mt-2 text-xs text-muted-foreground max-w-sm leading-relaxed">
                   You haven't submitted any concerns yet. If you have an academic, IT, facility, or
@@ -206,7 +206,7 @@ function DashboardIndex() {
                   to="/submit"
                   className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition active:scale-[0.98] shadow-md shadow-primary/10"
                 >
-                  File a new report <Plus className="h-3.5 w-3.5 text-accent" />
+                  File a new complaint <Plus className="h-3.5 w-3.5 text-accent" />
                 </Link>
               </div>
             ) : (
@@ -296,7 +296,7 @@ function DashboardIndex() {
             {/* Quick Action 1: File Report */}
             <div className="rounded-xl border border-border bg-card p-5 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
               <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                <FileText className="h-4 w-4 text-accent" /> File a New Report
+                <FileText className="h-4 w-4 text-accent" /> File a New Complaint
               </h4>
               <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                 Submit a concern with files/evidence directly to reviewers.
@@ -348,7 +348,7 @@ function DashboardIndex() {
               <ShieldAlert className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                  Sentinel Security
+                  Resolve Security
                 </h4>
                 <p className="mt-1.5 text-[11px] text-muted-foreground leading-relaxed">
                   LASUSTECH implements strict data governance. Submissions are encrypted and

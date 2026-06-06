@@ -36,18 +36,18 @@ The system supports:
 
 ### Frontend
 
-| Technology             | Purpose                                  |
-| ---------------------- | ---------------------------------------- |
+| Technology       | Purpose                                 |
+| ---------------- | --------------------------------------- |
 | **React.js**     | UI framework — all pages and components |
-| **Vite**         | Fast frontend build tool and dev server  |
-| **Vanilla CSS**  | Styling (no Tailwind/Bootstrap)          |
-| **React Router** | Client-side page routing                 |
-| **Context API**  | Global auth state management             |
+| **Vite**         | Fast frontend build tool and dev server |
+| **Vanilla CSS**  | Styling (no Tailwind/Bootstrap)         |
+| **React Router** | Client-side page routing                |
+| **Context API**  | Global auth state management            |
 
 ### Backend
 
-| Technology                   | Purpose                                            |
-| ---------------------------- | -------------------------------------------------- |
+| Technology             | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
 | **Node.js**            | JavaScript runtime for the server                  |
 | **Express.js**         | HTTP server and routing framework                  |
 | **Mongoose**           | MongoDB ODM (Object Document Mapper)               |
@@ -63,9 +63,9 @@ The system supports:
 
 ### Database
 
-| Database                | Status    | Purpose                                         |
-| ----------------------- | --------- | ----------------------------------------------- |
-| **MongoDB Atlas** | ✅ ACTIVE | Primary cloud database (NoSQL)                  |
+| Database          | Status    | Purpose                                       |
+| ----------------- | --------- | --------------------------------------------- |
+| **MongoDB Atlas** | . ACTIVE  | Primary cloud database (NoSQL)                |
 | **MySQL**         | 💤 BACKUP | Legacy relational DB (kept in `src/mysqldb/`) |
 
 ---
@@ -324,9 +324,9 @@ All responses follow this structure:
 {
   "name": "John Doe",
   "matric": "240303010001",
-  "email": "john@example.com",   // OPTIONAL for students
+  "email": "john@example.com", // OPTIONAL for students
   "password": "Password123!",
-  "role": "student"              // "student" | "staff" (default: student)
+  "role": "student" // "student" | "staff" (default: student)
 }
 ```
 
@@ -346,7 +346,7 @@ All responses follow this structure:
 
 ```json
 {
-  "identifier": "240303010001",    // Email OR Matric number
+  "identifier": "240303010001", // Email OR Matric number
   "password": "Password123!"
 }
 ```
@@ -446,11 +446,11 @@ Authorization: Bearer <accessToken>
 
 | Field       | Type    | Required | Description                                                                                                                      |
 | ----------- | ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| category    | string  | ✅       | One of: academic-result, academic-lecturer, facility-maint, facility-hostel, admin-staff, security, financial, it-service, other |
-| title       | string  | ✅       | Complaint title (5–200 characters)                                                                                              |
-| description | string  | ✅       | Full complaint details (20–5000 characters)                                                                                     |
-| anonymous   | boolean | ❌       | Set to true to hide your identity                                                                                                |
-| files       | file[]  | ❌       | Up to 5 files (images, PDFs, DOCX — max 5MB each)                                                                               |
+| category    | string  | .        | One of: academic-result, academic-lecturer, facility-maint, facility-hostel, admin-staff, security, financial, it-service, other |
+| title       | string  | .        | Complaint title (5–200 characters)                                                                                               |
+| description | string  | .        | Full complaint details (20–5000 characters)                                                                                      |
+| anonymous   | boolean | .        | Set to true to hide your identity                                                                                                |
+| files       | file[]  | .        | Up to 5 files (images, PDFs, DOCX — max 5MB each)                                                                                |
 
 **Rate Limit:** Max 3 complaints per hour per user.
 
@@ -535,8 +535,8 @@ These require a JWT from an admin account.
 
 **Base URL:** `http://localhost:5173`
 
-| Page                        | Route          | Access     | Description                                    |
-| --------------------------- | -------------- | ---------- | ---------------------------------------------- |
+| Page                  | Route        | Access     | Description                                    |
+| --------------------- | ------------ | ---------- | ---------------------------------------------- |
 | **Home**              | `/`          | Public     | Landing page with project intro and links      |
 | **Login**             | `/login`     | Public     | Login form (email or matric + password)        |
 | **Register**          | `/register`  | Public     | Student/staff registration form                |
@@ -631,8 +631,8 @@ The LASUSTECH Complaint Portal is a full-stack web application that digitizes an
 
 ### Key Features
 
-| Feature                        | Details                                                                 |
-| ------------------------------ | ----------------------------------------------------------------------- |
+| Feature                  | Details                                                                 |
+| ------------------------ | ----------------------------------------------------------------------- |
 | **Multi-role Auth**      | Students, Staff, and Admin roles with JWT tokens                        |
 | **Flexible Login**       | Students log in with email OR matric number                             |
 | **Complaint Submission** | Multi-category, multi-file complaint form with drag-and-drop            |
@@ -679,6 +679,6 @@ Example: `CMP-LZF8K4TQ-A3BX`
 
 ---
 
-*Documentation generated: May 2026*
-*Project: LASUSTECH Complaint Portal v1.0.0*
-*Stack: React + Node.js + Express + MongoDB Atlas + Mongoose + Groq AI*
+_Documentation generated: May 2026_
+_Project: LASUSTECH Complaint Portal v1.0.0_
+_Stack: React + Node.js + Express + MongoDB Atlas + Mongoose + Groq AI_

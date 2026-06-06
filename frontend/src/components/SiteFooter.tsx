@@ -22,7 +22,7 @@ export function SiteFooter() {
             </li>
             <li>
               <Link to="/register" className="hover:text-foreground">
-                Submit a report
+                Submit a Complaint
               </Link>
             </li>
             <li>

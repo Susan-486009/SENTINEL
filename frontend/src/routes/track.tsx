@@ -22,14 +22,14 @@ import { format } from "date-fns";
 const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
 
 export const Route = createFileRoute("/track")({
-  head: () => ({ meta: [{ title: "Track a case — LASUSTECH Resolution Center" }] }),
+  head: () => ({ meta: [{ title: "Track a complaint — LASUSTECH Resolution Center" }] }),
   component: TrackPage,
 });
 
 const STAGES = [
-  { key: "pending", label: "Submitted", desc: "Report received and reference ID issued." },
+  { key: "pending", label: "Submitted", desc: "Complaint received and reference ID issued." },
   { key: "in_review", label: "Under review", desc: "Initial review by the resolution office." },
-  { key: "resolved", label: "Resolved", desc: "Outcome shared and case closed." },
+  { key: "resolved", label: "Resolved", desc: "Outcome shared and complaint closed." },
   { key: "fixed", label: "Fixed", desc: "Issue has been physically or technically fixed." },
 ];
 
@@ -46,7 +46,7 @@ function TrackPage() {
       const data = await complaintService.track(targetId.trim().toUpperCase());
       setResult(data);
     } catch (err: any) {
-      toast.error(err.message || "Case not found");
+      toast.error(err.message || "Complaint not found");
     } finally {
       setLoading(false);
     }
@@ -74,11 +74,11 @@ function TrackPage() {
       <section className="container-page py-12 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5 text-success" /> Transparent case tracking
+            <ShieldCheck className="h-3.5 w-3.5 text-success" /> Transparent complaint tracking
           </span>
-          <h1 className="mt-4 font-display text-3xl font-semibold md:text-5xl">Track your case</h1>
+          <h1 className="mt-4 font-display text-3xl font-semibold md:text-5xl">Track your complaint</h1>
           <p className="mt-3 text-muted-foreground">
-            Enter the reference ID you received when you submitted your report.
+            Enter the reference ID you received when you submitted your complaint.
           </p>
         </div>
 
@@ -104,7 +104,7 @@ function TrackPage() {
             disabled={loading}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-70"
           >
-            {loading ? "Searching..." : "Track case"} <ArrowRight className="h-4 w-4" />
+            {loading ? "Searching..." : "Track complaint"} <ArrowRight className="h-4 w-4" />
           </button>
         </form>
 
@@ -116,11 +116,11 @@ function TrackPage() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
                 <FileText className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">No case loaded yet</h3>
+              <h3 className="mt-4 font-display text-lg font-semibold">No complaint loaded yet</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 Don't have a reference ID?{" "}
                 <Link to="/submit" className="font-medium text-accent hover:underline">
-                  Submit a new report
+                  Submit a new complaint
                 </Link>
                 .
               </p>
@@ -164,7 +164,7 @@ function TrackResult({ data }: { data: Complaint }) {
               >
                 {data.status.replace("_", " ").toUpperCase()}
               </span>
-              <span className="text-xs text-muted-foreground">Case #{data.reference_id}</span>
+              <span className="text-xs text-muted-foreground">Complaint #{data.reference_id}</span>
             </div>
             <h2 className="mt-2 font-display text-xl font-semibold">{data.title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -277,9 +277,9 @@ function TrackResult({ data }: { data: Complaint }) {
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 flex items-start gap-4">
           <XCircle className="h-6 w-6 text-destructive shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-display text-base font-semibold text-destructive">Case Rejected</h3>
+            <h3 className="font-display text-base font-semibold text-destructive">Complaint Rejected</h3>
             <p className="mt-1 text-sm text-destructive/80">
-              This case has been rejected and closed. Please contact the administration if you
+              This complaint has been rejected and closed. Please contact the administration if you
               believe this is an error.
             </p>
           </div>

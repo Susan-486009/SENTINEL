@@ -1,8 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { authService, User } from "@/lib/api";
-import { Search, Filter, Mail, Shield, User as UserIcon, MoreHorizontal } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { authService, departmentService, User } from "@/lib/api";
+import { Search, Filter, Shield, User as UserIcon, Edit } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/superadmin/users")({
   component: AdminUsersPage,
@@ -11,11 +21,58 @@ export const Route = createFileRoute("/superadmin/users")({
 function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const queryClient = useQueryClient();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    role: "",
+    department_id: "",
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "users", search, roleFilter],
     queryFn: () => authService.getUsers({ search, role: roleFilter }),
   });
+
+  const { data: departmentsData } = useQuery({
+    queryKey: ["departments"],
+    queryFn: () => departmentService.getAll(),
+  });
+  const departments = Array.isArray(departmentsData) ? departmentsData : (departmentsData as any)?.data || [];
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => authService.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast.success("User updated successfully.");
+      setIsEditOpen(false);
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update user"),
+  });
+
+  const openEdit = (user: User) => {
+    setSelectedUser(user);
+    setEditFormData({
+      name: user.name || "",
+      role: user.role || "student",
+      department_id: (user as any).department?.id || (user as any).department_id || "",
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    updateMutation.mutate({
+      id: selectedUser.id,
+      data: {
+        name: editFormData.name,
+        role: editFormData.role,
+        department_id: editFormData.role === "student" ? null : (editFormData.department_id || null),
+      },
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -110,8 +167,12 @@ function AdminUsersPage() {
                       <span className="text-xs">Active</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="rounded-lg p-1 hover:bg-muted" onClick={() => import("sonner").then(m => m.toast.info("User editing coming in v2"))}>
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                      <button
+                        className="rounded-lg p-1.5 hover:bg-muted transition text-muted-foreground hover:text-primary"
+                        onClick={() => openEdit(user)}
+                        title="Edit User"
+                      >
+                        <Edit className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>
@@ -127,6 +188,77 @@ function AdminUsersPage() {
           </table>
         </div>
       </div>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-md bg-card border border-border">
+          <form onSubmit={handleEditSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit User Account</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-name">Full Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  placeholder="e.g. Susan Rade"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-role">System Role</Label>
+                <select
+                  id="edit-role"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
+                  value={editFormData.role}
+                  onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value as any })}
+                >
+                  <option value="student">Student</option>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {(editFormData.role === "staff" || editFormData.role === "admin") && (
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-dept">Department Assignment</Label>
+                  <select
+                    id="edit-dept"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/20 cursor-pointer"
+                    value={editFormData.department_id}
+                    onChange={(e) => setEditFormData({ ...editFormData, department_id: e.target.value })}
+                  >
+                    <option value="">No Department</option>
+                    {departments.map((dept: any) => (
+                      <option key={dept._id} value={dept._id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(false)}
+                className="rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updateMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+              >
+                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

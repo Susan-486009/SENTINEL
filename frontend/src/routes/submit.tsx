@@ -21,20 +21,20 @@ import { toast } from "sonner";
 import { formatCategory } from "@/lib/ui-shared";
 
 export const Route = createFileRoute("/submit")({
-  head: () => ({ meta: [{ title: "Submit a report — LASUSTECH Resolution Center" }] }),
+  head: () => ({ meta: [{ title: "Submit a Complaint — LASUSTECH Resolution Center" }] }),
   component: SubmitPage,
 });
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/dashboard/reports", label: "My reports", icon: FileIcon },
+  { to: "/dashboard/reports", label: "My Complaints", icon: FileIcon },
   { to: "/dashboard/activity", label: "Activity", icon: History },
   { to: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { to: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 const STEPS = [
-  { key: "what", title: "What happened?", desc: "A short description helps us route your report." },
+  { key: "what", title: "What happened?", desc: "A short description helps us route your complaint." },
   {
     key: "details",
     title: "Tell us more",
@@ -108,9 +108,9 @@ function SubmitPage() {
       setSubmittedRef(result.referenceId || result.reference_id || null);
       await queryClient.invalidateQueries({ queryKey: ["my-complaints"] });
       await queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("Report submitted successfully!");
+      toast.success("Complaint submitted successfully!");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to submit report");
+      toast.error(err instanceof Error ? err.message : "Failed to submit complaint");
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ function SubmitPage() {
   if (submittedRef) return <SuccessScreen referenceId={submittedRef} />;
 
   return (
-    <AppShell nav={nav} title="Submit a report">
+    <AppShell nav={nav} title="Submit a Complaint">
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="rounded-2xl border border-border/40 bg-surface/85 backdrop-blur-md p-4 shadow-soft">
           <ol className="flex items-center gap-2">
@@ -195,7 +195,7 @@ function SubmitPage() {
                 disabled={loading}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground border border-accent/15 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-95 disabled:opacity-30"
               >
-                {loading ? "Submitting..." : "Submit report"}{" "}
+                {loading ? "Submitting..." : "Submit Complaint"}{" "}
                 <ArrowRight className="h-4 w-4 text-accent" />
               </button>
             )}
@@ -262,7 +262,7 @@ function Step1({
       label: "IT Portal Services",
       desc: "Student accounts, Wi-Fi connectivity",
     },
-    { value: "other", label: "Other Issues", desc: "Any other general reports or concerns" },
+    { value: "other", label: "Other Issues", desc: "Any other general complaints or concerns" },
   ];
 
   return (
@@ -368,7 +368,8 @@ function Step2({
     if (form.details.length < 10) return toast.error("Write a bit more before enhancing.");
     setIsEnhancing(true);
     try {
-      const response = await fetch("https://sentinel-olive-five.vercel.app/api/v1/ai/rewrite", {
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+      const response = await fetch(`${baseUrl}/ai/rewrite`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -596,7 +597,7 @@ function Step4({
 
 function SuccessScreen({ referenceId }: { referenceId: string }) {
   return (
-    <AppShell nav={nav} title="Report submitted">
+    <AppShell nav={nav} title="Complaint submitted">
       <div className="mx-auto max-w-xl text-center">
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
@@ -606,7 +607,7 @@ function SuccessScreen({ referenceId }: { referenceId: string }) {
         >
           <Check className="h-7 w-7" />
         </motion.div>
-        <h1 className="mt-6 font-display text-3xl font-semibold">Your report has been submitted</h1>
+        <h1 className="mt-6 font-display text-3xl font-semibold">Your complaint has been submitted</h1>
         <p className="mt-2 text-muted-foreground">
           Thank you for reaching out. We'll review your case and respond as soon as possible.
         </p>

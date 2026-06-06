@@ -30,9 +30,15 @@ export const up = async () => {
 
   // 3. Seed default departments
   const defaultDeps = [
-    { name: 'Security Unit', description: 'Sentinel core security operations' },
-    { name: 'Student Affairs', description: 'Student life and academic conduct investigations' },
-    { name: 'Registry', description: 'Institutional data and administrative filings' }
+    { name: 'Faculty of Science', description: 'Department of scientific studies and laboratory administration' },
+    { name: 'Faculty of Engineering', description: 'Engineering departments and laboratory operations' },
+    { name: 'Student Affairs', description: 'Student life and general student conduct investigations' },
+    { name: 'Bursary', description: 'Financial transactions, fees, and invoice processing' },
+    { name: 'Library Services', description: 'University libraries and academic study resources' },
+    { name: 'Examinations', description: 'Exams, grading portals, and academic results records' },
+    { name: 'Security Unit', description: 'Safety, security, and campus surveillance operations' },
+    { name: 'Registry', description: 'Institutional documentation, data, and clearances' },
+    { name: 'IT Services', description: 'Portal accounts, digital databases, and Wi-Fi networks' }
   ];
 
   for (const dep of defaultDeps) {

@@ -26,6 +26,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SuperadminUsersRouteImport } from './routes/superadmin.users'
 import { Route as SuperadminSettingsRouteImport } from './routes/superadmin.settings'
 import { Route as SuperadminDepartmentsRouteImport } from './routes/superadmin.departments'
+import { Route as SuperadminCasesRouteImport } from './routes/superadmin.cases'
 import { Route as SuperadminAuditRouteImport } from './routes/superadmin.audit'
 import { Route as SuperadminAnalyticsRouteImport } from './routes/superadmin.analytics'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
@@ -120,6 +121,11 @@ const SuperadminDepartmentsRoute = SuperadminDepartmentsRouteImport.update({
   path: '/departments',
   getParentRoute: () => SuperadminRoute,
 } as any)
+const SuperadminCasesRoute = SuperadminCasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => SuperadminRoute,
+} as any)
 const SuperadminAuditRoute = SuperadminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/superadmin/analytics': typeof SuperadminAnalyticsRoute
   '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/cases': typeof SuperadminCasesRoute
   '/superadmin/departments': typeof SuperadminDepartmentsRoute
   '/superadmin/settings': typeof SuperadminSettingsRoute
   '/superadmin/users': typeof SuperadminUsersRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/superadmin/analytics': typeof SuperadminAnalyticsRoute
   '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/cases': typeof SuperadminCasesRoute
   '/superadmin/departments': typeof SuperadminDepartmentsRoute
   '/superadmin/settings': typeof SuperadminSettingsRoute
   '/superadmin/users': typeof SuperadminUsersRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/superadmin/analytics': typeof SuperadminAnalyticsRoute
   '/superadmin/audit': typeof SuperadminAuditRoute
+  '/superadmin/cases': typeof SuperadminCasesRoute
   '/superadmin/departments': typeof SuperadminDepartmentsRoute
   '/superadmin/settings': typeof SuperadminSettingsRoute
   '/superadmin/users': typeof SuperadminUsersRoute
@@ -259,6 +268,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/superadmin/analytics'
     | '/superadmin/audit'
+    | '/superadmin/cases'
     | '/superadmin/departments'
     | '/superadmin/settings'
     | '/superadmin/users'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/superadmin/analytics'
     | '/superadmin/audit'
+    | '/superadmin/cases'
     | '/superadmin/departments'
     | '/superadmin/settings'
     | '/superadmin/users'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/superadmin/analytics'
     | '/superadmin/audit'
+    | '/superadmin/cases'
     | '/superadmin/departments'
     | '/superadmin/settings'
     | '/superadmin/users'
@@ -453,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuperadminDepartmentsRouteImport
       parentRoute: typeof SuperadminRoute
     }
+    '/superadmin/cases': {
+      id: '/superadmin/cases'
+      path: '/cases'
+      fullPath: '/superadmin/cases'
+      preLoaderRoute: typeof SuperadminCasesRouteImport
+      parentRoute: typeof SuperadminRoute
+    }
     '/superadmin/audit': {
       id: '/superadmin/audit'
       path: '/audit'
@@ -568,6 +587,7 @@ const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
 interface SuperadminRouteChildren {
   SuperadminAnalyticsRoute: typeof SuperadminAnalyticsRoute
   SuperadminAuditRoute: typeof SuperadminAuditRoute
+  SuperadminCasesRoute: typeof SuperadminCasesRoute
   SuperadminDepartmentsRoute: typeof SuperadminDepartmentsRoute
   SuperadminSettingsRoute: typeof SuperadminSettingsRoute
   SuperadminUsersRoute: typeof SuperadminUsersRoute
@@ -577,6 +597,7 @@ interface SuperadminRouteChildren {
 const SuperadminRouteChildren: SuperadminRouteChildren = {
   SuperadminAnalyticsRoute: SuperadminAnalyticsRoute,
   SuperadminAuditRoute: SuperadminAuditRoute,
+  SuperadminCasesRoute: SuperadminCasesRoute,
   SuperadminDepartmentsRoute: SuperadminDepartmentsRoute,
   SuperadminSettingsRoute: SuperadminSettingsRoute,
   SuperadminUsersRoute: SuperadminUsersRoute,

@@ -61,7 +61,7 @@ function ErrorComponent({ error, reset }: { error: any; reset: () => void }) {
           Something went wrong
         </h1>
         <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
-          An unexpected application error was safely caught by Sentinel security boundaries.
+          An unexpected application error was safely caught by LASUSTECH Resolve security boundaries.
         </p>
 
         {error.requestId && (

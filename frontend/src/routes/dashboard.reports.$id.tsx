@@ -17,14 +17,14 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/dashboard/reports/$id")({
-  head: () => ({ meta: [{ title: "Report Details — LASUSTECH Resolution Center" }] }),
+  head: () => ({ meta: [{ title: "Complaint Details — LASUSTECH Resolution Center" }] }),
   component: ReportDetailPage,
 });
 
 const SERVER_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
 
 const STAGES = [
-  { key: "pending", label: "Submitted", desc: "Report received and reference ID issued." },
+  { key: "pending", label: "Submitted", desc: "Complaint received and reference ID issued." },
   { key: "in_review", label: "Under review", desc: "Initial review by the resolution office." },
   { key: "resolved", label: "Resolved", desc: "Outcome shared and case closed." },
 ];
@@ -47,7 +47,7 @@ function ReportDetailPage() {
       <div className="flex h-64 items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
-          <p className="text-sm text-muted-foreground">Loading report details...</p>
+          <p className="text-sm text-muted-foreground">Loading complaint details...</p>
         </div>
       </div>
     );
@@ -57,7 +57,7 @@ function ReportDetailPage() {
     return (
       <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
         <AlertCircle className="mx-auto h-8 w-8 text-destructive" />
-        <h3 className="mt-3 font-semibold text-destructive">Failed to load report</h3>
+        <h3 className="mt-3 font-semibold text-destructive">Failed to load complaint</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           {error instanceof Error ? error.message : "An error occurred"}
         </p>
@@ -65,7 +65,7 @@ function ReportDetailPage() {
           to="/dashboard/reports"
           className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to reports
+          <ArrowLeft className="h-4 w-4" /> Back to complaints
         </Link>
       </div>
     );
@@ -100,7 +100,7 @@ function ReportDetailPage() {
         </Link>
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight">
-            Report Details
+            Complaint Details
           </h1>
           <p className="text-xs text-muted-foreground">
             Reference ID: <span className="font-mono font-bold text-accent">#{complaint.reference_id || complaint.referenceId}</span>

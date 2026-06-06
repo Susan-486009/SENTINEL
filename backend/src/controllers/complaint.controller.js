@@ -10,7 +10,7 @@ import { deleteFile }       from '../services/file.service.js';
      files[]                                  (up to 5 files)
 ════════════════════════════════════════════════════════ */
 export const submitComplaint = asyncHandler(async (req, res) => {
-  const { category, title, description, anonymous, priority } = req.body;
+  const { category, title, description, anonymous, priority, department } = req.body;
 
   const result = await complaintService.create({
     userId:    req.user.id,
@@ -20,6 +20,7 @@ export const submitComplaint = asyncHandler(async (req, res) => {
     anonymous: ['true', '1', true].includes(anonymous),
     priority: priority || 'normal',
     files:     req.files ?? [],
+    department,
   });
 
   sendSuccess(
@@ -106,7 +107,8 @@ export const getAllComplaints = asyncHandler(async (req, res) => {
     page, 
     limit,
     userRole: req.user.role,
-    userDepartment: req.user.departmentName
+    userDepartment: req.user.departmentName,
+    userId: req.user.id,
   });
   sendSuccess(res, result);
 });

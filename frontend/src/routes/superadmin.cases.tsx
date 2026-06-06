@@ -21,7 +21,8 @@ import {
   FileText,
   Database,
   ArrowRight,
-  CornerDownRight
+  ArrowLeft,
+  Reply,
 } from "lucide-react";
 import { StatusBadge, formatCategory } from "@/lib/ui-shared";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,6 +66,10 @@ function CasesPage() {
   const [query, setQuery] = useState("");
   const [noteText, setNoteText] = useState("");
   const [replyText, setReplyText] = useState("");
+  
+  // Custom states for premium responsiveness
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState<'resolution' | 'control'>('resolution');
 
   const { data: cases, isLoading: listLoading } = useQuery({
     queryKey: ["all-complaints"],
@@ -173,35 +178,424 @@ function CasesPage() {
     }
   };
 
+  // Modular Workspace rendering for clean screen management
+  const renderResolutionWorkspace = () => {
+    if (!active) return null;
+    return (
+      <div className="space-y-6">
+        {/* Summary Description */}
+        <div className="rounded-xl border border-border bg-slate-950/20 backdrop-blur-sm p-5 space-y-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.01)]">
+          <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-primary" /> Incident Summary Description
+          </h3>
+          <p className="text-sm leading-relaxed text-foreground select-text font-medium whitespace-pre-wrap break-words break-all">
+            {active.description || "No description provided."}
+          </p>
+        </div>
+
+        {/* Timeline */}
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-accent" /> Resolution Activity Timeline
+          </h3>
+          <ol className="relative border-l border-border/80 ml-2.5 pl-6 space-y-5">
+            {active.timeline?.map((t: any, i: number) => (
+              <li key={i} className="relative group">
+                {/* Node indicator */}
+                <div className="absolute -left-[29px] mt-1 h-3 w-3 rounded-full bg-accent border border-background shadow-[0_0_8px_var(--color-accent)] transition-transform group-hover:scale-110" />
+                <div className="space-y-0.5">
+                  <div className="text-sm font-semibold text-foreground leading-snug break-words break-all">
+                    {t.text || "Timeline Action"}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground flex items-center gap-2 mt-1 font-medium flex-wrap">
+                    <span>{safeFormatDate(t.created_at, "Pp")}</span>
+                    {t.user_id && (
+                      <>
+                        <span className="opacity-30">|</span>
+                        <span className="text-primary/90 flex items-center gap-1">
+                          <User className="h-3 w-3" /> {t.user_id.name} ({t.user_id.role})
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Action form */}
+        <div className="rounded-xl border border-border bg-slate-950/20 backdrop-blur-sm p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Reply className="h-3.5 w-3.5 text-accent" /> Official Resolution Reply (Student Visible)
+            </h3>
+            
+            {/* Shimmering Purple AI button */}
+            <button
+              onClick={() => aiEnhanceMutation.mutate(replyText)}
+              disabled={aiEnhanceMutation.isPending || !replyText.trim() || replyText.trim().length < 5}
+              className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 disabled:opacity-50 transition-all duration-300 active:scale-95 shadow-md shadow-indigo-500/10 overflow-hidden group"
+            >
+              {aiEnhanceMutation.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              AI Copy Rewrite
+            </button>
+          </div>
+
+          {/* Display current reply card */}
+          {(active.admin_feedback || active.adminFeedback) && (
+            <div className="rounded-xl border border-success/15 bg-success/5 p-4 text-xs space-y-1">
+              <div className="text-[9px] text-success font-bold uppercase tracking-wider flex items-center gap-1">
+                <CheckCircle className="h-3.5 w-3.5" /> Dispatched Resolution Reply
+              </div>
+              <p className="text-foreground font-medium leading-relaxed break-words break-all">
+                {active.admin_feedback || active.adminFeedback}
+              </p>
+            </div>
+          )}
+
+          {/* AI Draft recommendation card */}
+          {active.aiDraftReply && !(active.admin_feedback || active.adminFeedback) && (
+            <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-xs relative space-y-1">
+              <button
+                onClick={() => setReplyText(active.aiDraftReply)}
+                className="absolute top-3.5 right-3.5 inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2.5 py-1 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors shadow-sm"
+              >
+                Apply Draft
+              </button>
+              <div className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="h-3.5 w-3.5" /> Pre-Synthesized AI Recommendation
+              </div>
+              <p className="text-muted-foreground leading-relaxed pr-20 italic break-words break-all">
+                &ldquo;{active.aiDraftReply}&rdquo;
+              </p>
+            </div>
+          )}
+
+          <textarea
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Draft your official dispatch response, feedback instructions, or case final resolution to students here..."
+            className="w-full h-28 rounded-lg border border-border bg-slate-900/40 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground/80 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 resize-none transition-all duration-300 text-foreground"
+          />
+
+          <div className="flex items-center justify-between border-t border-border/80 pt-4 flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-semibold">Change State To:</span>
+              <select
+                className="rounded-lg border border-border bg-slate-950 px-3 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none"
+                value={active.status}
+                onChange={(e) =>
+                  updateStatusMutation.mutate({
+                    id: active._id,
+                    status: e.target.value,
+                    adminFeedback: replyText || undefined,
+                  })
+                }
+                disabled={updateStatusMutation.isPending}
+              >
+                <option value="pending">Pending</option>
+                <option value="in_review">In Review</option>
+                <option value="resolved">Resolved</option>
+                <option value="fixed">Fixed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() =>
+                updateStatusMutation.mutate({
+                  id: active._id,
+                  status: active.status,
+                  adminFeedback: replyText,
+                })
+              }
+              disabled={updateStatusMutation.isPending || !replyText.trim()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition active:scale-95 cursor-pointer"
+            >
+              {updateStatusMutation.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              Send Reply
+            </button>
+          </div>
+        </div>
+
+        {/* Private Internal Annotations */}
+        <div className="space-y-4">
+          <h3 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Info className="h-3.5 w-3.5 text-accent" /> Private Internal Annotations (Admins Only)
+          </h3>
+
+          <div className="space-y-3">
+            {active.internalNotes?.map((note: any, i: number) => (
+              <div
+                key={i}
+                className="rounded-xl border border-border/80 bg-slate-900/10 p-4 text-xs space-y-1.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.005)]"
+              >
+                <div className="flex items-center justify-between text-muted-foreground flex-wrap gap-2">
+                  <span className="font-bold text-foreground">{note.admin_id?.name || "Administrator"}</span>
+                  <span className="font-medium">{safeFormatDate(note.created_at, "Pp")}</span>
+                </div>
+                <p className="text-foreground/90 leading-relaxed font-medium break-words break-all">{note.text}</p>
+              </div>
+            ))}
+
+            <div className="rounded-xl border border-border bg-slate-950/20 backdrop-blur-sm p-4 space-y-3">
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Add administrative notes, assignment briefs, or internal notes..."
+                className="w-full h-20 rounded-lg border border-border bg-slate-900/40 px-3.5 py-2.5 text-xs outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 placeholder:text-muted-foreground/80 resize-none transition-all duration-300 text-foreground"
+              />
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => toast.info("Evidence attaching is coming in platform release v2")}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-slate-950 hover:bg-muted text-[10px] font-semibold text-muted-foreground transition active:scale-95 cursor-pointer"
+                >
+                  <Paperclip className="h-3 w-3" /> Attach private file
+                </button>
+                <button
+                  onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
+                  disabled={addNoteMutation.isPending || !noteText.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4.5 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition active:scale-95 cursor-pointer"
+                >
+                  {addNoteMutation.isPending ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Send className="h-3 w-3" />
+                  )}
+                  Save Private Note
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderControlBoardSidebar = () => {
+    if (!active) return null;
+    return (
+      <div className="space-y-6">
+        {/* Control Board Dropdowns */}
+        <div className="rounded-xl border border-border bg-slate-950/20 backdrop-blur-sm p-4.5 space-y-4 shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2.5">
+            Control Board
+          </div>
+          
+          {/* Status Selector */}
+          <div className="space-y-1.5">
+            <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">
+              Case Status
+            </label>
+            <div className="relative">
+              <select
+                className="w-full rounded-xl border border-border bg-slate-950 pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                value={active.status}
+                onChange={(e) =>
+                  updateStatusMutation.mutate({ id: active._id, status: e.target.value })
+                }
+                disabled={updateStatusMutation.isPending}
+              >
+                <option value="pending">Pending Dispatch</option>
+                <option value="in_review">In Active Review</option>
+                <option value="resolved">Mark Resolved</option>
+                <option value="fixed">Mark Fixed</option>
+                <option value="rejected">Mark Rejected</option>
+              </select>
+              <ChevronDown className="absolute right-3.5 top-3.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Priority Selector */}
+          <div className="space-y-1.5">
+            <label className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground">
+              Response Severity
+            </label>
+            <div className="relative">
+              <select
+                className="w-full rounded-xl border border-border bg-slate-950 pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                value={active.priority}
+                onChange={(e) =>
+                  updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
+                }
+                disabled={updatePriorityMutation.isPending}
+              >
+                <option value="low">Low Priority</option>
+                <option value="normal">Normal Priority</option>
+                <option value="high">High Priority</option>
+                <option value="critical">Critical Severity</option>
+              </select>
+              <ChevronDown className="absolute right-3.5 top-3.5 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Attachments */}
+        <div className="space-y-3">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+            <span>Submitted Attachments</span>
+            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded border border-border bg-slate-950">
+              {active.files?.length || 0}
+            </span>
+          </div>
+          <ul className="space-y-2">
+            {active.files?.length > 0 ? (
+              active.files.map((f, i) => (
+                <li key={i}>
+                  <a
+                    href={`${SERVER_URL}${f.url}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-border bg-slate-950/40 hover:bg-slate-900/60 px-4 py-3 text-xs transition-all duration-300 group shadow-sm"
+                  >
+                    <div className="flex items-center gap-2.5 truncate pr-4">
+                      <FileText className="h-4 w-4 text-primary shrink-0" />
+                      <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors break-all break-words" title={f.originalName}>
+                        {f.originalName}
+                      </span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </a>
+                </li>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-border rounded-xl bg-slate-950/10">
+                <Paperclip className="h-5 w-5 text-muted-foreground/30 mb-1" />
+                <span className="text-[10.5px] text-muted-foreground italic font-medium">No attachments provided</span>
+              </div>
+            )}
+          </ul>
+        </div>
+
+        {/* Student Satisfaction rating card */}
+        {(active.satisfaction_feedback || active.satisfactionFeedback) && (
+          <div className="space-y-2.5">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Student Satisfaction
+            </div>
+            {((active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes") ? (
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4.5 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-emerald-400">
+                    Student Rating
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 text-[9px] font-bold">
+                    😄 Satisfied
+                  </span>
+                </div>
+                {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
+                  <p className="text-xs leading-relaxed italic text-emerald-300/90 bg-black/20 border border-emerald-500/10 rounded-lg p-3 select-all break-words break-all">
+                    &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
+                  </p>
+                )}
+                <div className="text-[9px] text-muted-foreground/80 font-mono text-right">
+                  Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.03] p-4.5 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] uppercase font-bold tracking-wider text-rose-400">
+                    Student Rating
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-0.5 text-[9px] font-bold">
+                    😞 Unsatisfied
+                  </span>
+                </div>
+                {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
+                  <p className="text-xs leading-relaxed italic text-rose-300/90 bg-black/20 border border-rose-500/10 rounded-lg p-3 select-all break-words break-all">
+                    &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
+                  </p>
+                )}
+                <div className="text-[9px] text-muted-foreground/80 font-mono text-right">
+                  Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* System Audit Details */}
+        <div className="rounded-xl border border-border bg-slate-950/20 backdrop-blur-sm p-4.5 space-y-3 shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+            <Database className="h-3.5 w-3.5 text-primary" /> Incident Parameters
+          </div>
+          
+          <div className="space-y-2 text-xs divide-y divide-border/60">
+            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
+              <span className="text-muted-foreground font-medium">Department Unit</span>
+              <span className="truncate max-w-[140px] break-all" title={formatCategory(active.category)}>
+                {formatCategory(active.category)}
+              </span>
+            </div>
+            
+            <div className="flex items-center justify-between py-2 text-foreground font-semibold">
+              <span className="text-muted-foreground font-medium">Privacy Status</span>
+              <span>{active.anonymous ? "Anonymous Submission" : "Public Submission"}</span>
+            </div>
+
+            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
+              <span className="text-muted-foreground font-medium">Assigned Staff</span>
+              <span className="text-primary font-bold">
+                {active.assignedStaff ? `${active.assignedStaff.name}` : "Unassigned"}
+              </span>
+            </div>
+
+            {!active.anonymous && (
+              <>
+                <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
+                  <span className="text-muted-foreground font-medium">Matric ID</span>
+                  <span className="font-mono text-[10px] bg-slate-950 px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
+                </div>
+                
+                <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
+                  <span className="text-muted-foreground font-medium">Contact Endpoint</span>
+                  <span className="truncate max-w-[130px] font-mono text-[10px] break-all" title={active.submitter?.email}>
+                    {active.submitter?.email || "N/A"}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <div className="pt-2 border-t border-border/80 flex items-center gap-1.5 text-[9px] text-muted-foreground/90 font-medium">
+            <ShieldCheck className="h-4 w-4 text-success shrink-0" /> State updates are logged securely in ledger
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 h-full flex flex-col overflow-hidden">
-      
-      {/* 
-        Injected Global Custom Style Sheet
-        Renders native macOS style overlay scrollbars and completely hides horizontal scrollbars tracks globally!
-      */}
+      {/* Scrollbar Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
-        /* Ultra thin visual scrollbar system */
         ::-webkit-scrollbar {
           width: 5px !important;
-          height: 0px !important; /* Hide horizontal scrollbar track globally */
+          height: 0px !important;
         }
         ::-webkit-scrollbar-track {
           background: transparent !important;
         }
         ::-webkit-scrollbar-thumb {
-          background: rgba(156, 163, 175, 0.18) !important;
+          background: rgba(156, 163, 175, 0.15) !important;
           border-radius: 9999px !important;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(156, 163, 175, 0.35) !important;
+          background: rgba(156, 163, 175, 0.3) !important;
         }
-        
-        /* Strict capsule menu scrollbar hider */
         .no-scrollbar::-webkit-scrollbar {
           display: none !important;
-          height: 0px !important;
-          width: 0px !important;
         }
         .no-scrollbar {
           -ms-overflow-style: none !important;
@@ -209,12 +603,17 @@ function CasesPage() {
         }
       `}} />
 
-      <div className="grid h-[calc(100vh-7.5rem)] grid-cols-1 gap-6 lg:grid-cols-[400px_1fr] overflow-hidden min-h-0">
-        
-        {/* Left Column - Beautiful Case list */}
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg h-full min-h-0">
-          <div className="border-b border-border p-4 space-y-3 bg-muted/20 shrink-0">
-            {/* Elegant Search with glow rings */}
+      <div className="flex h-[calc(100vh-7.5rem)] w-full gap-6 overflow-hidden min-h-0 relative">
+        {/* Left Column - Registry cases list */}
+        <div
+          className={`flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg h-full min-h-0 transition-all duration-300 ${
+            sidebarCollapsed ? "w-0 opacity-0 pointer-events-none mr-[-24px]" : "w-full lg:w-[340px] xl:w-[380px] shrink-0"
+          } ${
+            selectedId !== null ? "hidden lg:flex" : "flex"
+          }`}
+        >
+          <div className="border-b border-border p-4 space-y-3 bg-slate-900/10 shrink-0">
+            {/* Elegant Search with focus rings */}
             <div className="relative flex items-center rounded-xl border border-border bg-background px-3 py-2.5 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300">
               <Search className="h-4 w-4 text-muted-foreground shrink-0 mr-2" />
               <input
@@ -225,13 +624,13 @@ function CasesPage() {
               />
             </div>
             
-            {/* Dynamic capsule selectors with no scrollbar */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            {/* Filter tags with no scrollbar */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar select-none">
               {filters.map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 ${
+                  className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer ${
                     filter === f
                       ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                       : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -243,18 +642,18 @@ function CasesPage() {
             </div>
           </div>
 
-          {/* Clean scrolling list */}
-          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto overflow-x-hidden bg-muted/5 min-h-0">
+          {/* Scrolling registry elements */}
+          <ul className="flex-1 divide-y divide-border/60 overflow-y-auto overflow-x-hidden bg-slate-950/[0.03] min-h-0 select-none">
             {listLoading ? (
               <div className="flex flex-col items-center justify-center p-12 text-muted-foreground">
                 <Loader2 className="animate-spin h-7 w-7 text-primary mb-2" />
-                <span className="text-xs">Fetching active registry...</span>
+                <span className="text-[11px] font-medium">Fetching active registry...</span>
               </div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
                 <AlertCircle className="h-8 w-8 opacity-20 mb-2" />
-                <span className="text-sm font-semibold">No registry records found</span>
-                <span className="text-xs mt-1 opacity-70">Try relaxing your search descriptors</span>
+                <span className="text-xs font-bold">No registry records found</span>
+                <span className="text-[10px] mt-1 opacity-70">Try relaxing your search descriptors</span>
               </div>
             ) : (
               filtered.map((c) => {
@@ -263,29 +662,29 @@ function CasesPage() {
                   <motion.li
                     key={c._id}
                     onClick={() => setSelectedId(c._id)}
-                    whileHover={{ x: 3 }}
-                    className={`cursor-pointer px-5 py-4.5 transition-all duration-200 border-l-2 relative ${
+                    whileHover={{ x: 4 }}
+                    className={`cursor-pointer px-5 py-4 transition-all duration-200 border-l-2 relative ${
                       isActive 
-                        ? "bg-primary/[0.03] border-primary" 
+                        ? "bg-primary/[0.04] border-primary shadow-[inset_0_1px_1px_rgba(251,191,36,0.02)]" 
                         : "hover:bg-muted/30 border-transparent"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-[10px] tracking-wider text-muted-foreground font-semibold uppercase">
+                      <span className="font-mono text-[9px] tracking-wider text-muted-foreground font-semibold uppercase">
                         #{c.reference_id || c.referenceId || "N/A"}
                       </span>
                       <StatusBadge tone={getStatusTone(c.status || "pending")}>
                         {(c.status || "pending").replace("_", " ").toUpperCase()}
                       </StatusBadge>
                     </div>
-                    <div className="mt-2 line-clamp-1 font-semibold text-sm text-foreground hover:text-primary transition-colors break-words">
+                    <div className="mt-2 line-clamp-1 font-semibold text-sm text-foreground hover:text-primary transition-colors break-words break-all">
                       {c.title || "Untitled Issue"}
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-medium ${getCategoryStyle(c.category)}`}>
+                    <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className={`inline-flex px-2 py-0.5 rounded border text-[9px] font-medium ${getCategoryStyle(c.category)}`}>
                         {formatCategory(c.category)}
                       </span>
-                      <span className="font-medium text-[10.5px]">
+                      <span className="font-medium text-[10px]">
                         {safeFormatDate(c.created_at, "MMM d, yyyy")}
                       </span>
                     </div>
@@ -296,8 +695,27 @@ function CasesPage() {
           </ul>
         </div>
 
-        {/* Right Column - Beautiful splits workspace */}
-        <div className="overflow-hidden h-full flex flex-col min-h-0">
+        {/* Sleek Floating Collapse Handle (Desktop only) */}
+        <div className="hidden lg:flex items-center relative z-20 select-none">
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="absolute left-[-12px] flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+            title={sidebarCollapsed ? "Expand Registry" : "Collapse Registry"}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-3.5 w-3.5 text-primary animate-pulse" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 rotate-180" />
+            )}
+          </button>
+        </div>
+
+        {/* Right Column - Beautiful splits workspace details */}
+        <div
+          className={`flex-1 h-full min-h-0 overflow-hidden transition-all duration-300 ${
+            selectedId === null ? "hidden lg:flex" : "flex"
+          }`}
+        >
           <AnimatePresence mode="wait">
             {active ? (
               <motion.div 
@@ -305,14 +723,22 @@ function CasesPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg min-h-0"
+                className="flex flex-col h-full w-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg min-h-0"
               >
                 {/* Header card area */}
-                <div className="border-b border-border p-6 bg-muted/10 shrink-0">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="border-b border-border p-5 md:p-6 bg-slate-900/10 shrink-0">
+                  <div className="flex flex-col justify-between gap-3">
+                    {/* Back to cases list on mobile/tablet */}
+                    <button
+                      onClick={() => setSelectedId(null)}
+                      className="self-start inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition active:scale-95 lg:hidden cursor-pointer"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" /> Back to Cases
+                    </button>
+
                     <div className="space-y-2 max-w-full overflow-hidden">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-xs font-semibold text-muted-foreground bg-background px-2.5 py-1 rounded-md border border-border">
+                        <span className="font-mono text-[10px] font-semibold text-muted-foreground bg-background px-2.5 py-1 rounded-md border border-border uppercase">
                           #{active.referenceId || active.reference_id || "N/A"}
                         </span>
                         <StatusBadge tone={getStatusTone(active.status || "pending")}>
@@ -322,15 +748,16 @@ function CasesPage() {
                           {(active.priority || "normal").toUpperCase()}
                         </StatusBadge>
                       </div>
-                      <h2 className="font-display text-xl font-bold tracking-tight text-foreground leading-snug break-words">
+                      
+                      <h2 className="font-display text-lg md:text-xl font-bold tracking-tight text-foreground leading-snug break-words break-all">
                         {active.title || "Untitled Complaint"}
                       </h2>
                       
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground pt-1 select-none">
                         <span className="flex items-center gap-1.5">
                           <User className="h-3.5 w-3.5 opacity-60 text-primary animate-pulse" />{" "}
                           {active.anonymous ? (
-                            <span className="inline-flex items-center gap-1 text-amber-400/90 font-medium">
+                            <span className="inline-flex items-center gap-1 text-amber-400 font-semibold">
                               <AlertTriangle className="h-3 w-3" /> Anonymous Student
                             </span>
                           ) : (
@@ -348,404 +775,85 @@ function CasesPage() {
                   </div>
                 </div>
 
-                {/* Split main area (70% workspace, 30% control sidebar) */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border overflow-hidden min-h-0">
-                  
-                  {/* Left Workspace Panel - Issues & Actions (2 columns) */}
-                  <div className="md:col-span-2 overflow-y-auto overflow-x-hidden p-6 space-y-6 min-h-0">
-                    
-                    {/* Summary */}
-                    <div className="rounded-xl border border-border bg-muted/15 p-5 space-y-2.5">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <FileText className="h-3.5 w-3.5 text-primary" /> Incident Summary Description
-                      </h3>
-                      {/* Enforce strict word-breaking and safe wrapping to stop scrollbars */}
-                      <p className="text-sm leading-relaxed text-foreground select-text font-medium whitespace-pre-wrap break-all break-words">
-                        {active.description || "No description provided."}
-                      </p>
-                    </div>
-
-                    {/* Timeline */}
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-accent" /> Resolution Activity Timeline
-                      </h3>
-                      <ol className="relative border-l border-border/80 ml-2.5 pl-5 space-y-5">
-                        {active.timeline?.map((t: any, i: number) => (
-                          <li key={i} className="relative group">
-                            {/* Connectors */}
-                            <div className="absolute -left-[25px] mt-1 h-2.5 w-2.5 rounded-full bg-accent border-2 border-card ring-4 ring-accent/10 transition-transform group-hover:scale-110" />
-                            <div className="space-y-0.5">
-                              <div className="text-sm font-semibold text-foreground leading-none break-all break-words">{t.text || "Timeline Action"}</div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1 font-medium flex-wrap">
-                                <span>{safeFormatDate(t.created_at, "Pp")}</span>
-                                {t.user_id && (
-                                  <>
-                                    <span className="opacity-30">|</span>
-                                    <span className="text-primary/95 flex items-center gap-1">
-                                      <User className="h-3 w-3" /> {t.user_id.name} ({t.user_id.role})
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    {/* Action form */}
-                    <div className="rounded-xl border border-border bg-card p-5 space-y-4 shadow-sm">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                          <CornerDownRight className="h-3.5 w-3.5 text-accent" /> Official Resolution Reply (Student Visible)
-                        </h3>
-                        {/* Shimmer AI button */}
-                        <button
-                          onClick={() => aiEnhanceMutation.mutate(replyText)}
-                          disabled={aiEnhanceMutation.isPending || !replyText.trim() || replyText.trim().length < 5}
-                          className="relative inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 disabled:opacity-50 transition active:scale-95 shadow-md shadow-indigo-500/10 overflow-hidden group"
-                        >
-                          {aiEnhanceMutation.isPending ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Sparkles className="h-3 w-3" />
-                          )}
-                          AI Copy Rewrite
-                        </button>
-                      </div>
-
-                      {/* Display current reply card */}
-                      {(active.admin_feedback || active.adminFeedback) && (
-                        <div className="rounded-xl border border-success/15 bg-success/5 p-4 text-xs space-y-1">
-                          <div className="text-[10px] text-success font-bold uppercase tracking-wider flex items-center gap-1">
-                            <CheckCircle className="h-3.5 w-3.5" /> Dispatched Resolution Reply
-                          </div>
-                          <p className="text-foreground font-medium leading-relaxed break-all break-words">
-                            {active.admin_feedback || active.adminFeedback}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* AI Draft quick toggle */}
-                      {active.aiDraftReply && !(active.admin_feedback || active.adminFeedback) && (
-                        <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 text-xs relative space-y-1">
-                          <button
-                            onClick={() => setReplyText(active.aiDraftReply)}
-                            className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 px-2 py-1 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/20 transition-colors shadow-sm"
-                          >
-                            Apply Draft
-                          </button>
-                          <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" /> Pre-Synthesized AI Recommendation
-                          </div>
-                          <p className="text-muted-foreground leading-relaxed pr-20 italic break-all break-words">
-                            "{active.aiDraftReply}"
-                          </p>
-                        </div>
-                      )}
-
-                      <textarea
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Draft your official dispatch response, feedback instructions, or case final resolution to students here..."
-                        className="w-full h-24 rounded-lg border border-border bg-background/50 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 resize-none transition text-foreground"
+                {/* Elegant sliding sub-tabs selector for narrow viewports (visible < xl) */}
+                <div className="flex border-b border-border bg-slate-900/10 px-6 gap-6 shrink-0 xl:hidden overflow-x-auto no-scrollbar select-none">
+                  <button
+                    onClick={() => setActiveDetailTab('resolution')}
+                    className={`relative py-3 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                      activeDetailTab === 'resolution' ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Resolution & Notes
+                    {activeDetailTab === 'resolution' && (
+                      <motion.div
+                        layoutId="detailTabUnderline"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveDetailTab('control')}
+                    className={`relative py-3 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                      activeDetailTab === 'control' ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Control & Parameters
+                    {activeDetailTab === 'control' && (
+                      <motion.div
+                        layoutId="detailTabUnderline"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                </div>
 
-                      <div className="flex items-center justify-between border-t border-border/80 pt-3 flex-wrap gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground font-semibold">Change State To:</span>
-                          <select
-                            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold cursor-pointer focus:border-primary outline-none"
-                            value={active.status}
-                            onChange={(e) =>
-                              updateStatusMutation.mutate({
-                                id: active._id,
-                                status: e.target.value,
-                                adminFeedback: replyText || undefined,
-                              })
-                            }
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="in_review">In Review</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="fixed">Fixed</option>
-                            <option value="rejected">Rejected</option>
-                          </select>
-                        </div>
+                {/* 
+                  Detail Workspaces:
+                  1. Wide Viewports (>= xl): side-by-side splits
+                  2. Narrow Viewports (< xl): single active sub-tab (100% width)
+                */}
 
-                        <button
-                          onClick={() =>
-                            updateStatusMutation.mutate({
-                              id: active._id,
-                              status: active.status,
-                              adminFeedback: replyText,
-                            })
-                          }
-                          disabled={updateStatusMutation.isPending || !replyText.trim()}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition active:scale-95"
-                        >
-                          {updateStatusMutation.isPending ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Send className="h-3.5 w-3.5" />
-                          )}
-                          Send Reply
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Internal Notes */}
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                        <Info className="h-3.5 w-3.5 text-accent" /> Private Internal Annotations (Admins Only)
-                      </h3>
-
-                      <div className="space-y-3">
-                        {active.internalNotes?.map((note: any, i: number) => (
-                          <div
-                            key={i}
-                            className="rounded-xl border border-border/80 bg-muted/10 p-4 text-xs space-y-1.5"
-                          >
-                            <div className="flex items-center justify-between text-muted-foreground flex-wrap gap-2">
-                              <span className="font-bold text-foreground">{note.admin_id?.name || "Administrator"}</span>
-                              <span className="font-medium">{safeFormatDate(note.created_at, "Pp")}</span>
-                            </div>
-                            <p className="text-foreground/90 leading-relaxed font-medium break-all break-words">{note.text}</p>
-                          </div>
-                        ))}
-
-                        <div className="rounded-xl border border-border bg-muted/10 p-3 space-y-3">
-                          <textarea
-                            value={noteText}
-                            onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Add administrative notes, assignment briefs, or internal notes..."
-                            className="w-full h-16 rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary placeholder:text-muted-foreground/80 resize-none transition text-foreground"
-                          />
-                          <div className="flex items-center justify-between flex-wrap gap-2">
-                            <button 
-                              type="button" 
-                              onClick={() => toast.info("Evidence attaching is coming in platform release v2")} 
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-[10px] font-semibold text-muted-foreground transition"
-                            >
-                              <Paperclip className="h-3 w-3" /> Attach private file
-                            </button>
-                            <button
-                              onClick={() => addNoteMutation.mutate({ id: active._id, text: noteText })}
-                              disabled={addNoteMutation.isPending || !noteText.trim()}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition active:scale-95"
-                            >
-                              {addNoteMutation.isPending ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Send className="h-3 w-3" />
-                              )}
-                              Save Private Note
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                {/* 1. Wide Viewport Layout (Desktop split) */}
+                <div className="hidden xl:flex flex-1 divide-x divide-border overflow-hidden min-h-0 h-full w-full">
+                  {/* Left Workspace Panel - Issues & Actions (65% width) */}
+                  <div className="w-[65%] overflow-y-auto overflow-x-hidden p-6 space-y-6 min-h-0 bg-card/20">
+                    {renderResolutionWorkspace()}
                   </div>
 
-                  {/* Right Control Sidebar (1 column) */}
-                  <div className="overflow-y-auto overflow-x-hidden p-6 space-y-6 bg-muted/5 min-h-0">
-                    
-                    {/* Quick Config Cards */}
-                    <div className="rounded-xl border border-border bg-card p-4 space-y-4 shadow-sm">
-                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
-                        Control Board
-                      </div>
-                      
-                      {/* Status select card */}
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                          Case Status
-                        </label>
-                        <div className="relative">
-                          <select
-                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2.5 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
-                            value={active.status}
-                            onChange={(e) =>
-                              updateStatusMutation.mutate({ id: active._id, status: e.target.value })
-                            }
-                            disabled={updateStatusMutation.isPending}
-                          >
-                            <option value="pending">Pending Dispatch</option>
-                            <option value="in_review">In Active Review</option>
-                            <option value="resolved">Mark Resolved</option>
-                            <option value="fixed">Mark Fixed</option>
-                            <option value="rejected">Mark Rejected</option>
-                          </select>
-                          <ChevronDown className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                        </div>
-                      </div>
-
-                      {/* Priority select card */}
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                          Response Severity
-                        </label>
-                        <div className="relative">
-                          <select
-                            className="w-full rounded-xl border border-border bg-background pl-3 pr-8 py-2.5 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
-                            value={active.priority}
-                            onChange={(e) =>
-                              updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
-                            }
-                            disabled={updatePriorityMutation.isPending}
-                          >
-                            <option value="low">Low Priority</option>
-                            <option value="normal">Normal Priority</option>
-                            <option value="high">High Priority</option>
-                            <option value="critical">Critical Severity</option>
-                          </select>
-                          <ChevronDown className="absolute right-3 top-3 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Evidence Document Links */}
-                    <div className="space-y-3">
-                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                        <span>Submitted Attachments</span>
-                        <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded border border-border bg-background">
-                          {active.files?.length || 0}
-                        </span>
-                      </div>
-                      <ul className="space-y-2">
-                        {active.files?.length > 0 ? (
-                          active.files.map((f, i) => (
-                            <li key={i}>
-                              <a
-                                href={`${SERVER_URL}${f.url}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center justify-between rounded-xl border border-border bg-card hover:bg-muted/40 px-3.5 py-3 text-xs transition group shadow-sm"
-                              >
-                                <div className="flex items-center gap-2 truncate pr-4">
-                                  <FileText className="h-4 w-4 text-primary shrink-0" />
-                                  <span className="truncate font-semibold text-foreground group-hover:text-primary transition-colors break-all break-words" title={f.originalName}>
-                                    {f.originalName}
-                                  </span>
-                                </div>
-                                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                              </a>
-                            </li>
-                          ))
-                        ) : (
-                          <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-border rounded-xl bg-card">
-                            <Paperclip className="h-5 w-5 text-muted-foreground/30 mb-1" />
-                            <span className="text-[11px] text-muted-foreground italic font-medium">No attachments provided</span>
-                          </div>
-                        )}
-                      </ul>
-                    </div>
-
-                    {/* Glowing Premium Student Feedback Card */}
-                    {(active.satisfaction_feedback || active.satisfactionFeedback) && (
-                      <div className="space-y-2.5">
-                        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          Student Satisfaction
-                        </div>
-                        {((active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes") ? (
-                          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4.5 space-y-3 shadow-md shadow-emerald-500/[0.02]">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">
-                                Student Rating
-                              </span>
-                              <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold">
-                                😄 Satisfied
-                              </span>
-                            </div>
-                            {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                              <p className="text-xs leading-relaxed italic text-emerald-300/90 bg-black/20 border border-emerald-500/10 rounded-lg p-3 select-all break-all break-words">
-                                &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
-                              </p>
-                            )}
-                            <div className="text-[9.5px] text-muted-foreground/80 font-mono text-right">
-                              Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.03] p-4.5 space-y-3 shadow-md shadow-rose-500/[0.02]">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-rose-400">
-                                Student Rating
-                              </span>
-                              <span className="inline-flex items-center rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-0.5 text-[10px] font-bold">
-                                😞 Unsatisfied
-                              </span>
-                            </div>
-                            {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                              <p className="text-xs leading-relaxed italic text-rose-300/90 bg-black/20 border border-rose-500/10 rounded-lg p-3 select-all break-all break-words">
-                                &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
-                              </p>
-                            )}
-                            <div className="text-[9.5px] text-muted-foreground/80 font-mono text-right">
-                              Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* System Audit Details */}
-                    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm">
-                      <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                        <Database className="h-3.5 w-3.5 text-primary" /> Incident Parameters
-                      </div>
-                      
-                      <div className="space-y-2 text-xs divide-y divide-border/60">
-                        <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
-                          <span className="text-muted-foreground font-medium">Department Unit</span>
-                          <span className="truncate max-w-[140px] break-all" title={formatCategory(active.category)}>
-                            {formatCategory(active.category)}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between py-2 text-foreground font-semibold">
-                          <span className="text-muted-foreground font-medium">Privacy Status</span>
-                          <span>{active.anonymous ? "Anonymous Submission" : "Public Submission"}</span>
-                        </div>
-
-                        {!active.anonymous && (
-                          <>
-                            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
-                              <span className="text-muted-foreground font-medium">Matric ID</span>
-                              <span className="font-mono text-[11px] bg-muted/60 px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
-                            </div>
-                            
-                            <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
-                              <span className="text-muted-foreground font-medium">Contact Endpoint</span>
-                              <span className="truncate max-w-[125px] font-mono text-[11px] break-all" title={active.submitter?.email}>
-                                {active.submitter?.email || "N/A"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      
-                      <div className="pt-2 border-t border-border/80 flex items-center gap-1.5 text-[10px] text-muted-foreground/90 font-medium">
-                        <ShieldCheck className="h-4 w-4 text-success shrink-0" /> State updates are logged securely in ledger
-                      </div>
-                    </div>
+                  {/* Right Control Sidebar - Parameters & Controls (35% width) */}
+                  <div className="w-[35%] overflow-y-auto overflow-x-hidden p-6 space-y-6 min-h-0 bg-slate-900/5">
+                    {renderControlBoardSidebar()}
                   </div>
                 </div>
+
+                {/* 2. Narrow Viewport Layout (Responsive tabs) */}
+                <div className="flex xl:hidden flex-1 overflow-hidden min-h-0 h-full w-full">
+                  {activeDetailTab === 'resolution' ? (
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-6 space-y-6 min-h-0 bg-card/20 animate-in fade-in duration-200">
+                      {renderResolutionWorkspace()}
+                    </div>
+                  ) : (
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-6 space-y-6 min-h-0 bg-slate-900/5 animate-in fade-in duration-200">
+                      {renderControlBoardSidebar()}
+                    </div>
+                  )}
+                </div>
+
               </motion.div>
             ) : detailLoading ? (
-              <div className="flex flex-col items-center justify-center h-full rounded-2xl border border-border bg-card">
+              <div className="flex flex-col items-center justify-center h-full w-full rounded-2xl border border-border bg-card">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <p className="mt-3 text-sm font-semibold text-muted-foreground">Retrieving incident documents...</p>
+                <p className="mt-3.5 text-xs font-semibold text-muted-foreground">Retrieving incident documents...</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full rounded-2xl border border-border bg-card text-center p-6 bg-muted/5">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/65 text-muted-foreground/30 mb-4 border border-border">
-                  <ArrowRight className="h-8 w-8 text-muted-foreground/50" />
+              <div className="flex flex-col items-center justify-center h-full w-full rounded-2xl border border-border bg-card text-center p-6 bg-slate-900/5 select-none">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900/40 text-muted-foreground/30 mb-4 border border-border">
+                  <ArrowRight className="h-8 w-8 text-primary animate-pulse" />
                 </div>
-                <p className="font-semibold text-foreground text-base">Platform Action Workspace</p>
-                <p className="text-xs text-muted-foreground mt-1.5 max-w-xs leading-normal">
+                <p className="font-semibold text-foreground text-sm font-display">Platform Action Workspace</p>
+                <p className="text-xs text-muted-foreground mt-2 max-w-xs leading-relaxed">
                   Select a student complaint incident from the sidebar ledger to initialize the resolving panel.
                 </p>
               </div>

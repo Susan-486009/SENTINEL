@@ -15,7 +15,7 @@ export const testConnection = async () => {
       retryWrites: true,              // Resilient retryable writes
       retryReads: true,
     });
-    console.log(`✅ MongoDB connected → ${conn.connection.host}`);
+    console.log(`. MongoDB connected → ${conn.connection.host}`);
     return conn.connection;
   } catch (err) {
     console.error(`\n⚠️  DATABASE WARNING: ${err.message}`);

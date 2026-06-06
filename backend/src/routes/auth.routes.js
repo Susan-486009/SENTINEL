@@ -63,7 +63,13 @@ router.post('/change-password', authenticate, validateChangePassword, auth.chang
  * Query: { role?, search?, page?, limit? }
  * Returns: { users, pagination }
  */
-router.get('/admin/users', authenticate, authorize('admin'), auth.getUsers);
+router.get('/admin/users', authenticate, authorize('admin', 'superadmin'), auth.getUsers);
+
+/**
+ * GET /api/v1/auth/admin/staff
+ * Returns all staff users with their department info
+ */
+router.get('/admin/staff', authenticate, authorize('admin', 'superadmin'), auth.getUsers);
 
 /**
  * POST /api/v1/auth/admin/users
@@ -71,5 +77,12 @@ router.get('/admin/users', authenticate, authorize('admin'), auth.getUsers);
  * Returns: { user }
  */
 router.post('/admin/users', authenticate, authorize('superadmin'), auth.createUser);
+
+/**
+ * PATCH /api/v1/auth/admin/users/:id
+ * Body: { name?, department_id?, role? }
+ * Returns: { user }
+ */
+router.patch('/admin/users/:id', authenticate, authorize('superadmin', 'admin'), auth.updateUser);
 
 export default router;

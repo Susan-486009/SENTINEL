@@ -112,3 +112,9 @@ export const createUser = asyncHandler(async (req, res) => {
   const user = await authService.createUser(req.body);
   sendSuccess(res, user, 'User created successfully.', 201);
 });
+
+/* ── PATCH /api/v1/auth/admin/users/:id ─────────────── */
+export const updateUser = asyncHandler(async (req, res) => {
+  const user = await authService.updateUser(req.params.id, req.body);
+  sendSuccess(res, user, 'User updated successfully.');
+});

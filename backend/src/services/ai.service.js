@@ -92,7 +92,7 @@ Response Format:
     const fallbackPayload = JSON.stringify({
       category: 'other',
       priority: 'low',
-      recommendation: 'The Sentinel AI Assistant experienced a temporary connection limit. The case remains queued for manual administration classification.',
+      recommendation: 'The LASUSTECH Resolve AI Assistant experienced a temporary connection limit. The case remains queued for manual administration classification.',
     });
 
     try {
@@ -134,7 +134,7 @@ Response Format:
           messages: [
             {
               role: 'system',
-              content: `You are SENTINEL ADVISOR, a real-life, empathetic, and friendly student mentor at LASUSTECH. 
+              content: `You are LASUSTECH RESOLVE ADVISOR, a real-life, empathetic, and friendly student mentor at LASUSTECH. 
 Your tone should be very human, warm, and conversational—like a senior student or a caring staff member talking to a friend.
 
 STRICT RULES:
@@ -159,7 +159,7 @@ STRICT RULES:
       return data.choices?.[0]?.message?.content || 'I could not process your advice request at this time.';
     };
 
-    const fallbackChat = 'Hang in there! The Sentinel Advisor experienced a brief network delay. Please write your message again in a short moment, we will get this resolved!';
+    const fallbackChat = 'Hang in there! The LASUSTECH Resolve Advisor experienced a brief network delay. Please write your message again in a short moment, we will get this resolved!';
 
     try {
       const content = await groqBreaker.execute(runChat, fallbackChat);

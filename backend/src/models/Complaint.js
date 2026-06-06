@@ -46,6 +46,11 @@ const complaintSchema = new mongoose.Schema(
       ref: 'User',
       required: false, // Nullable for anonymous
     },
+    assigned_staff_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
+    },
     category: {
       type: String,
       required: true,

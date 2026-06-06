@@ -89,7 +89,7 @@ export const authService = {
 
       return { accessToken, refreshToken, user: safeUser };
     } catch (error) {
-      console.error('❌ Login Service Error:', error);
+      console.error('. Login Service Error:', error);
       throw error;
     }
   },
@@ -201,9 +201,10 @@ export const authService = {
       // Superadmins cannot see student identities (whistleblower protection)
       if (requesterRole === 'superadmin' && u.role === 'student') {
         isCloaked = true;
-        name = "Student - [ID CLOAKED]";
-        email = "***@lasustech.edu.ng";
-        matric = "HIDDEN";
+        const shortHash = u._id.toString().substring(18, 24).toUpperCase();
+        name = `Anonymous Student (STU-${shortHash})`;
+        email = `stu-${shortHash.toLowerCase()}@lasustech.edu.ng`;
+        matric = `ANON-${shortHash}`;
       }
 
       return {
@@ -261,5 +262,34 @@ export const authService = {
     delete user._id;
 
     return user;
+  },
+
+  /* ══════════════════════════════════════════════════════
+     UPDATE USER (SUPERADMIN)
+  ══════════════════════════════════════════════════════ */
+  async updateUser(userId, { name, department_id, role } = {}) {
+    const update = {};
+    if (name !== undefined) update.name = name.trim();
+    if (department_id !== undefined) update.department_id = department_id || null;
+    if (role !== undefined && ['student', 'staff', 'admin', 'superadmin'].includes(role)) {
+      update.role = role;
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      { $set: update },
+      { new: true, runValidators: true }
+    ).select('-password').populate('department_id', 'name').lean();
+
+    if (!updated) throw new AppError('User not found.', 404);
+
+    return {
+      id: updated._id.toString(),
+      name: updated.name,
+      email: updated.email,
+      matric: updated.matric,
+      role: updated.role,
+      department: updated.department_id ? { id: updated.department_id._id.toString(), name: updated.department_id.name } : null,
+    };
   },
 };

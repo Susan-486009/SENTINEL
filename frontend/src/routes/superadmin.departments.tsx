@@ -26,6 +26,8 @@ function DepartmentsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState<any>(null);
+  const [managingDeptId, setManagingDeptId] = useState<string | null>(null);
+  const [assigningStaffId, setAssigningStaffId] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,12 +40,17 @@ function DepartmentsPage() {
     queryFn: () => departmentService.getAll(),
   });
 
-  const { data: adminsData } = useQuery({
-    queryKey: ["admin-users"],
-    queryFn: () => authService.getUsers({ role: "admin" }),
+  const { data: staffData } = useQuery({
+    queryKey: ["staff-users"],
+    queryFn: () => authService.getUsers({ role: "staff" }),
   });
-  
-  const admins = adminsData?.users || [];
+  const staffUsers = staffData?.users || [];
+
+  const { data: allStaffData } = useQuery({
+    queryKey: ["all-staff-users"],
+    queryFn: () => authService.getUsers({ role: "staff", limit: 100 }),
+  });
+  const allStaff = allStaffData?.users || [];
 
   const addMutation = useMutation({
     mutationFn: (data: any) => departmentService.create(data),
@@ -73,6 +80,18 @@ function DepartmentsPage() {
       toast.success("Department deactivated successfully.");
     },
     onError: (err: any) => toast.error(err.message || "Failed to delete department"),
+  });
+
+  const assignStaffMutation = useMutation({
+    mutationFn: ({ userId, deptId }: { userId: string; deptId: string | null }) =>
+      authService.updateUser(userId, { department_id: deptId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-staff-users"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+      toast.success("Staff assignment updated.");
+      setAssigningStaffId("");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update assignment"),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -143,17 +162,17 @@ function DepartmentsPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="head_id">Department Head (Admin)</Label>
+                  <Label htmlFor="head_id">Department Head (Staff)</Label>
                   <select
                     id="head_id"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={formData.head_id}
                     onChange={(e) => setFormData({ ...formData, head_id: e.target.value })}
                   >
-                    <option value="">-- Select an Admin --</option>
-                    {admins.map((admin: any) => (
-                      <option key={admin.id || admin._id} value={admin.id || admin._id}>
-                        {admin.name} ({admin.email})
+                    <option value="">-- Select a Staff Member --</option>
+                    {allStaff.map((s: any) => (
+                      <option key={s.id || s._id} value={s.id || s._id}>
+                        {s.name} ({s.email})
                       </option>
                     ))}
                   </select>
@@ -181,6 +200,7 @@ function DepartmentsPage() {
                 <th className="px-4 py-3 font-medium">Department Name</th>
                 <th className="px-4 py-3 font-medium">Description</th>
                 <th className="px-4 py-3 font-medium">Department Head</th>
+                <th className="px-4 py-3 font-medium">Staff</th>
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -200,7 +220,7 @@ function DepartmentsPage() {
                 </tr>
               ) : (
                 deptList.map((dept: any) => (
-                  <tr key={dept._id} className="hover:bg-muted/30 transition-colors">
+                  <tr key={dept._id} className="hover:bg-muted/30 transition-colors align-top">
                     <td className="px-4 py-3 font-medium">{dept.name}</td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {dept.description || <span className="italic opacity-50">No description</span>}
@@ -214,6 +234,72 @@ function DepartmentsPage() {
                       ) : (
                         <span className="text-muted-foreground italic">Unassigned</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3 min-w-[200px]">
+                      {/* Staff in this department */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Assigned Staff</span>
+                          <button
+                            onClick={() => setManagingDeptId(managingDeptId === dept._id ? null : dept._id)}
+                            className="text-[10px] font-bold text-primary hover:underline ml-2"
+                          >
+                            {managingDeptId === dept._id ? "Done" : "Manage"}
+                          </button>
+                        </div>
+
+                        {/* Staff list */}
+                        <div className="flex flex-col gap-1">
+                          {allStaff.filter((s: any) => s.department_id === dept._id || s.department?.id === dept._id).length === 0 ? (
+                            <p className="text-[11px] text-muted-foreground italic">No staff assigned yet.</p>
+                          ) : (
+                            allStaff
+                              .filter((s: any) => s.department_id === dept._id || s.department?.id === dept._id)
+                              .map((s: any) => (
+                                <div key={s._id || s.id} className="flex items-center justify-between rounded-lg bg-muted/30 px-2.5 py-1.5 text-xs">
+                                  <span className="font-medium">{s.name}</span>
+                                  {managingDeptId === dept._id && (
+                                    <button
+                                      onClick={() => assignStaffMutation.mutate({ userId: s._id || s.id, deptId: null })}
+                                      className="text-[10px] text-rose-400 hover:text-rose-600 font-semibold ml-2"
+                                    >
+                                      Remove
+                                    </button>
+                                  )}
+                                </div>
+                              ))
+                          )}
+                        </div>
+
+                        {/* Add staff dropdown */}
+                        {managingDeptId === dept._id && (
+                          <div className="mt-2 flex gap-2">
+                            <select
+                              value={assigningStaffId}
+                              onChange={(e) => setAssigningStaffId(e.target.value)}
+                              className="flex-1 rounded-lg border border-border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary"
+                            >
+                              <option value="">Add a staff member...</option>
+                              {allStaff
+                                .filter((s: any) => s.department_id !== dept._id && s.department?.id !== dept._id)
+                                .map((s: any) => (
+                                  <option key={s._id || s.id} value={s._id || s.id}>{s.name}</option>
+                                ))}
+                            </select>
+                            <button
+                              onClick={() => {
+                                if (assigningStaffId) {
+                                  assignStaffMutation.mutate({ userId: assigningStaffId, deptId: dept._id });
+                                }
+                              }}
+                              disabled={!assigningStaffId || assignStaffMutation.isPending}
+                              className="rounded-lg bg-primary px-3 py-1.5 text-[10px] font-bold text-primary-foreground disabled:opacity-50 transition hover:opacity-90"
+                            >
+                              Assign
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -268,7 +354,7 @@ function DepartmentsPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-head">Department Head</Label>
+                <Label htmlFor="edit-head">Department Head (Staff)</Label>
                 <select
                   id="edit-head"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -276,9 +362,9 @@ function DepartmentsPage() {
                   onChange={(e) => setFormData({ ...formData, head_id: e.target.value })}
                 >
                   <option value="">-- Unassigned --</option>
-                  {admins.map((admin: any) => (
-                    <option key={admin.id || admin._id} value={admin.id || admin._id}>
-                      {admin.name} ({admin.email})
+                  {allStaff.map((s: any) => (
+                    <option key={s.id || s._id} value={s.id || s._id}>
+                      {s.name} ({s.email})
                     </option>
                   ))}
                 </select>

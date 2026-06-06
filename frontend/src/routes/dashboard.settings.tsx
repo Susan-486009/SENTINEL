@@ -17,7 +17,7 @@ import { applyTheme } from "@/lib/theme";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/dashboard/settings")({
-  head: () => ({ meta: [{ title: "Account Settings — Sentinel" }] }),
+  head: () => ({ meta: [{ title: "Account Settings — LASUSTECH Resolve" }] }),
   component: SettingsPage,
 });
 

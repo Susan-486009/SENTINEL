@@ -54,7 +54,7 @@ function ActivityPage() {
   complaints.forEach((complaint) => {
     activities.push({
       type: "created",
-      title: "Report submitted",
+      title: "Complaint submitted",
       description: `"${complaint.title}" (${complaint.category})`,
       timestamp: complaint.created_at || complaint.createdAt || "",
       complaint,
@@ -99,7 +99,7 @@ function ActivityPage() {
       <div className="flex flex-col gap-2">
         <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">Activity Log</h1>
         <p className="text-sm text-muted-foreground">
-          Timeline of your report submissions and status updates
+          Timeline of your complaint submissions and status updates
         </p>
       </div>
 

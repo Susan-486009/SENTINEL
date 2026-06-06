@@ -42,7 +42,7 @@ export function SiteHeader() {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/track", label: "Track Case" },
+    { to: "/track", label: "Track Complaint" },
     ...(isAuth ? [{ to: "/dashboard", label: "Dashboard" }] : [{ to: "/login", label: "Sign in" }]),
   ];
 
@@ -79,7 +79,7 @@ export function SiteHeader() {
             to={isAuth ? "/submit" : "/register"}
             className="ml-2 inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
           >
-            Submit a report
+            Submit a Complaint
           </Link>
         </nav>
         <button
@@ -116,7 +116,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className="mt-1 rounded-xl bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground"
             >
-              Submit a report
+              Submit a Complaint
             </Link>
           </div>
         </div>

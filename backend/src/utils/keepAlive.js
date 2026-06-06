@@ -17,7 +17,7 @@ export const startKeepAlive = (url) => {
     https.get(url, (res) => {
       console.log(`🩺 Keep-alive ping sent. Status: ${res.statusCode}`);
     }).on('error', (err) => {
-      console.error('❌ Keep-alive ping failed:', err.message);
+      console.error('. Keep-alive ping failed:', err.message);
     });
   }, 600000); 
 };

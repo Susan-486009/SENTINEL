@@ -51,7 +51,7 @@ export const runMigrations = async () => {
     for (const file of migrationFiles) {
       const alreadyRun = await SchemaMigration.findOne({ migration_name: file, success: true });
       if (alreadyRun) {
-        logStructured({ level: 'INFO', message: `✅ Migration already applied: ${file}` });
+        logStructured({ level: 'INFO', message: `. Migration already applied: ${file}` });
         continue;
       }
 
@@ -69,14 +69,14 @@ export const runMigrations = async () => {
             { success: true, executed_at: new Date(), error_message: null },
             { upsert: true }
           );
-          logStructured({ level: 'INFO', message: `✅ Migration applied successfully: ${file}` });
+          logStructured({ level: 'INFO', message: `. Migration applied successfully: ${file}` });
         } else {
           throw new Error('Migration missing required export function: "up"');
         }
       } catch (err) {
         logStructured({ 
           level: 'ERROR', 
-          message: `❌ Schema migration failed for: ${file}`, 
+          message: `. Schema migration failed for: ${file}`, 
           error: err 
         });
         

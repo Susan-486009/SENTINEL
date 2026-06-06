@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Menu,
   X,
+  ChevronRight,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
@@ -50,6 +51,18 @@ export function SuperadminShell({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const nav_ = useNavigate();
+
+  // Persistent sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("resolve_sidebar_collapsed") === "true";
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("resolve_sidebar_collapsed", String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   // Apply dark mode to document element on mount, remove on unmount
   useEffect(() => {
@@ -146,52 +159,95 @@ export function SuperadminShell({
     <div className="min-h-screen bg-background text-foreground">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-800 bg-slate-950 text-slate-100 transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 transform border-r border-slate-800 bg-slate-950 text-slate-100 transition-all duration-300 lg:translate-x-0 flex flex-col ${
+          sidebarCollapsed ? "lg:w-20 w-64" : "w-64"
+        } ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center border-b border-border/50 px-5">
-          <Logo />
+        <div className={`flex h-16 items-center border-b border-border/50 transition-all duration-300 ${sidebarCollapsed ? "lg:justify-center lg:px-0" : "px-5"}`}>
+          <Logo compact={sidebarCollapsed} />
         </div>
-        <nav className="flex flex-col gap-1 p-4">
+        
+        <nav className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto no-scrollbar select-none">
           {nav.map((n) => {
             const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
             return (
-              <motion.div whileHover={{ x: 4 }} whileTap={{ scale: 0.96 }} key={n.to}>
+              <motion.div whileHover={{ x: sidebarCollapsed ? 0 : 4 }} whileTap={{ scale: 0.96 }} key={n.to}>
                 <Link
                   to={n.to}
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center rounded-xl transition-all duration-300 font-semibold ${
+                    sidebarCollapsed 
+                      ? "lg:justify-center lg:px-0 lg:w-12 lg:h-12 mx-auto" 
+                      : "px-3.5 py-2.5 gap-3"
+                  } ${
                     active
                       ? "bg-amber-500/10 font-bold text-amber-400 shadow-sm ring-1 ring-amber-500/20"
                       : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
                   }`}
+                  title={sidebarCollapsed ? n.label : undefined}
                 >
                   <n.icon
-                    className={`h-4.5 w-4.5 transition-colors ${
+                    className={`h-4.5 w-4.5 transition-colors shrink-0 ${
                       active ? "text-amber-400" : "text-slate-400"
                     }`}
                   />
-                  {n.label}
+                  {!sidebarCollapsed && (
+                    <span className="text-sm font-medium animate-in fade-in duration-300 whitespace-nowrap">
+                      {n.label}
+                    </span>
+                  )}
                 </Link>
               </motion.div>
             );
           })}
+
+          {/* Collapse Sidebar Toggle Item (Desktop only) */}
+          <div className="hidden lg:block mt-auto pt-4 border-t border-slate-800/40 shrink-0">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="flex w-full items-center rounded-xl py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-all duration-300 cursor-pointer"
+              title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              <div className={`flex w-full items-center ${sidebarCollapsed ? "justify-center" : "px-3.5 gap-3"}`}>
+                {sidebarCollapsed ? (
+                  <ChevronRight className="h-4.5 w-4.5 text-slate-400 transition-transform hover:scale-110" />
+                ) : (
+                  <>
+                    <ChevronRight className="h-4.5 w-4.5 text-slate-400 rotate-180" />
+                    <span className="text-xs tracking-wide uppercase font-semibold text-slate-500 animate-in fade-in duration-300">Collapse</span>
+                  </>
+                )}
+              </div>
+            </button>
+          </div>
         </nav>
+
         {primaryAction && (
-          <div className="absolute bottom-6 left-5 right-5">
+          <div className={`p-4 border-t border-slate-800/40 shrink-0 transition-all duration-300 ${
+            sidebarCollapsed ? "lg:p-3" : "p-4"
+          }`}>
             <Link
               to={primaryAction.to}
-              className="flex items-center justify-center gap-2 rounded-xl border border-accent/10 bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-[0.98]"
+              className={`flex items-center justify-center rounded-xl border border-accent/10 bg-primary font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated active:scale-[0.98] ${
+                sidebarCollapsed ? "lg:w-12 lg:h-12 lg:p-0 mx-auto" : "px-4 py-3 gap-2"
+              }`}
+              title={primaryAction.label}
             >
-              <Plus className="h-4 w-4 text-accent" /> {primaryAction.label}
+              <Plus className="h-4.5 w-4.5 text-accent shrink-0" />
+              {!sidebarCollapsed && (
+                <span className="text-sm font-semibold animate-in fade-in duration-300 whitespace-nowrap">
+                  {primaryAction.label}
+                </span>
+              )}
             </Link>
           </div>
         )}
       </aside>
 
       {/* Main */}
-      <div className="lg:pl-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/40 bg-background/70 px-5 backdrop-blur-lg md:px-8">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition hover:bg-muted active:scale-95 lg:hidden"

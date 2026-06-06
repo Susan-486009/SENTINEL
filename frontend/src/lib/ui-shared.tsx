@@ -14,11 +14,11 @@ import React from "react";
 export const adminNav = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/cases", label: "Cases", icon: Inbox },
-  { to: "/admin/reports", label: "Reports", icon: FileText },
+  { to: "/admin/reports", label: "Complaints", icon: FileText },
 ];
 
 export const staffNav = [
-  { to: "/staff", label: "Department Board", icon: LayoutDashboard },
+  { to: "/staff", label: "My Complaints", icon: Inbox },
 ];
 
 export const superadminNav = [

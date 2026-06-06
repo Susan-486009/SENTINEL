@@ -44,7 +44,7 @@ const seed = async () => {
     ];
 
     await User.insertMany(admins);
-    console.log(`✅ ${admins.length} Admins created.`);
+    console.log(`. ${admins.length} Admins created.`);
 
     // 2. Create 50 Students
     console.log('Seeding 50 Students...');
@@ -81,7 +81,7 @@ const seed = async () => {
     }
 
     await User.insertMany(students);
-    console.log(`✅ ${students.length} Students created.`);
+    console.log(`. ${students.length} Students created.`);
 
     console.log('\n--- Test Credentials (all share the same password) ---');
     console.log('Password for ALL accounts: Password123!\n');

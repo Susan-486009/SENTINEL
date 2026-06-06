@@ -15,7 +15,7 @@ export const complaintService = {
   /* ══════════════════════════════════════════════════════
      CREATE
   ══════════════════════════════════════════════════════ */
-  async create({ userId, category, title, description, anonymous, priority = 'normal', files = [] }) {
+  async create({ userId, category, title, description, anonymous, priority = 'normal', files = [], department }) {
     let referenceId;
 
     try {
@@ -38,6 +38,81 @@ export const complaintService = {
 
       const finalDescription = (description + extractedText).trim();
 
+      // System Auto-Assignment Logic
+      let assignedStaffId = null;
+      let assignedStaffName = '';
+      let matchedDepartment = null;
+
+      if (department) {
+        const { Department } = await import('../models/Department.js');
+        matchedDepartment = await Department.findOne({
+          name: { $regex: new RegExp(`^${department.trim()}$`, 'i') }
+        }).lean();
+      }
+
+      if (matchedDepartment) {
+        const staffInDept = await User.find({
+          role: 'staff',
+          department_id: matchedDepartment._id
+        }).select('_id name').lean();
+
+        if (staffInDept.length > 0) {
+          const staffIds = staffInDept.map(s => s._id);
+          const workloads = await Complaint.aggregate([
+            {
+              $match: {
+                assigned_staff_id: { $in: staffIds },
+                status: { $in: ['pending', 'in_review'] }
+              }
+            },
+            {
+              $group: {
+                _id: '$assigned_staff_id',
+                count: { $sum: 1 }
+              }
+            }
+          ]);
+
+          const workloadMap = workloads.reduce((acc, curr) => {
+            acc[curr._id.toString()] = curr.count;
+            return acc;
+          }, {});
+
+          let selectedStaff = staffInDept[0];
+          let minWorkload = workloadMap[selectedStaff._id.toString()] || 0;
+
+          for (const s of staffInDept) {
+            const load = workloadMap[s._id.toString()] || 0;
+            if (load < minWorkload) {
+              minWorkload = load;
+              selectedStaff = s;
+            }
+          }
+
+          assignedStaffId = selectedStaff._id;
+          assignedStaffName = selectedStaff.name;
+        } else if (matchedDepartment.head_id) {
+          const headUser = await User.findById(matchedDepartment.head_id).select('_id name').lean();
+          if (headUser) {
+            assignedStaffId = headUser._id;
+            assignedStaffName = headUser.name;
+          }
+        }
+      }
+
+      const timeline = [{
+        type: 'system',
+        text: 'Complaint submitted and reference ID issued.',
+        user_id: userId
+      }];
+
+      if (assignedStaffId) {
+        timeline.push({
+          type: 'assigned',
+          text: `System automatically assigned this case to Staff Member ${assignedStaffName} (Department: ${matchedDepartment?.name || 'General'}).`
+        });
+      }
+
       const newComplaint = await Complaint.create({
         reference_id: referenceId,
         user_id: userId,
@@ -48,11 +123,8 @@ export const complaintService = {
         priority,
         status: 'pending',
         files: attachedFiles,
-        timeline: [{
-          type: 'system',
-          text: 'Complaint submitted and reference ID issued.',
-          user_id: userId
-        }]
+        assigned_staff_id: assignedStaffId,
+        timeline
       });
       
       // Asynchronously generate an AI draft reply
@@ -113,6 +185,7 @@ export const complaintService = {
     const complaint = await Complaint.findOne(query)
       .populate('internal_notes.admin_id', 'name')
       .populate('timeline.user_id', 'name role')
+      .populate('assigned_staff_id', 'name email')
       .lean();
 
     if (!complaint) {
@@ -151,6 +224,11 @@ export const complaintService = {
       adminFeedback:  complaint.admin_feedback || '',
       aiDraftReply:   complaint.ai_draft_reply || null,
       satisfactionFeedback: complaint.satisfaction_feedback || null,
+      assignedStaff: complaint.assigned_staff_id ? {
+        id: complaint.assigned_staff_id._id.toString(),
+        name: complaint.assigned_staff_id.name,
+        email: complaint.assigned_staff_id.email
+      } : null,
       submitter,
       files:          complaint.files || [],
       internalNotes:  complaint.internal_notes || [],
@@ -206,19 +284,14 @@ export const complaintService = {
   /* ══════════════════════════════════════════════════════
      ADMIN — paginated list
   ══════════════════════════════════════════════════════ */
-  async getAll({ status, category, priority, page = 1, limit = 50, userRole, userDepartment } = {}) {
+  async getAll({ status, category, priority, page = 1, limit = 50, userRole, userDepartment, userId } = {}) {
     const filter = {};
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
 
-    // Staff can only see their department's cases
+    // Staff can only see complaints assigned to them
     if (userRole === 'staff') {
-      if (userDepartment) {
-        filter.category = userDepartment;
-      } else {
-        // If staff has no department assigned, they see nothing
-        filter.category = '__none__';
-      }
+      filter.assigned_staff_id = userId;
     } else {
       // Admins/Superadmins can filter freely
       if (category) filter.category = category;

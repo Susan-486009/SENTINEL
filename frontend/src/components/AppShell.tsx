@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Menu,
   X,
+  ChevronRight,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { useEffect, useState, type ComponentType, type ReactNode } from "react";
@@ -50,6 +51,18 @@ export function AppShell({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const nav_ = useNavigate();
+
+  // Persistent sidebar collapse state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("resolve_sidebar_collapsed") === "true";
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("resolve_sidebar_collapsed", String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
 
   // Redirect logic moved to beforeLoad in routes
 

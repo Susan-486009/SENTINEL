@@ -28,7 +28,7 @@ export const analyzeComplaint = asyncHandler(async (req, res) => {
 
 /**
  * POST /api/v1/ai/chat
- * Chat with the Sentinel AI assistant for advice.
+ * Chat with the LASUSTECH Resolve AI assistant for advice.
  */
 export const chat = asyncHandler(async (req, res) => {
   const { messages } = req.body;

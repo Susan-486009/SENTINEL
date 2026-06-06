@@ -87,7 +87,7 @@ function SuperadminSettingsPage() {
     }
 
     // Load persisted platform config
-    const savedConfig = localStorage.getItem("sentinel_global_config");
+    const savedConfig = localStorage.getItem("resolve_global_config");
     if (savedConfig) {
       try {
         setPlatformConfig(JSON.parse(savedConfig));
@@ -148,7 +148,7 @@ function SuperadminSettingsPage() {
   };
 
   const handleSavePlatformConfig = () => {
-    localStorage.setItem("sentinel_global_config", JSON.stringify(platformConfig));
+    localStorage.setItem("resolve_global_config", JSON.stringify(platformConfig));
     toast.success("Institutional platform policies deployed successfully");
   };
 

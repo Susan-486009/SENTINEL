@@ -20,11 +20,11 @@ import { DashboardPreview } from "@/components/DashboardPreview";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LASUSTECH Student Resolution Center — Report safely, track transparently" },
+      { title: "LASUSTECH Student Resolution Center — File complaints safely, track transparently" },
       {
         name: "description",
         content:
-          "A secure platform for LASUSTECH students and staff to report academic, administrative, and campus-related concerns.",
+          "A secure platform for LASUSTECH students and staff to file academic, administrative, and campus-related complaints.",
       },
     ],
   }),
@@ -73,27 +73,27 @@ function Hero({ isAuth }: { isAuth: boolean }) {
             Confidential · Secure · Transparent
           </span>
           <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight md:text-[56px]">
-            Report issues safely.
+            File complaints safely.
             <br />
             <span className="text-accent">Track them transparently.</span>
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-            A secure platform for LASUSTECH students and staff to report academic, administrative,
-            and campus-related concerns — and follow every step toward resolution.
+            A secure platform for LASUSTECH students and staff to file academic, administrative,
+            and campus-related complaints — and follow every step toward resolution.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to={isAuth ? "/submit" : "/register"}
               className="group inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-90 active:scale-[0.98]"
             >
-              {isAuth ? "Submit a report" : "Create an account"}
+              {isAuth ? "Submit a complaint" : "Create an account"}
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </Link>
             <Link
               to={isAuth ? "/dashboard" : "/track"}
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium transition hover:bg-muted active:scale-[0.98]"
             >
-              {isAuth ? "Go to Dashboard" : "Track existing case"}
+              {isAuth ? "Go to Dashboard" : "Track existing complaint"}
             </Link>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
@@ -119,18 +119,18 @@ function HowItWorks() {
   const steps = [
     {
       icon: FileText,
-      title: "Submit your report",
+      title: "Submit your complaint",
       desc: "Walk through a guided form. Add details, attach evidence, or stay anonymous.",
     },
     {
       icon: Search,
       title: "Review process",
-      desc: "Your case is routed to the right department and reviewed by a real administrator.",
+      desc: "Your complaint is routed to the right department and reviewed by a real administrator.",
     },
     {
       icon: CheckCircle2,
       title: "Resolution & tracking",
-      desc: "Follow every update with a transparent timeline until your case is resolved.",
+      desc: "Follow every update with a transparent timeline until your complaint is resolved.",
     },
   ];
   return (
@@ -175,13 +175,13 @@ function TrustSection() {
   const items = [
     {
       icon: Lock,
-      title: "Confidential reporting",
+      title: "Confidential complaints",
       desc: "Your information is encrypted and only seen by authorized administrators.",
     },
     {
       icon: EyeOff,
       title: "Anonymous submissions",
-      desc: "Choose to submit a report without sharing your identity.",
+      desc: "Choose to submit a complaint without sharing your identity.",
     },
     {
       icon: ShieldCheck,
@@ -191,7 +191,7 @@ function TrustSection() {
     {
       icon: LineChart,
       title: "Transparent tracking",
-      desc: "See real-time progress on your case from submission to resolution.",
+      desc: "See real-time progress on your complaint from submission to resolution.",
     },
     {
       icon: Scale,
@@ -231,23 +231,23 @@ function TrustSection() {
 
 const faqs = [
   {
-    q: "Can I report something anonymously?",
-    a: "Yes. You can choose to submit your report without revealing your identity. We'll still provide a tracking ID so you can follow updates.",
+    q: "Can I submit a complaint anonymously?",
+    a: "Yes. You can choose to submit your complaint without revealing your identity. We'll still provide a tracking ID so you can follow updates.",
   },
   {
     q: "How quickly will I receive a response?",
-    a: "Most reports receive an initial response within 24–72 hours during the academic session. Urgent matters are prioritized.",
+    a: "Most complaints receive an initial response within 24–72 hours during the academic session. Urgent matters are prioritized.",
   },
   {
     q: "What kind of evidence can I upload?",
     a: "You may upload images, documents, and PDFs (up to 25MB per file). All uploads are stored securely and are only accessible to authorized staff.",
   },
   {
-    q: "How do I track an existing case?",
-    a: "Use the tracking ID issued at submission on the Track Case page to view your case status, timeline, and the latest updates.",
+    q: "How do I track an existing complaint?",
+    a: "Use the tracking ID issued at submission on the Track Complaint page to view your complaint status, timeline, and the latest updates.",
   },
   {
-    q: "Who can see my report?",
+    q: "Who can see my complaint?",
     a: "Only authorized administrators in the relevant department, plus the institutional review office. Access is logged for accountability.",
   },
 ];
@@ -314,7 +314,7 @@ function CTASection({ isAuth }: { isAuth: boolean }) {
                 Have a concern? You're not alone.
               </h3>
               <p className="mt-2 max-w-xl text-primary-foreground/75">
-                Submit a report in minutes. We'll guide you through every step.
+                Submit a complaint in minutes. We'll guide you through every step.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -322,13 +322,13 @@ function CTASection({ isAuth }: { isAuth: boolean }) {
                 to={isAuth ? "/submit" : "/register"}
                 className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-primary-foreground shadow-card transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
               >
-                Submit a report <ArrowRight className="h-4 w-4" />
+                Submit a complaint <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to={isAuth ? "/dashboard" : "/track"}
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10"
               >
-                {isAuth ? "Go to Dashboard" : "Track a case"}
+                {isAuth ? "Go to Dashboard" : "Track a complaint"}
               </Link>
             </div>
           </div>

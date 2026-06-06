@@ -63,6 +63,7 @@ export interface Complaint {
   adminFeedback?: string;
   satisfaction_feedback?: { satisfied: "yes" | "no"; comments: string; submitted_at?: string } | null;
   satisfactionFeedback?: { satisfied: "yes" | "no"; comments: string; submitted_at?: string } | null;
+  assignedStaff?: { id: string; name: string; email: string } | null;
   submitter?: {
     id: string;
     name: string;
@@ -181,6 +182,13 @@ export const authService = {
     const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request<any>(`/auth/admin/users${qs}`);
   },
+  createUser: (data: any) =>
+    request<any>("/auth/admin/users", { method: "POST", body: JSON.stringify(data) }),
+  updateUser: (userId: string, data: { name?: string; department_id?: string | null; role?: string }) =>
+    request<any>(`/auth/admin/users/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
 };
 
 export const complaintService = {
