@@ -64,13 +64,7 @@ export function SuperadminShell({
     localStorage.setItem("resolve_sidebar_collapsed", String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  // Apply dark mode to document element on mount, remove on unmount
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-    return () => {
-      document.documentElement.classList.remove("dark");
-    };
-  }, []);
+
 
   // Redirect logic moved to beforeLoad in routes
 

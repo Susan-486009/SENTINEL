@@ -13,4 +13,7 @@ export function applyTheme(theme: Theme) {
   } else {
     root.classList.remove("dark");
   }
+
+  // Dispatch custom event to notify __root.tsx
+  window.dispatchEvent(new CustomEvent("theme-changed", { detail: theme }));
 }

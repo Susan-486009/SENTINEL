@@ -153,9 +153,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark" | "system">("light");
 
-  // Theme management
-  useEffect(() => {
+  // Sync theme helper
+  const syncThemeFromStorage = () => {
     const userStr = typeof window !== "undefined" ? localStorage.getItem("user") : null;
     let theme: "light" | "dark" | "system" = "light";
     if (userStr) {
@@ -164,23 +165,49 @@ function RootComponent() {
         theme = user.settings?.theme || "light";
       } catch (e) {}
     }
+    setCurrentTheme(theme);
     applyTheme(theme);
+  };
+
+  // Theme management
+  useEffect(() => {
+    syncThemeFromStorage();
+
+    // Listen for storage changes (e.g. login, logout, settings saved)
+    const handleStorageChange = () => {
+      syncThemeFromStorage();
+    };
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Listen to local custom event when theme is previewed/changed in settings
+    const handleThemeChangedEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<"light" | "dark" | "system">;
+      if (customEvent.detail) {
+        setCurrentTheme(customEvent.detail);
+      }
+    };
+    window.addEventListener("theme-changed", handleThemeChangedEvent);
 
     // Listen for OS theme changes
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => {
+    const handleMediaQueryChange = () => {
       // Re-evaluate if current theme is system
-      const currentStr = localStorage.getItem("user");
-      let currentTheme = "light";
-      if (currentStr) {
-        try { currentTheme = JSON.parse(currentStr).settings?.theme || "light"; } catch (e) {}
+      const userStr = localStorage.getItem("user");
+      let theme = "light";
+      if (userStr) {
+        try { theme = JSON.parse(userStr).settings?.theme || "light"; } catch (e) {}
       }
-      if (currentTheme === "system") {
+      if (theme === "system") {
         applyTheme("system");
       }
     };
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("theme-changed", handleThemeChangedEvent);
+      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    };
   }, []);
 
   // Real-time network health monitor
