@@ -463,18 +463,77 @@ export const complaintService = {
      GET ADMIN STATS
   ══════════════════════════════════════════════════════ */
   async getStats() {
-    const [counts, byCategory] = await Promise.all([
+    const [counts, byCategory, feedbackSummary, recentFeedbacks] = await Promise.all([
       Complaint.aggregate([
         { $group: { _id: '$status', count: { $sum: 1 } } }
       ]),
       Complaint.aggregate([
-        { $group: { _id: '$category', open: { $sum: { $cond: [{ $in: ['$status', ['pending', 'in_review']] }, 1, 0] } }, resolved: { $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] } } } }
-      ])
+        { $group: { _id: '$category', open: { $sum: { $cond: [{ $in: ['$status', ['pending', 'in_review']] }, 1, 0] } }, resolved: { $sum: { $cond: [{ $in: ['$status', ['resolved', 'fixed']] }, 1, 0] } } } }
+      ]),
+      Complaint.aggregate([
+        { $match: { 'satisfaction_feedback.rating': { $ne: null } } },
+        { 
+          $group: { 
+            _id: null, 
+            avgRating: { $avg: '$satisfaction_feedback.rating' },
+            totalFeedback: { $sum: 1 },
+            satisfied: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.satisfied', 'yes'] }, 1, 0] } },
+            r5: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.rating', 5] }, 1, 0] } },
+            r4: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.rating', 4] }, 1, 0] } },
+            r3: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.rating', 3] }, 1, 0] } },
+            r2: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.rating', 2] }, 1, 0] } },
+            r1: { $sum: { $cond: [{ $eq: ['$satisfaction_feedback.rating', 1] }, 1, 0] } }
+          }
+        }
+      ]),
+      Complaint.find(
+        { 'satisfaction_feedback.rating': { $ne: null } },
+        { title: 1, reference_id: 1, anonymous: 1, user_id: 1, satisfaction_feedback: 1, category: 1 }
+      )
+      .sort({ 'satisfaction_feedback.submitted_at': -1 })
+      .limit(10)
+      .populate('user_id', 'name')
+      .lean()
     ]);
+
+    const feedbackStats = feedbackSummary[0] || {
+      avgRating: 0,
+      totalFeedback: 0,
+      satisfied: 0,
+      r5: 0,
+      r4: 0,
+      r3: 0,
+      r2: 0,
+      r1: 0
+    };
 
     return {
       statusCounts: counts.reduce((acc, curr) => ({ ...acc, [curr._id]: curr.count }), {}),
-      categoryStats: byCategory
+      categoryStats: byCategory,
+      feedbackStats: {
+        avgRating: feedbackStats.avgRating ? Number(feedbackStats.avgRating.toFixed(1)) : 0,
+        totalFeedback: feedbackStats.totalFeedback || 0,
+        satisfiedCount: feedbackStats.satisfied || 0,
+        ratingsDistribution: {
+          5: feedbackStats.r5 || 0,
+          4: feedbackStats.r4 || 0,
+          3: feedbackStats.r3 || 0,
+          2: feedbackStats.r2 || 0,
+          1: feedbackStats.r1 || 0
+        }
+      },
+      recentFeedbacks: recentFeedbacks.map(f => ({
+        id: f._id.toString(),
+        referenceId: f.reference_id,
+        title: f.title,
+        category: f.category,
+        anonymous: f.anonymous,
+        studentName: f.anonymous ? 'Anonymous Student' : (f.user_id?.name || 'Student'),
+        rating: f.satisfaction_feedback.rating,
+        satisfied: f.satisfaction_feedback.satisfied,
+        comments: f.satisfaction_feedback.comments,
+        submittedAt: f.satisfaction_feedback.submitted_at
+      }))
     };
   },
 
