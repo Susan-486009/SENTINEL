@@ -149,7 +149,9 @@ export function AdminShell({
         </div>
         <nav className="flex flex-col gap-1 p-4">
           {nav.map((n) => {
-            const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
+            const active = ["/superadmin", "/admin", "/dashboard", "/staff"].includes(n.to)
+              ? path === n.to
+              : path === n.to || path.startsWith(n.to + "/");
             return (
               <motion.div whileHover={{ x: 4 }} whileTap={{ scale: 0.96 }} key={n.to}>
                 <Link

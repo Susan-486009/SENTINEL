@@ -31,7 +31,7 @@ function SuperadminDashboard() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 p-4 md:p-8 space-y-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">System Command Center</h1>
+        <h1 className="text-2xl font-bold tracking-tight">System Dashboard</h1>
         <p className="text-muted-foreground">Global overview of the LASUSTECH Resolve platform.</p>
       </div>
 

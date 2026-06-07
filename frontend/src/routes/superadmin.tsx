@@ -29,7 +29,7 @@ export const Route = createFileRoute("/superadmin")({
 
 function SuperadminLayout() {
   return (
-    <SuperadminShell nav={superadminNav} title="Command Center">
+    <SuperadminShell nav={superadminNav} title="Dashboard">
       <Outlet />
     </SuperadminShell>
   );

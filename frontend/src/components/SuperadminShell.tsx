@@ -165,7 +165,9 @@ export function SuperadminShell({
         
         <nav className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto no-scrollbar select-none">
           {nav.map((n) => {
-            const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
+            const active = ["/superadmin", "/admin", "/dashboard", "/staff"].includes(n.to)
+              ? path === n.to
+              : path === n.to || path.startsWith(n.to + "/");
             return (
               <motion.div whileHover={{ x: sidebarCollapsed ? 0 : 4 }} whileTap={{ scale: 0.96 }} key={n.to}>
                 <Link

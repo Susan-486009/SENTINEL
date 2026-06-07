@@ -129,7 +129,9 @@ export function StaffShell({
           
           <nav className="hidden items-center gap-1 md:flex">
             {nav.map((n) => {
-              const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
+              const active = ["/superadmin", "/admin", "/dashboard", "/staff"].includes(n.to)
+                ? path === n.to
+                : path === n.to || path.startsWith(n.to + "/");
               return (
                 <Link
                   key={n.to}
@@ -273,7 +275,9 @@ export function StaffShell({
           <div className="border-t border-border/50 bg-background p-4 md:hidden">
             <nav className="flex flex-col gap-2">
               {nav.map((n) => {
-                const active = path === n.to || (n.to !== "/" && path.startsWith(n.to));
+                const active = ["/superadmin", "/admin", "/dashboard", "/staff"].includes(n.to)
+                  ? path === n.to
+                  : path === n.to || path.startsWith(n.to + "/");
                 return (
                   <Link
                     key={n.to}

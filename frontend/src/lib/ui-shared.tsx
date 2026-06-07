@@ -21,7 +21,7 @@ export const staffNav = [
 ];
 
 export const superadminNav = [
-  { to: "/superadmin", label: "Command Center", icon: LayoutDashboard },
+  { to: "/superadmin", label: "Dashboard", icon: LayoutDashboard },
   { to: "/superadmin/cases", label: "All Cases", icon: Inbox },
   { to: "/superadmin/users", label: "User Management", icon: Users },
   { to: "/superadmin/departments", label: "Departments", icon: Building2 },
