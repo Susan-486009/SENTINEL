@@ -220,7 +220,7 @@ export const complaintService = {
       method: "POST",
       body: JSON.stringify({ text }),
     }),
-  submitFeedback: (id: string, feedback: { satisfied: "yes" | "no"; comments: string }) =>
+  submitFeedback: (id: string, feedback: { satisfied?: "yes" | "no"; rating: number; comments: string }) =>
     request<any>(`/complaints/${id}/feedback`, {
       method: "POST",
       body: JSON.stringify(feedback),

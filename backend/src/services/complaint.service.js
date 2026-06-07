@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Complaint } from '../models/Complaint.js';
 import { SuspiciousActivity } from '../models/SuspiciousActivity.js';
 import { User } from '../models/User.js';
@@ -43,10 +44,23 @@ export const complaintService = {
       let assignedStaffName = '';
       let matchedDepartment = null;
 
-      if (department) {
-        const { Department } = await import('../models/Department.js');
+      const { Department } = await import('../models/Department.js');
+      const user = await User.findById(userId).select('department_id').lean();
+      const isAcademic = ['academic-result', 'academic-lecturer'].includes(category);
+
+      if (isAcademic && user && user.department_id) {
+        matchedDepartment = await Department.findById(user.department_id).lean();
+      }
+
+      if (!matchedDepartment) {
         matchedDepartment = await Department.findOne({
-          name: { $regex: new RegExp(`^${department.trim()}$`, 'i') }
+          categories: category
+        }).lean();
+      }
+
+      if (!matchedDepartment) {
+        matchedDepartment = await Department.findOne({
+          categories: 'other'
         }).lean();
       }
 
@@ -195,13 +209,22 @@ export const complaintService = {
       );
     }
 
-    if (role !== 'admin' && role !== 'superadmin' && complaint.user_id?.toString() !== userId) {
-      throw new AppError('Complaint not found.', 404);
+    const isOwner = complaint.user_id?.toString() === userId;
+    const isAssignedStaff = complaint.assigned_staff_id?.toString() === userId;
+
+    if (role === 'staff') {
+      if (!isAssignedStaff && !isOwner) {
+        throw new AppError('Complaint not found.', 404);
+      }
+    } else if (role !== 'admin' && role !== 'superadmin') {
+      if (!isOwner) {
+        throw new AppError('Complaint not found.', 404);
+      }
     }
 
     let submitter = null;
-    if (!complaint.anonymous || complaint.user_id?.toString() === userId) {
-      if (complaint.user_id) {
+    if (complaint.user_id) {
+      if (!complaint.anonymous || complaint.user_id.toString() === userId) {
         submitter = await User.findById(complaint.user_id)
           .select('name matric email')
           .lean();
@@ -209,6 +232,14 @@ export const complaintService = {
           submitter.id = submitter._id.toString();
           delete submitter._id;
         }
+      } else {
+        const hash = crypto.createHash('md5').update(complaint.user_id.toString()).digest('hex').substring(0, 6).toUpperCase();
+        submitter = {
+          id: complaint.user_id.toString(),
+          name: `Anonymous Student (${hash})`,
+          matric: `ANON-${hash}`,
+          email: null
+        };
       }
     }
 
@@ -308,20 +339,34 @@ export const complaintService = {
 
     const total = await Complaint.countDocuments(filter);
 
-    return complaints.map(c => ({
-      _id: c._id.toString(),
-      reference_id: c.reference_id,
-      category: c.category,
-      title: c.title,
-      status: c.status,
-      priority: c.priority,
-      anonymous: c.anonymous,
-      created_at: c.created_at,
-      updated_at: c.updated_at,
-      user_name: (c.user_id && !c.anonymous) ? c.user_id.name : null,
-      matric: (c.user_id && !c.anonymous) ? c.user_id.matric : null,
-      file_count: c.files ? c.files.length : 0,
-    }));
+    return complaints.map(c => {
+      let user_name = null;
+      let matric = null;
+      if (c.user_id) {
+        if (!c.anonymous) {
+          user_name = c.user_id.name;
+          matric = c.user_id.matric;
+        } else {
+          const hash = crypto.createHash('md5').update(c.user_id._id.toString()).digest('hex').substring(0, 6).toUpperCase();
+          user_name = `Anonymous Student (${hash})`;
+          matric = `ANON-${hash}`;
+        }
+      }
+      return {
+        _id: c._id.toString(),
+        reference_id: c.reference_id,
+        category: c.category,
+        title: c.title,
+        status: c.status,
+        priority: c.priority,
+        anonymous: c.anonymous,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+        user_name,
+        matric,
+        file_count: c.files ? c.files.length : 0,
+      };
+    });
   },
 
   /* ══════════════════════════════════════════════════════
@@ -433,7 +478,7 @@ export const complaintService = {
     };
   },
 
-  async submitSatisfactionFeedback(id, { satisfied, comments }, userId) {
+  async submitSatisfactionFeedback(id, { satisfied, rating, comments }, userId) {
     const complaint = await Complaint.findById(id);
     if (!complaint) throw new AppError('Complaint not found.', 404);
 
@@ -447,15 +492,30 @@ export const complaintService = {
       throw new AppError('Satisfaction feedback can only be submitted for resolved or fixed complaints.', 400);
     }
 
+    let finalRating = rating ? Number(rating) : null;
+    let finalSatisfied = satisfied;
+
+    if (finalRating) {
+      if (finalRating < 1 || finalRating > 5) {
+        throw new AppError('Rating must be between 1 and 5.', 400);
+      }
+      if (!finalSatisfied) {
+        finalSatisfied = finalRating >= 4 ? 'yes' : 'no';
+      }
+    } else if (finalSatisfied) {
+      finalRating = finalSatisfied === 'yes' ? 5 : 2;
+    }
+
     complaint.satisfaction_feedback = {
-      satisfied: satisfied === 'yes' ? 'yes' : 'no',
+      satisfied: finalSatisfied === 'yes' ? 'yes' : 'no',
+      rating: finalRating,
       comments: (comments || '').trim(),
       submitted_at: new Date()
     };
 
     complaint.timeline.push({
       type: 'system',
-      text: `Satisfaction feedback submitted: ${satisfied === 'yes' ? 'Satisfied' : 'Not Satisfied'}.${comments ? ' Suggestions: ' + comments : ''}`,
+      text: `Satisfaction feedback submitted: Rating of ${finalRating}/5 (${finalSatisfied === 'yes' ? 'Satisfied' : 'Not Satisfied'}).${comments ? ' Comments: ' + comments : ''}`,
       user_id: userId
     });
 

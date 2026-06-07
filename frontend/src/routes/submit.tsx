@@ -262,6 +262,11 @@ function Step1({
       label: "IT Portal Services",
       desc: "Student accounts, Wi-Fi connectivity",
     },
+    {
+      value: "delicate",
+      label: "Sensitive / Delicate Issues",
+      desc: "Harassment, abuse, delicate welfare/safety",
+    },
     { value: "other", label: "Other Issues", desc: "Any other general complaints or concerns" },
   ];
 

@@ -152,13 +152,13 @@ export const addInternalNote = asyncHandler(async (req, res) => {
 
 /* ════════════════════════════════════════════════════════
    POST /api/v1/complaints/:id/feedback
-   Body: { satisfied: 'yes'|'no', comments: string }
+   Body: { satisfied: 'yes'|'no', rating: number, comments: string }
 ════════════════════════════════════════════════════════ */
 export const submitFeedback = asyncHandler(async (req, res) => {
-  const { satisfied, comments } = req.body;
+  const { satisfied, rating, comments } = req.body;
   const result = await complaintService.submitSatisfactionFeedback(
     req.params.id,
-    { satisfied, comments },
+    { satisfied, rating, comments },
     req.user.id
   );
   sendSuccess(res, result, 'Thank you for your feedback! It has been submitted successfully.');

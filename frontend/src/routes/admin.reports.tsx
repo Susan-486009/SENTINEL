@@ -42,6 +42,29 @@ function safeFormatDate(dateStr: string | Date | undefined | null, formatStr: st
   }
 }
 
+const renderStars = (rating: number | undefined | null) => {
+  if (!rating) return null;
+  return (
+    <div className="flex items-center gap-0.5 mt-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          className={`h-4 w-4 ${star <= rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/30"}`}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ))}
+    </div>
+  );
+};
+
 function getCategoryStyle(category: string) {
   const cat = category.toLowerCase();
   if (cat.includes("academic")) return "bg-blue-500/10 text-blue-600 border-blue-500/15";
@@ -476,45 +499,47 @@ function ComplaintsPage() {
             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Student Satisfaction
             </div>
-            {((active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes") ? (
-              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4.5 space-y-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] uppercase font-bold tracking-wider text-emerald-600">
-                    Student Rating
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-0.5 text-[9px] font-bold">
-                    😄 Satisfied
-                  </span>
+            {(() => {
+              const isSatisfied = (active.satisfaction_feedback?.satisfied || active.satisfactionFeedback?.satisfied) === "yes";
+              const rating = active.satisfaction_feedback?.rating || active.satisfactionFeedback?.rating;
+              const comments = active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments;
+              const submittedAt = active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at;
+
+              return (
+                <div className={`rounded-xl border p-4.5 space-y-3 shadow-sm ${
+                  isSatisfied ? "border-emerald-500/20 bg-emerald-500/[0.03]" : "border-rose-500/20 bg-rose-500/[0.03]"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[9px] uppercase font-bold tracking-wider ${isSatisfied ? "text-emerald-600" : "text-rose-600"}`}>
+                      Student Rating
+                    </span>
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[9px] font-bold ${
+                      isSatisfied 
+                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" 
+                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                    }`}>
+                      {isSatisfied ? "😄 Satisfied" : "😞 Unsatisfied"}
+                    </span>
+                  </div>
+                  {rating && (
+                    <div className="flex flex-col gap-1 border-t border-b border-border/40 py-2">
+                      <span className="text-[9px] font-semibold text-muted-foreground uppercase">Score Rating</span>
+                      {renderStars(rating)}
+                    </div>
+                  )}
+                  {comments && (
+                    <p className={`text-xs leading-relaxed italic bg-background border rounded-lg p-3 select-all break-words break-all ${
+                      isSatisfied ? "text-emerald-700 text-emerald-600 border-emerald-500/10" : "text-rose-700 text-rose-600 border-rose-500/10"
+                    }`}>
+                      &ldquo;{comments}&rdquo;
+                    </p>
+                  )}
+                  <div className="text-[9px] text-muted-foreground/80 font-mono text-right">
+                    Logged: {safeFormatDate(submittedAt, "MMM dd, yyyy HH:mm")}
+                  </div>
                 </div>
-                {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                  <p className="text-xs leading-relaxed italic text-emerald-700 bg-background border border-emerald-500/10 rounded-lg p-3 select-all break-words break-all">
-                    &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
-                  </p>
-                )}
-                <div className="text-[9px] text-muted-foreground/80 font-mono text-right">
-                  Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.03] p-4.5 space-y-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] uppercase font-bold tracking-wider text-rose-600">
-                    Student Rating
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-0.5 text-[9px] font-bold">
-                    😞 Unsatisfied
-                  </span>
-                </div>
-                {(active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments) && (
-                  <p className="text-xs leading-relaxed italic text-rose-700 bg-background border border-rose-500/10 rounded-lg p-3 select-all break-words break-all">
-                    &ldquo;{active.satisfaction_feedback?.comments || active.satisfactionFeedback?.comments}&rdquo;
-                  </p>
-                )}
-                <div className="text-[9px] text-muted-foreground/80 font-mono text-right">
-                  Logged: {safeFormatDate(active.satisfaction_feedback?.submitted_at || active.satisfactionFeedback?.submitted_at, "MMM dd, yyyy HH:mm")}
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
@@ -544,17 +569,17 @@ function ComplaintsPage() {
               </span>
             </div>
 
-            {!active.anonymous && (
+            {active.submitter && (
               <>
                 <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                   <span className="text-muted-foreground font-medium">Matric ID</span>
-                  <span className="font-mono text-[10px] bg-background px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
+                  <span className="font-mono text-[10px] bg-background px-1.5 py-0.5 rounded border border-border break-all">{active.submitter.matric || "N/A"}</span>
                 </div>
                 
                 <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                   <span className="text-muted-foreground font-medium">Contact Endpoint</span>
-                  <span className="truncate max-w-[130px] font-mono text-[10px] break-all text-right" title={active.submitter?.email}>
-                    {active.submitter?.email || "N/A"}
+                  <span className="truncate max-w-[130px] font-mono text-[10px] break-all text-right" title={active.submitter.email || undefined}>
+                    {active.submitter.email || "N/A"}
                   </span>
                 </div>
               </>
@@ -763,7 +788,7 @@ function ComplaintsPage() {
                           <User className="h-3.5 w-3.5 opacity-60 text-primary animate-pulse" />{" "}
                           {active.anonymous ? (
                             <span className="inline-flex items-center gap-1 text-amber-500 font-semibold">
-                              <AlertTriangle className="h-3 w-3" /> Anonymous Student
+                              <AlertTriangle className="h-3 w-3" /> {active.submitter?.name || "Anonymous Student"}
                             </span>
                           ) : (
                             <span className="font-semibold text-foreground">{active.submitter?.name || "Student Submittee"}</span>

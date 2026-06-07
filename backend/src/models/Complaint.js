@@ -90,6 +90,7 @@ const complaintSchema = new mongoose.Schema(
     },
     satisfaction_feedback: {
       satisfied: { type: String, enum: ['yes', 'no'], default: null },
+      rating: { type: Number, min: 1, max: 5, default: null },
       comments: { type: String, default: '' },
       submitted_at: { type: Date, default: null }
     },

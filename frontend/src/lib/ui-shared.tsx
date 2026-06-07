@@ -57,6 +57,7 @@ export function formatCategory(cat: string): string {
     security: "Security & Safety",
     financial: "Financial & Payments",
     "it-service": "IT Services",
+    delicate: "Sensitive / Delicate Issues (Harassment, Welfare)",
     other: "Other Issues",
   };
   return map[cat] || cat;

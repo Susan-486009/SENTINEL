@@ -16,6 +16,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const availableCategories = [
+  { value: "facility-maint", label: "Campus Facilities" },
+  { value: "facility-hostel", label: "Hostel & Welfare" },
+  { value: "admin-staff", label: "Administrative Process" },
+  { value: "security", label: "Security & Safety" },
+  { value: "financial", label: "Financial / Payments" },
+  { value: "it-service", label: "IT Portal Services" },
+  { value: "delicate", label: "Sensitive & Delicate" },
+  { value: "other", label: "Other Issues" },
+];
+
 export const Route = createFileRoute("/superadmin/departments")({
   head: () => ({ meta: [{ title: "Departments — Superadmin" }] }),
   component: DepartmentsPage,
@@ -29,10 +40,16 @@ function DepartmentsPage() {
   const [managingDeptId, setManagingDeptId] = useState<string | null>(null);
   const [assigningStaffId, setAssigningStaffId] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    head_id: string;
+    categories: string[];
+  }>({
     name: "",
     description: "",
     head_id: "",
+    categories: [],
   });
 
   const { data: departments, isLoading } = useQuery({
@@ -58,7 +75,7 @@ function DepartmentsPage() {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
       toast.success("Department created successfully.");
       setIsAddOpen(false);
-      setFormData({ name: "", description: "", head_id: "" });
+      setFormData({ name: "", description: "", head_id: "", categories: [] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to create department"),
   });
@@ -100,6 +117,7 @@ function DepartmentsPage() {
       name: formData.name,
       description: formData.description,
       head_id: formData.head_id === "" ? undefined : formData.head_id,
+      categories: formData.categories,
     };
     if (isEditOpen && selectedDept) {
       editMutation.mutate({ id: selectedDept._id, data: payload });
@@ -114,6 +132,7 @@ function DepartmentsPage() {
       name: dept.name,
       description: dept.description || "",
       head_id: dept.head_id?._id || "",
+      categories: dept.categories || [],
     });
     setIsEditOpen(true);
   };
@@ -132,7 +151,7 @@ function DepartmentsPage() {
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <button
-              onClick={() => setFormData({ name: "", description: "", head_id: "" })}
+              onClick={() => setFormData({ name: "", description: "", head_id: "", categories: [] })}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 transition active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" /> Add Department
@@ -176,6 +195,30 @@ function DepartmentsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Assigned Complaint Categories</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-1 rounded-lg border border-border bg-muted/10 p-3">
+                    {availableCategories.map((cat) => {
+                      const isChecked = formData.categories.includes(cat.value);
+                      return (
+                        <label key={cat.value} className="flex items-center gap-2 text-xs font-medium cursor-pointer hover:text-foreground transition text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              const newCats = e.target.checked
+                                ? [...formData.categories, cat.value]
+                                : formData.categories.filter((c) => c !== cat.value);
+                              setFormData({ ...formData, categories: newCats });
+                            }}
+                            className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+                          />
+                          {cat.label}
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
               <DialogFooter>
@@ -221,7 +264,18 @@ function DepartmentsPage() {
               ) : (
                 deptList.map((dept: any) => (
                   <tr key={dept._id} className="hover:bg-muted/30 transition-colors align-top">
-                    <td className="px-4 py-3 font-medium">{dept.name}</td>
+                    <td className="px-4 py-3 align-top">
+                      <div className="font-medium">{dept.name}</div>
+                      {dept.categories && dept.categories.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {dept.categories.map((c: string) => (
+                            <span key={c} className="inline-flex items-center rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary uppercase tracking-wider">
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {dept.description || <span className="italic opacity-50">No description</span>}
                     </td>
@@ -368,6 +422,30 @@ function DepartmentsPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="grid gap-2">
+                <Label>Assigned Complaint Categories</Label>
+                <div className="grid grid-cols-2 gap-2 mt-1 rounded-lg border border-border bg-muted/10 p-3">
+                  {availableCategories.map((cat) => {
+                    const isChecked = formData.categories.includes(cat.value);
+                    return (
+                      <label key={cat.value} className="flex items-center gap-2 text-xs font-medium cursor-pointer hover:text-foreground transition text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const newCats = e.target.checked
+                              ? [...formData.categories, cat.value]
+                              : formData.categories.filter((c) => c !== cat.value);
+                            setFormData({ ...formData, categories: newCats });
+                          }}
+                          className="rounded border-input text-primary focus:ring-primary h-3.5 w-3.5"
+                        />
+                        {cat.label}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             <DialogFooter>

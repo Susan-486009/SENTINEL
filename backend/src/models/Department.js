@@ -17,6 +17,10 @@ const departmentSchema = new mongoose.Schema(
       ref: 'User',
       required: false,
     },
+    categories: {
+      type: [String],
+      default: [],
+    },
     is_active: {
       type: Boolean,
       default: true,
