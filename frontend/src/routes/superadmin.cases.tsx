@@ -280,14 +280,14 @@ function CasesPage() {
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Draft your official dispatch response, feedback instructions, or case final resolution to students here..."
-            className="w-full h-28 rounded-lg border border-border bg-slate-900/40 px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground/80 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 resize-none transition-all duration-300 text-foreground"
+            className="w-full h-28 rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm outline-none placeholder:text-muted-foreground/80 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 resize-none transition-all duration-300 text-foreground"
           />
 
           <div className="flex items-center justify-between border-t border-border/80 pt-4 flex-wrap gap-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground font-semibold">Change State To:</span>
               <select
-                className="rounded-lg border border-border bg-slate-950 px-3 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none"
+                className="rounded-lg border border-border bg-background text-foreground px-3 py-2 text-xs font-bold cursor-pointer focus:border-primary outline-none"
                 value={active.status}
                 onChange={(e) =>
                   updateStatusMutation.mutate({
@@ -352,13 +352,13 @@ function CasesPage() {
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder="Add administrative notes, assignment briefs, or internal notes..."
-                className="w-full h-20 rounded-lg border border-border bg-slate-900/40 px-3.5 py-2.5 text-xs outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 placeholder:text-muted-foreground/80 resize-none transition-all duration-300 text-foreground"
+                className="w-full h-20 rounded-lg border border-border bg-background px-3.5 py-2.5 text-xs outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 placeholder:text-muted-foreground/80 resize-none transition-all duration-300 text-foreground"
               />
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => toast.info("Evidence attaching is coming in platform release v2")}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-slate-950 hover:bg-muted text-[10px] font-semibold text-muted-foreground transition active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background hover:bg-muted text-[10px] font-semibold text-foreground transition active:scale-95 cursor-pointer"
                 >
                   <Paperclip className="h-3 w-3" /> Attach private file
                 </button>
@@ -399,7 +399,7 @@ function CasesPage() {
             </label>
             <div className="relative">
               <select
-                className="w-full rounded-xl border border-border bg-slate-950 pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                className="w-full rounded-xl border border-border bg-background text-foreground pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
                 value={active.status}
                 onChange={(e) =>
                   updateStatusMutation.mutate({ id: active._id, status: e.target.value })
@@ -423,7 +423,7 @@ function CasesPage() {
             </label>
             <div className="relative">
               <select
-                className="w-full rounded-xl border border-border bg-slate-950 pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
+                className="w-full rounded-xl border border-border bg-background text-foreground pl-3 pr-9 py-3 text-xs font-bold cursor-pointer focus:border-primary outline-none appearance-none"
                 value={active.priority}
                 onChange={(e) =>
                   updatePriorityMutation.mutate({ id: active._id, priority: e.target.value })
@@ -444,7 +444,7 @@ function CasesPage() {
         <div className="space-y-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
             <span>Submitted Attachments</span>
-            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded border border-border bg-slate-950">
+            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded border border-border bg-muted text-muted-foreground">
               {active.files?.length || 0}
             </span>
           </div>
@@ -555,7 +555,7 @@ function CasesPage() {
               <>
                 <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">
                   <span className="text-muted-foreground font-medium">Matric ID</span>
-                  <span className="font-mono text-[10px] bg-slate-950 px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
+                  <span className="font-mono text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded border border-border break-all">{active.submitter?.matric || "N/A"}</span>
                 </div>
                 
                 <div className="flex items-center justify-between py-2 text-foreground font-semibold flex-wrap gap-2">

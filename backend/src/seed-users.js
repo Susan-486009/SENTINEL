@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User } from './models/User.js';
 import { Department } from './models/Department.js';
+import { Complaint } from './models/Complaint.js';
+import { TokenSession } from './models/TokenSession.js';
+import { Chat } from './models/Chat.js';
+import { SuspiciousActivity } from './models/SuspiciousActivity.js';
 import { hashPassword } from './utils/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,7 +17,19 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 async function seedUsers() {
   try {
     const fallbackUri = 'mongodb://radesusan8_db_user:qNrwmM25eqQ1iCDE@ac-rns7nv3-shard-00-00.awsdyzq.mongodb.net:27017,ac-rns7nv3-shard-00-01.awsdyzq.mongodb.net:27017,ac-rns7nv3-shard-00-02.awsdyzq.mongodb.net:27017/LASUSTECH-MONITOR?ssl=true&authSource=admin&replicaSet=atlas-j1g9d3-shard-0&appName=susan-project';
-    await mongoose.connect(fallbackUri);
+    const uri = process.env.DATABASE_URI || fallbackUri;
+    
+    console.log('Connecting to database...');
+    try {
+      await mongoose.connect(uri);
+    } catch (err) {
+      if (uri !== fallbackUri) {
+        console.warn('⚠️  Failed to connect with primary DATABASE_URI. Retrying with standard fallback URI...');
+        await mongoose.connect(fallbackUri);
+      } else {
+        throw err;
+      }
+    }
     console.log('Connected to MongoDB');
 
     // 1. Delete superadmin@lasustech.edu.ng
@@ -46,29 +62,29 @@ async function seedUsers() {
       }
     }
 
-    // 3. Admin: admin@lasustech.edu.ng
+    // 3. Admin: admin@lasustech.edu.ng (Delete any conflicting email or matric to avoid E11000)
     const adminEmail = 'admin@lasustech.edu.ng';
-    const adminExists = await User.findOne({ email: adminEmail });
-    if (!adminExists) {
-      const adminHash = await hashPassword('Password123@');
-      await User.create({
-        name: 'LASUSTECH Admin',
-        email: adminEmail,
-        matric: 'ADM001',
-        password: adminHash,
-        role: 'admin'
-      });
-      console.log(`Created admin account: ${adminEmail}`);
-    } else {
-      console.log(`Admin account ${adminEmail} already exists. Updating password.`);
-      const adminHash = await hashPassword('Password123@');
-      await User.updateOne({ email: adminEmail }, { password: adminHash, role: 'admin' });
-    }
+    const adminMatric = 'ADM001';
+    await User.deleteMany({ $or: [{ email: adminEmail }, { matric: adminMatric }] });
+    
+    const adminHash = await hashPassword('Password123@');
+    await User.create({
+      name: 'LASUSTECH Admin',
+      email: adminEmail,
+      matric: adminMatric,
+      password: adminHash,
+      role: 'admin'
+    });
+    console.log(`Created/Reset admin account: ${adminEmail}`);
 
-    // 4. Clean existing staff and departments to prevent stale data
+    // 4. Clean existing staff, departments, complaints, and related collections to prevent stale data
     await User.deleteMany({ role: 'staff' });
     await Department.deleteMany({});
-    console.log('Cleared existing staff and departments.');
+    await Complaint.deleteMany({});
+    await Chat.deleteMany({});
+    await TokenSession.deleteMany({});
+    await SuspiciousActivity.deleteMany({});
+    console.log('🗑️  Cleared existing staff, departments, complaints, sessions, chats, and activities.');
 
     // 5. Seed Departments
     const deptDefinitions = [
@@ -90,7 +106,7 @@ async function seedUsers() {
       console.log(`Created department: ${dept.name}`);
     }
 
-    // 6. Seed Staff (Nigerian names)
+    // 6. Seed exactly 2 staff members per department (18 staff members in total)
     const staffNames = [
       "Dr. Kunle Alabi",
       "Mrs. Toyin Bello",
@@ -109,28 +125,46 @@ async function seedUsers() {
       "Dr. Chioma Nnaji",
       "Prof. Ibrahim Gambari",
       "Mrs. Ronke Ojo",
-      "Mr. Dele Momodu",
-      "Dr. Abubakar Shehu",
-      "Mrs. Zainab Ahmed"
+      "Mr. Dele Momodu"
     ];
 
     const staffHash = await hashPassword('Password123@');
 
-    for (let i = 0; i < staffNames.length; i++) {
-      const name = staffNames[i];
-      const dept = seededDepts[i % seededDepts.length];
-      const email = `staff.${name.toLowerCase().replace(/[^a-z]/g, '')}@lasustech.edu.ng`;
-      
-      await User.create({
-        name,
-        email,
-        matric: `STF${String(i + 1).padStart(3, '0')}`,
-        password: staffHash,
-        role: 'staff',
-        department_id: dept._id
-      });
+    for (let j = 0; j < seededDepts.length; j++) {
+      const dept = seededDepts[j];
+      const staffListForDept = [];
 
-      console.log(`Created staff: ${name} in department ${dept.name} (${email})`);
+      for (let k = 0; k < 2; k++) {
+        const staffIndex = j * 2 + k;
+        const name = staffNames[staffIndex];
+        const cleanName = name
+          .toLowerCase()
+          .replace(/^(dr|mr|mrs|prof|engr)\.?\s+/i, '')
+          .replace(/[^a-z0-9\s]/g, '')
+          .trim()
+          .replace(/\s+/g, '.');
+        const email = `${cleanName}@lasustech.edu.ng`;
+        const matric = `STF${String(staffIndex + 1).padStart(3, '0')}`;
+
+        const newStaff = await User.create({
+          name,
+          email,
+          matric,
+          password: staffHash,
+          role: 'staff',
+          department_id: dept._id
+        });
+
+        staffListForDept.push(newStaff);
+        console.log(`Created staff: ${name} -> Department: ${dept.name} (${email})`);
+      }
+
+      // Set department head_id to the first staff member
+      await Department.updateOne(
+        { _id: dept._id },
+        { $set: { head_id: staffListForDept[0]._id } }
+      );
+      console.log(`Set ${staffListForDept[0].name} as Head of ${dept.name}`);
     }
 
     console.log('Seeding completed successfully!');
