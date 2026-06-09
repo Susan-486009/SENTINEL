@@ -16,6 +16,14 @@ router.use('/notifications', notificationRoutes);
 router.use('/ai',          aiRoutes);
 router.use('/audit',       auditRoutes);
 
+// Version endpoint for tracking deployments
+router.get('/version', (_req, res) => {
+  res.json({
+    version: '1.0.0',
+    build: 'debug-v2-staff-details-fix'
+  });
+});
+
 // Health-check — includes live DB connection state
 router.get('/health', (_req, res) =>
   res.json({
