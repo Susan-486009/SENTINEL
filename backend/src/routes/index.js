@@ -20,7 +20,7 @@ router.use('/audit',       auditRoutes);
 router.get('/version', (_req, res) => {
   res.json({
     version: '1.0.0',
-    build: 'debug-v4-error-response'
+    build: 'debug-v5-staff-populate-fix'
   });
 });
 

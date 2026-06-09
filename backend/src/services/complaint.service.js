@@ -210,7 +210,8 @@ export const complaintService = {
     }
 
     const isOwner = complaint.user_id?.toString() === userId;
-    const isAssignedStaff = complaint.assigned_staff_id?.toString() === userId;
+    const staffId = complaint.assigned_staff_id?._id || complaint.assigned_staff_id;
+    const isAssignedStaff = staffId?.toString() === userId;
 
     if (role === 'staff') {
       if (!isAssignedStaff && !isOwner) {
