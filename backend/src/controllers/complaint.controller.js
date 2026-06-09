@@ -73,35 +73,11 @@ export const getComplaintById = asyncHandler(async (req, res) => {
     }
   }
 
-  console.log('DEBUG getComplaintById:', {
+  const complaint = await complaintService.getById(
     identifier,
-    userId: req.user?.id,
-    user_id: req.user?._id,
-    role: req.user?.role,
-    rawUser: req.user
-  });
-
-  let complaint;
-  try {
-    complaint = await complaintService.getById(
-      identifier,
-      req.user.id || req.user._id?.toString(),
-      req.user.role,
-    );
-  } catch (err) {
-    console.error('DEBUG getComplaintById error:', err);
-    return res.status(err.statusCode || 500).json({
-      success: false,
-      message: err.message,
-      statusCode: err.statusCode,
-      stack: err.stack,
-      debug: {
-        identifier,
-        userId: req.user?.id || req.user?._id?.toString(),
-        role: req.user?.role,
-      }
-    });
-  }
+    req.user.id || req.user._id?.toString(),
+    req.user.role,
+  );
 
   // LOG THE VIEW ACTION FOR SURVEILLANCE
   const { AuditLog } = await import('../models/AuditLog.js');
