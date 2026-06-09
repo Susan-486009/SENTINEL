@@ -194,449 +194,452 @@ async function seedUsers() {
       console.log(`Created ${students.length} mock student users.`);
     }
 
-    // 8. Seed 5 complaints per department (45 total)
-    console.log('Seeding 45 complaints across the 9 departments...');
+    // 8. Seed 15 complaints per department (135 total)
+    console.log('Seeding 135 complaints across the 9 departments...');
 
-    const complaintsData = [
-      // 1. ICT & Portal Services (it-service, financial)
-      {
-        deptIdx: 0,
-        category: "it-service",
-        title: "Unable to access portal for registration",
-        description: "I am trying to register my courses for the semester but the portal is showing 'Access Denied' when I click submit. Please help resolve this.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 0,
-        category: "financial",
-        title: "Double payment charged on tuition fee",
-        description: "I paid my school fees using the portal, but my account was debited twice. The portal only shows one transaction paid. I need a refund or credit.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 0,
-        category: "it-service",
-        title: "Password reset request link not sending",
-        description: "I forgot my portal password and clicked reset, but the link is not sending to my school email after multiple tries.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "We reviewed your account profile and found your alternate email was set incorrectly. We have reset it manually and sent a temporary password 'LasustechTemp123!' to your main inbox.",
-        satisfied: "yes", rating: 5, comments: "Thank you so much! The manual password worked immediately."
-      },
-      {
-        deptIdx: 0,
-        category: "financial",
-        title: "Hostel fee payment not reflecting on dashboard",
-        description: "I paid my hostel fee, but the portal is still showing unpaid. I have attached the receipt of payment.",
-        status: "fixed", priority: "critical",
-        admin_feedback: "Our financial database has reconciled your payment. Your portal profile has now been updated to show 'Paid'.",
-        satisfied: "yes", rating: 4, comments: "It is reflecting on my dashboard now. Thanks for reconciling it."
-      },
-      {
-        deptIdx: 0,
-        category: "it-service",
-        title: "Request to bypass course prerequisite",
-        description: "I want the portal to allow me to register for CSC 401 without passing CSC 301 since I am a final year student.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Your request is rejected. Faculty academic policy does not allow prerequisite bypass under any circumstances. You must register and pass CSC 301 first."
-      },
-
-      // 2. Student Welfare & Counseling (facility-hostel, delicate)
-      {
-        deptIdx: 1,
-        category: "facility-hostel",
-        title: "Hostel room roommate conflict",
-        description: "My roommate brings guests late at night and plays loud music, which is disturbing my studies and sleep. I need a room change request.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 1,
-        category: "delicate",
-        title: "Harassment by senior student in Block B",
-        description: "A senior student residing on the third floor is constantly harassing me and making me do his laundry. I feel unsafe walking back to my room.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 1,
-        category: "delicate",
-        title: "Request for academic stress counseling",
-        description: "I am feeling extremely overwhelmed with my final year project and exam pressure. I need to schedule a session to speak to a counselor.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "We have scheduled a session for you with Mrs. Adebayo on Thursday at 2:00 PM. Please visit the welfare center office.",
-        satisfied: "yes", rating: 5, comments: "The counseling session was very helpful. I feel much better now."
-      },
-      {
-        deptIdx: 1,
-        category: "facility-hostel",
-        title: "Broken lock on female hostel room 204",
-        description: "The lock to our hostel room door is broken, leaving our belongings unsafe when we go for lectures.",
-        status: "fixed", priority: "critical",
-        admin_feedback: "A maintenance carpenter was dispatched to Hostel Room 204. The door lock cylinder has been replaced with a new one.",
-        satisfied: "yes", rating: 5, comments: "Lock fixed within hours! We feel safe now. Thank you."
-      },
-      {
-        deptIdx: 1,
-        category: "facility-hostel",
-        title: "Request to cook in hostel rooms",
-        description: "We want the hostel management to allow us to cook inside the hostel rooms using gas cylinders to save time.",
-        status: "rejected", priority: "low",
-        admin_feedback: "This request is rejected. Strict fire hazard safety regulations prohibit gas cylinders in sleeping areas. You must use the designated common kitchen."
-      },
-
-      // 3. Campus Security & Safety (security)
-      {
-        deptIdx: 2,
-        category: "security",
-        title: "Missing phone at the university library",
-        description: "I left my iPhone 13 on the reading table in the library for 10 minutes, and when I returned it was gone. Please check security cameras.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 2,
-        category: "security",
-        title: "Harassment by security officer at gates",
-        description: "A security guard at the main campus gate was extremely rude and delayed me for 30 minutes for no reason despite showing my student ID.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 2,
-        category: "security",
-        title: "Lost wallet found and returned",
-        description: "I lost my brown leather wallet containing my ID card and driver's license near the lecture hall yesterday.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "A brown leather wallet matching your description was turned in to the security post. Please bring a valid proof of identity to claim it.",
-        satisfied: "yes", rating: 5, comments: "Got my wallet back with all cards intact! The campus security team did an amazing job."
-      },
-      {
-        deptIdx: 2,
-        category: "security",
-        title: "Loud party near hostel area after curfew",
-        description: "There is a noisy group gathering outside the hostel gate playing loud music at 1 AM. It is disturbing the peace.",
-        status: "fixed", priority: "normal",
-        admin_feedback: "A security patrol team was dispatched to the area and dispersed the gathering. Curfew restrictions have been reinforced.",
-        satisfied: "yes", rating: 4, comments: "Thank you for dispersing them, it is quiet now."
-      },
-      {
-        deptIdx: 2,
-        category: "security",
-        title: "Permission to park car inside academic zone",
-        description: "Requesting permission to drive and park my personal vehicle right next to the lecture halls instead of the general parking lot.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. The academic zone is restricted to pedestrian transit and emergency vehicles only to ensure student safety."
-      },
-
-      // 4. Works & Physical Planning (facility-maint)
-      {
-        deptIdx: 3,
-        category: "facility-maint",
-        title: "No water in Hostel Block C toilets",
-        description: "For the past two days, there has been no running water in the toilets of Block C. The sanitary condition is getting very poor.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 3,
-        category: "facility-maint",
-        title: "Ceiling fan falling risk in Hall 1",
-        description: "The ceiling fan in Lecture Hall 1 is shaking violently when turned on and looks like it might fall on students.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 3,
-        category: "facility-maint",
-        title: "Broken desks in room 12",
-        description: "Several desks in Room 12 have broken wood and nails sticking out, which are tearing students' clothes.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "Maintenance team sent a carpenter to Room 12. Broken wooden panels have been replaced and safety nails hammered flat.",
-        satisfied: "yes", rating: 5, comments: "Great repair work. Desks are safe to use now."
-      },
-      {
-        deptIdx: 3,
-        category: "facility-maint",
-        title: "Power outage in classroom Block D",
-        description: "There has been no electricity in Block D classrooms for three days, making evening study and lectures impossible.",
-        status: "fixed", priority: "critical",
-        admin_feedback: "Our electrical technicians investigated and replaced a blown fuse in the Block D distribution box. Power has been restored.",
-        satisfied: "yes", rating: 5, comments: "Power is back! Thank you for the quick intervention."
-      },
-      {
-        deptIdx: 3,
-        category: "facility-maint",
-        title: "Request for personal air conditioner in room",
-        description: "I want the school to install a personal split AC in my hostel room because of the heat.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. Hostel facilities are equipped with standard ceiling fans. Personal air conditioners are not supported due to grid power load limits."
-      },
-
-      // 5. Registry & Academic Planning (admin-staff)
-      {
-        deptIdx: 4,
-        category: "admin-staff",
-        title: "Error in spelling of name on portal profile",
-        description: "My name is misspelled on the portal as 'Sanni' instead of 'Sani'. I need this corrected before transcripts are generated.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 4,
-        category: "admin-staff",
-        title: "Delay in processing academic transcript",
-        description: "I applied for my official transcript two weeks ago, but the portal still shows 'Processing'. I need it for a scholarship deadline.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 4,
-        category: "admin-staff",
-        title: "Correction of matriculation number",
-        description: "My matriculation number has a wrong digit at the end on the registry list.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "We reviewed your admission file and corrected the typing error in the database. Your correct matric number is now reflected.",
-        satisfied: "yes", rating: 4, comments: "It has been updated on my portal profile. Thanks!"
-      },
-      {
-        deptIdx: 4,
-        category: "admin-staff",
-        title: "Missing stamp on registration form",
-        description: "My course registration form was not stamped by the registry officer during validation.",
-        status: "fixed", priority: "normal",
-        admin_feedback: "Please bring your printed form to window 3 at the Registry Division today to have it stamped manually.",
-        satisfied: "yes", rating: 5, comments: "Form stamped successfully. Thank you!"
-      },
-      {
-        deptIdx: 4,
-        category: "admin-staff",
-        title: "Request to change admission department late",
-        description: "I am in my 300 level and want to switch from History to Computer Science starting next semester.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. Late change of department is only permitted up to the end of 100 level. You cannot switch majors at this stage of your academic program."
-      },
-
-      // 6. Student Affairs Division (other)
-      {
-        deptIdx: 5,
-        category: "other",
-        title: "Inquiry about Student Union elections date",
-        description: "When are the nominations for the Student Union Government (SUG) elections opening?",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 5,
-        category: "other",
-        title: "Club registration fee dispute",
-        description: "The departmental club is charging 5,000 Naira for registration instead of the school-approved 2,000 Naira limit.",
-        status: "in_review", priority: "normal"
-      },
-      {
-        deptIdx: 5,
-        category: "other",
-        title: "ID Card replacement delay",
-        description: "I paid for a replacement ID card last month but haven't received it at the student affairs desk.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "Your replacement ID card has been printed. Please bring your payment receipt to the Student Affairs office to collect it.",
-        satisfied: "yes", rating: 5, comments: "Got my card! The process was smooth."
-      },
-      {
-        deptIdx: 5,
-        category: "other",
-        title: "Missing list of approved clubs",
-        description: "The student notice board doesn't list the verified campus associations and registered clubs.",
-        status: "fixed", priority: "low",
-        admin_feedback: "We have updated and posted the list of approved student clubs on the Student Affairs notice board and the portal news page.",
-        satisfied: "yes", rating: 4, comments: "Found the list. Thank you."
-      },
-      {
-        deptIdx: 5,
-        category: "other",
-        title: "Request to host unregistered musical concert",
-        description: "We want to host a concert on the school football field this weekend without formal student affairs registration.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. All public social events must be registered at least 2 weeks in advance with security clearance and approved safety permits."
-      },
-
-      // 7. Computer Science Department (academic-result, academic-lecturer)
-      {
-        deptIdx: 6,
-        category: "academic-result",
-        title: "CSC 401 exam result missing on portal",
-        description: "My grade for CSC 401 is showing 'AR' (Absent Result), but I wrote the exam and signed the attendance sheet.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 6,
-        category: "academic-lecturer",
-        title: "Lecturer conduct during project defense",
-        description: "A lecturer was throwing insults and acting extremely unprofessional during our mock project defense sessions.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 6,
-        category: "academic-result",
-        title: "Correction of grade for CSC 302",
-        description: "I was given an F on the portal, but my script grades scored over 60%. I suspect a typing error.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "The department reviewed your script. A data-entry error occurred. Your grade has been corrected from F to B+.",
-        satisfied: "yes", rating: 5, comments: "Thank you so much! My grade has been correctly updated."
-      },
-      {
-        deptIdx: 6,
-        category: "academic-result",
-        title: "CSC 201 lab equipment shortage",
-        description: "There are not enough working computers in the CS lab for the practical programming sessions.",
-        status: "fixed", priority: "normal",
-        admin_feedback: "Our IT support team has connected 15 additional workstations in the CS lab. All practical sessions should now have sufficient setups.",
-        satisfied: "yes", rating: 4, comments: "More computers are working now. Thanks."
-      },
-      {
-        deptIdx: 6,
-        category: "academic-result",
-        title: "Request to waive final year project",
-        description: "I want the department to allow me to graduate without writing the project report because of financial constraints.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. The final year project is a compulsory core course mandated by the university senate curriculum and cannot be waived."
-      },
-
-      // 8. Mechanical Engineering Department (academic-result, academic-lecturer)
-      {
-        deptIdx: 7,
-        category: "academic-result",
-        title: "MEG 305 test script missing review",
-        description: "I submitted my test script late with written permission, but it has not been graded on my CA sheet.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 7,
-        category: "academic-lecturer",
-        title: "MEG 411 lecturer not attending lectures",
-        description: "The lecturer assigned to MEG 411 has only held one lecture in the past six weeks, leaving us behind.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 7,
-        category: "academic-result",
-        title: "Clash in exam timetable",
-        description: "MEG 301 and CSC 302 exams are scheduled for the same time slot next Tuesday. I cannot write both.",
-        status: "resolved", priority: "high",
-        admin_feedback: "We contacted the timetable committee. The MEG 301 exam slot has been shifted to Wednesday morning to resolve the clash.",
-        satisfied: "yes", rating: 5, comments: "Clash resolved! Thank you for the quick action."
-      },
-      {
-        deptIdx: 7,
-        category: "academic-result",
-        title: "Missing workshop tools for MEG 202",
-        description: "We lack welding rods and safety goggles in the department workshop for practical exercises.",
-        status: "fixed", priority: "normal",
-        admin_feedback: "The workshop coordinator has restocked safety goggles and welding rods. They are now available for student check-out.",
-        satisfied: "yes", rating: 5, comments: "Got the safety gear for our practical. Thank you."
-      },
-      {
-        deptIdx: 7,
-        category: "academic-result",
-        title: "Request to change MEG course curriculum",
-        description: "We want the department to delete thermodynamics from our course outline because it is too difficult.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. The Mechanical Engineering curriculum is accredited by COREN and cannot be altered by student petition."
-      },
-
-      // 9. Accounting Department (academic-result, academic-lecturer)
-      {
-        deptIdx: 8,
-        category: "academic-result",
-        title: "ACC 201 missing CA score",
-        description: "My Continuous Assessment test score of 25 is missing from my portal profile.",
-        status: "pending", priority: "normal"
-      },
-      {
-        deptIdx: 8,
-        category: "academic-lecturer",
-        title: "Lecturer refusing to explain grades",
-        description: "The CA test papers were not returned, and the lecturer refused to explain how our scores were calculated.",
-        status: "in_review", priority: "high"
-      },
-      {
-        deptIdx: 8,
-        category: "academic-result",
-        title: "Timetable clash for ACC 403",
-        description: "Timetable shows clash with MEG 403 exam on Thursday.",
-        status: "resolved", priority: "normal",
-        admin_feedback: "The exam schedule has been updated. The ACC 403 exam will now hold in the afternoon session.",
-        satisfied: "yes", rating: 4, comments: "Shifted, thanks for updating the schedule."
-      },
-      {
-        deptIdx: 8,
-        category: "academic-result",
-        title: "Calculator restrictions during accounting test",
-        description: "We were told we cannot use basic financial calculators during CA tests, which delays our calculations.",
-        status: "fixed", priority: "normal",
-        admin_feedback: "The HOD has issued a memo permitting basic financial calculators. Programmable calculators remain banned.",
-        satisfied: "yes", rating: 5, comments: "Permitted now. Tests are much fairer."
-      },
-      {
-        deptIdx: 8,
-        category: "academic-result",
-        title: "Request to upgrade grade from D to A",
-        description: "I got a D in ACC 301 but I need an A to keep my CGPA up for scholarship retention.",
-        status: "rejected", priority: "low",
-        admin_feedback: "Rejected. Grades are strictly awarded based on test and exam scores. No arbitrary score adjustments are permitted."
-      }
+    const titles = [
+      // 0: ICT & Portal Services
+      [
+        "Unable to access portal for registration",
+        "Double payment charged on tuition fee",
+        "Password reset request link not sending",
+        "Hostel fee payment not reflecting on dashboard",
+        "Request to bypass course prerequisite",
+        "Voucher code login failing",
+        "Invalid course units sum error",
+        "Incorrect matriculation number display",
+        "Biodata correction request",
+        "Late registration fine wave appeal",
+        "LMS account locked out",
+        "Remita receipt verification pending",
+        "Wrong department mapped on portal",
+        "Mobile app login session error",
+        "Request for duplicate admission letter"
+      ],
+      // 1: Student Welfare & Counseling
+      [
+        "Hostel room roommate conflict",
+        "Harassment by senior student in Block B",
+        "Request for academic stress counseling",
+        "Broken lock on female hostel room 204",
+        "Request to cook in hostel rooms",
+        "Missing mattress in room 102",
+        "Hostel bathroom sanitary issue",
+        "Request for medical accommodation leave",
+        "Leaking roof in Hostel Room 305",
+        "Request to change room assignment",
+        "Bedbug infestation in Block B common room",
+        "Stolen textbook in hostel lounge",
+        "Counseling request for exam anxiety",
+        "Broken wardrobe door in Room 12",
+        "Hostel room personalization request"
+      ],
+      // 2: Campus Security & Safety
+      [
+        "Missing phone at the university library",
+        "Harassment by security officer at gates",
+        "Lost wallet found and returned",
+        "Loud party near hostel area after curfew",
+        "Permission to park car inside academic zone",
+        "Suspicious activity near sports complex",
+        "Stolen bicycle from hostel rack",
+        "Security escort request for late studies",
+        "Dead bulbs along library walkway",
+        "Request for security camera access",
+        "Intruder warning in Block D common room",
+        "Missing backpack from lecture theater",
+        "Found lost flash drive",
+        "Reconfigured main gate vehicle flow",
+        "Request to bypass curfew check"
+      ],
+      // 3: Works & Physical Planning
+      [
+        "No water in Hostel Block C toilets",
+        "Ceiling fan falling risk in Hall 1",
+        "Broken desks in room 12",
+        "Power outage in classroom Block D",
+        "Request for personal air conditioner in room",
+        "Faulty light switch in lab 2",
+        "Broken window panes in Lecture Hall 4",
+        "Leaking pipe in mechanical quad",
+        "Unclogged drain in engineering quad",
+        "Request to pave shortcut pathway",
+        "Exposed electrical wires in corridor",
+        "Squeaky doors in reading room",
+        "Stained classroom whiteboards",
+        "Fixed toilet flush valve in cafeteria",
+        "Request to install swimming pool"
+      ],
+      // 4: Registry & Academic Planning
+      [
+        "Error in spelling of name on portal",
+        "Delay in processing academic transcript",
+        "Correction of matriculation number",
+        "Missing stamp on registration form",
+        "Request to change department late",
+        "Certificate name order incorrect",
+        "Request for deferred admission letter",
+        "Lost student ID clearance letter",
+        "Updated course code on registration list",
+        "Appeal to register below minimum credit",
+        "Transcript delivery failure notice",
+        "Verification of external transfer credits",
+        "Correction of graduation cohort year",
+        "Replaced blank grade with final score",
+        "Request for CGPA manual grade boost"
+      ],
+      // 5: Student Affairs Division
+      [
+        "Inquiry about Student Union elections date",
+        "Club registration fee dispute",
+        "ID Card replacement delay",
+        "Missing list of approved clubs",
+        "Request to host unregistered musical concert",
+        "Student club constitution approval delay",
+        "Departmental dues levy grievance",
+        "Bursary scholarship disbursement inquiry",
+        "Approved charter for student chapter",
+        "Request to cancel mandatory orientation",
+        "Missing handbook for freshers",
+        "Loud noise from student center arcade",
+        "Resolved travel permit for field trip",
+        "Empty first-aid boxes in hostels",
+        "Request to sell retail items in lounge"
+      ],
+      // 6: Computer Science Department
+      [
+        "CSC 401 exam result missing on portal",
+        "Lecturer conduct during project defense",
+        "Correction of grade for CSC 302",
+        "CSC 201 lab equipment shortage",
+        "Request to waive final year project",
+        "CSC 311 class clash with MTH 302",
+        "Lecturer missing practical lab hours",
+        "Database lab server offline bug",
+        "Rescheduled CSC 404 test date",
+        "Request for student to grade papers",
+        "CSC 305 operating systems textbook missing",
+        "Lecturer refusing to explain project criteria",
+        "Correction of graduation clearance grade",
+        "Unsecured cables in CS Lab Room 3",
+        "Request to bypass compiler theory course"
+      ],
+      // 7: Mechanical Engineering Department
+      [
+        "MEG 305 test script missing review",
+        "MEG 411 lecturer not attending lectures",
+        "Clash in exam timetable for MEG 301",
+        "Missing workshop tools for MEG 202",
+        "Request to change MEG course curriculum",
+        "Faulty hydraulic bench in MEG lab",
+        "MEG 401 lecturer rushing syllabus",
+        "Rescheduled drawing board session",
+        "Restocked lathe cutting fluids in workshop",
+        "Request to write exam from home",
+        "MEG 501 graduation supervisor change",
+        "Lecturer selling mandatory textbooks",
+        "Grade correction on portal for MEG 306",
+        "Broken engine block model in auto lab",
+        "Request to skip workshop practice"
+      ],
+      // 8: Accounting Department
+      [
+        "ACC 201 missing CA score",
+        "Lecturer refusing to explain grades",
+        "Timetable clash for ACC 403",
+        "Calculator restrictions during test",
+        "Request to upgrade grade from D to A",
+        "ACC 311 textbook price gouging",
+        "Exam room desk noise",
+        "Correction of CA list entry error",
+        "Restocked accounting journals in library",
+        "Request to skip taxation course",
+        "ACC 402 grades not released yet",
+        "Lecturer missing classes repeatedly",
+        "Resolved exam timetable mismatch",
+        "Fixed accounting software lab access",
+        "Request to waive ICAN registration fee"
+      ]
     ];
 
-    for (let i = 0; i < complaintsData.length; i++) {
-      const data = complaintsData[i];
-      const dept = seededDepts[data.deptIdx];
-      const staffList = await User.find({ role: 'staff', department_id: dept._id });
-      
-      // Select staff member (alternate)
-      const assignedStaff = staffList[i % staffList.length];
-      
-      // Select student (alternate)
-      const student = students[i % students.length];
-      
-      const reference_id = genRefId();
+    const descriptions = [
+      // 0: ICT & Portal Services
+      [
+        "I am trying to register my courses for the semester but the portal is showing 'Access Denied' when I click submit. Please help resolve this.",
+        "I paid my school fees using the portal, but my bank account was debited twice. The portal only shows one transaction paid. I need a refund or credit.",
+        "I forgot my portal password and clicked reset, but the link is not sending to my school email after multiple tries.",
+        "I paid my hostel fee, but the portal is still showing unpaid. I have attached the receipt of payment.",
+        "I want the portal to allow me to register for CSC 401 without passing CSC 301 since I am a final year student.",
+        "I purchased an internet voucher code at the ICT center but trying to login to the library WiFi says 'Voucher Expired' immediately.",
+        "The portal registration sheet won't let me submit because it claims my course units exceed 24, but I only selected 18 units in total.",
+        "My profile shows my old temporary application number instead of my newly assigned matriculation number.",
+        "My date of birth was entered incorrectly during registration as 2005 instead of 2003. Please assist.",
+        "I paid late due to health issues and want the 5,000 Naira late registration fee waived. I have a medical report.",
+        "My portal is active, but trying to login to the Learning Management System (LMS) says my account is locked out.",
+        "I paid my acceptance fee via Remita, but the status is stuck on 'Verifying' for over 48 hours.",
+        "I got admission into Computer Science but my portal dashboard shows Mechanical Engineering department.",
+        "The LASUSTECH mobile app keeps showing 'Session Expired' immediately after a successful login.",
+        "I lost my original printed portal admission letter and want the portal admin to print another original copy."
+      ],
+      // 1: Student Welfare & Counseling
+      [
+        "My roommate brings guests late at night and plays loud music, which is disturbing my studies and sleep. I need a room change request.",
+        "A senior student residing on the third floor is constantly harassing me and making me do his laundry. I feel unsafe.",
+        "I am feeling extremely overwhelmed with my final year project and exam pressure. I need to schedule a session to speak to a counselor.",
+        "The lock to our female hostel room door is broken, leaving our belongings unsafe when we go for lectures.",
+        "We want the hostel management to allow us to cook inside the hostel rooms using gas cylinders to save time.",
+        "I was allocated Hostel Room 102, but there are only 3 mattresses for 4 occupants. I need a mattress to sleep.",
+        "The toilets in Block A are constantly blocked, causing bad odors and a health hazard for everyone on the floor.",
+        "I need approval to stay off-campus next semester due to chronic health issues that require home care.",
+        "Whenever it rains, water leaks from the ceiling directly onto my bed in Room 305.",
+        "I want to swap rooms with my friend in Block D so we can study together.",
+        "The common room in Block B has a bedbug infestation. We need the rooms fumigated.",
+        "My chemistry textbook was stolen from the lounge while I was away. Please assist in checking room records.",
+        "I get panic attacks before writing exams. I want to learn breathing techniques and stress management.",
+        "The wardrobe door hinges are completely detached in my hostel room, so I cannot lock my clothes.",
+        "I want permission to paint my hostel room walls blue and install wallpaper."
+      ],
+      // 2: Campus Security & Safety
+      [
+        "I left my iPhone 13 on the reading table in the library for 10 minutes, and when I returned it was gone. Please check security cameras.",
+        "A security guard at the main campus gate was extremely rude and delayed me for 30 minutes for no reason despite showing my student ID.",
+        "I lost my brown leather wallet containing my ID card and driver's license near the lecture hall yesterday.",
+        "There is a noisy group gathering outside the hostel gate playing loud music at 1 AM. It is disturbing the peace.",
+        "Requesting permission to drive and park my personal vehicle right next to the lecture halls instead of the parking lot.",
+        "I saw two individuals who did not look like students loitering behind the sports complex late last night.",
+        "My blue mountain bike was stolen from the bicycle rack outside Block C between 2 PM and 4 PM.",
+        "I study in the library until 10 PM and feel unsafe walking to the remote hostel. Can a security guard escort me?",
+        "The pathway between the library and engineering block is pitch black at night due to dead bulbs.",
+        "I want security to give me the raw video footage of the library parking lot to see who dented my car.",
+        "A person without a student ID card was seen entering the female common room in Block D.",
+        "I forgot my black Nike backpack in Lecture Theater 3. It contains my notebooks and class notes.",
+        "I found a red SanDisk 64GB flash drive on the grass near the admin block.",
+        "Traffic is backing up onto the highway due to slow vehicle checks at the main gate.",
+        "I want security to allow me to enter the hostel after the 11 PM curfew without writing my name in the logbook."
+      ],
+      // 3: Works & Physical Planning
+      [
+        "For the past two days, there has been no running water in the toilets of Block C. The sanitary condition is getting very poor.",
+        "The ceiling fan in Lecture Hall 1 is shaking violently when turned on and looks like it might fall on students.",
+        "Several desks in Room 12 have broken wood and nails sticking out, which are tearing students' clothes.",
+        "There has been no electricity in Block D classrooms for three days, making evening study and lectures impossible.",
+        "I want the school to install a personal split AC in my hostel room because of the heat.",
+        "The main light switch in Physics Lab 2 sparks when toggled. This is a severe electrical hazard.",
+        "Several glass window panes in Hall 4 are shattered, letting rain blow into the classroom.",
+        "The pipe outside the mechanical lab has burst and is spraying water across the walkway.",
+        "Storm water is pooling outside the mechanical building entrance due to leaves clogging the storm drain.",
+        "We want works to pave the dirt shortcut through the lawn so it doesn't get muddy when it rains.",
+        "There are exposed wires hanging from the ceiling in the admin building corridor next to office 24.",
+        "The doors to the library reading room squeak loudly every time someone enters, disrupting quiet studies.",
+        "The whiteboards in Classrooms 5 and 6 are heavily stained and cannot be erased.",
+        "The flush valve in the student cafeteria toilet is stuck open, wasting hundreds of gallons of water.",
+        "We want the physical planning department to build a recreational swimming pool next to the hostels."
+      ],
+      // 4: Registry & Academic Planning
+      [
+        "My name is misspelled on the portal as 'Sanni' instead of 'Sani'. I need this corrected before transcripts are generated.",
+        "I applied for my official transcript two weeks ago, but the portal still shows 'Processing'. I need it for a scholarship deadline.",
+        "My matriculation number has a wrong digit at the end on the registry list.",
+        "My course registration form was not stamped by the registry officer during validation.",
+        "I am in my 300 level and want to switch from History to Computer Science starting next semester.",
+        "My name order on the graduation list is wrong. My middle name should come before my surname.",
+        "I deferred my admission to next session but registry has not issued my official deferment letter.",
+        "I lost my ID and need a temporary registry clearance letter to write my upcoming final exams.",
+        "I registered for GST 202, but the registry sheet shows GST 204. I need this corrected.",
+        "I only need 8 credits to graduate, but portal requires registering a minimum of 12 credits.",
+        "The organization I sent my transcript to says they have not received it yet despite 3 weeks passing.",
+        "I submitted my transfer transcript from my previous university, but registry has not verified my credits.",
+        "My graduation status indicates 2025 instead of 2026, which affects my NYSC mobilization.",
+        "The registry grade sheet for MTH 201 is blank for my matric number despite scoring 65% in CA.",
+        "I am at 2.49 CGPA and want registry to round it up to 2.50 to graduate with second class upper."
+      ],
+      // 5: Student Affairs Division
+      [
+        "When are the nominations for the Student Union Government (SUG) elections opening?",
+        "The departmental club is charging 5,000 Naira for registration instead of the school-approved 2,000 Naira limit.",
+        "I paid for a replacement ID card last month but haven't received it at the student affairs desk.",
+        "The student notice board doesn't list the verified campus associations and registered clubs.",
+        "We want to host a concert on the school football field this weekend without formal registration.",
+        "We submitted our new club constitution 3 weeks ago but have not received approval from the Dean.",
+        "Our department association is enforcing a mandatory dues payment of 10,000 Naira, which is too expensive.",
+        "When will the school local government bursary scholarship funds be disbursed to selected students?",
+        "Our application to start a student chapter of the IEEE association is pending approval.",
+        "We want the orientation program for freshmen cancelled because of the hot weather.",
+        "The student affairs desk ran out of student handbooks during orientation and I haven't received mine.",
+        "The music from the games area in the student center is extremely loud during class hours.",
+        "We need a permit for the student excursion bus to travel outside Lagos State.",
+        "The first-aid boxes in the student common rooms are completely empty of bandages and antiseptic.",
+        "I want to set up a private convenience stall inside the hostel lounge to sell noodles and snacks."
+      ],
+      // 6: Computer Science Department
+      [
+        "My grade for CSC 401 is showing 'AR' (Absent Result), but I wrote the exam and signed the attendance sheet.",
+        "A lecturer was throwing insults and acting extremely unprofessional during our mock project defense.",
+        "I was given an F on the portal, but my script grades scored over 60%. I suspect a typing error.",
+        "There are not enough working computers in the CS lab for the practical programming sessions.",
+        "I want the department to allow me to graduate without writing the project report because of financial constraints.",
+        "CSC 311 class clash with MTH 302, scheduled for Monday at 10 AM.",
+        "The lab instructor for CSC 202 programming practicals has not attended the last three lab sessions.",
+        "The database server in the CS lab is offline, preventing us from completing our SQL assignments.",
+        "We have two exams on the same day and want the CSC 404 test rescheduled.",
+        "A final year student is asking to grade the CSC 101 papers to earn extra pocket money.",
+        "The library has only one copy of the recommended textbook for CSC 305 (Operating Systems).",
+        "The supervisor refuses to provide a grading rubric or explain how project thesis marks are awarded.",
+        "The department graduation list displays my grade for CSC 402 as C instead of my actual score A.",
+        "Power cables are trailing across the floor in Room 3, creating a tripping hazard.",
+        "I want to graduate without taking Compiler Theory because it is too hard."
+      ],
+      // 7: Mechanical Engineering Department
+      [
+        "I submitted my test script late with written permission, but it has not been graded on my CA sheet.",
+        "The lecturer assigned to MEG 411 has only held one lecture in the past six weeks, leaving us behind.",
+        "MEG 301 and CSC 302 exams are scheduled for the same slot next Tuesday.",
+        "We lack welding rods and safety goggles in the department workshop for practical exercises.",
+        "We want the department to delete thermodynamics from our course outline because it is too difficult.",
+        "The hydraulic pump bench in the fluids lab has a fluid leak and cannot build pressure.",
+        "The lecturer is trying to cover 8 topics in two classes, making it impossible to follow.",
+        "The engineering drawing room was locked during our scheduled drawing practical on Wednesday.",
+        "The lathe machines cannot operate because there is no coolant or cutting fluid available.",
+        "I want to write my MEG 302 exam online from home because I don't feel like coming to campus.",
+        "My project supervisor is never available and has not responded to my drafts for two months.",
+        "A lecturer is forcing students to buy his textbook for 8,000 Naira or face automatic failure.",
+        "My grades for MEG 306 shows C instead of B+ which I scored in my test and exam.",
+        "The sectional cutaway model of the engine has broken pistons and is jammed.",
+        "I want to graduate without doing the compulsory workshop practice because I don't like manual work."
+      ],
+      // 8: Accounting Department
+      [
+        "My Continuous Assessment test score of 25 is missing from my portal profile.",
+        "The CA test papers were not returned, and the lecturer refused to explain how our scores were calculated.",
+        "Timetable clash for ACC 403 with MEG 403 exam on Thursday.",
+        "We were told we cannot use basic financial calculators during CA tests, which delays our calculations.",
+        "I got a D in ACC 301 but I need an A to keep my CGPA up for scholarship retention.",
+        "The department bookshop is selling the ACC 311 study guide at 12,000 Naira instead of the fixed price.",
+        "The accounting exam hall has squeaky folding chairs that make a loud noise during exams.",
+        "My CA score was input as 12 instead of 22 in ACC 305 database.",
+        "The library lacks recent editions of professional accounting journals (ICAN) for research.",
+        "I want to graduate without registering for Corporate Taxation because I don't want to study tax.",
+        "It is two weeks after the exams and ACC 402 grades have not been posted on our board.",
+        "The lecturer for Auditing (ACC 412) has only held two classes this semester.",
+        "The department exam schedule says ACC 201 is on Monday, but the portal says Tuesday.",
+        "Accounting students cannot login to Sage or Peachtree software on lab computers due to subscription expiry.",
+        "I want the university to pay for my ICAN professional registration fees."
+      ]
+    ];
 
-      const timeline = [
-        { type: 'system', text: 'Complaint submitted and reference ID issued.' },
-        { type: 'assigned', text: `Assigned to ${assignedStaff.name} (${dept.name}).`, user_id: assignedStaff._id }
-      ];
-
-      if (data.status !== 'pending') {
-        timeline.push({
-          type: 'status_change',
-          text: `Status changed to ${data.status.replace('_', ' ')}.`,
-          user_id: assignedStaff._id
-        });
+    const feedBacks = {
+      resolved: {
+        admin: "We have reviewed your details and solved the issue. The corrections are now active on your dashboard.",
+        satisfied: "yes",
+        rating: 5,
+        comments: "Excellent resolution speed! Thank you."
+      },
+      fixed: {
+        admin: "Our technical team has fixed this issue and verified the resolution directly.",
+        satisfied: "yes",
+        rating: 4,
+        comments: "Fixed and working properly. Thank you."
+      },
+      rejected: {
+        admin: "Your request is rejected as it does not align with the standard university academic guidelines and senate policies."
       }
+    };
 
-      await Complaint.create({
-        reference_id,
-        user_id: student._id,
-        assigned_staff_id: assignedStaff._id,
-        category: data.category,
-        title: data.title,
-        description: data.description,
-        anonymous: i % 7 === 0, // make some complaints anonymous
-        priority: data.priority,
-        status: data.status,
-        admin_feedback: data.admin_feedback || "",
-        satisfaction_feedback: data.satisfied ? {
-          satisfied: data.satisfied,
-          rating: data.rating,
-          comments: data.comments,
-          submitted_at: new Date()
-        } : {
-          satisfied: null,
-          rating: null,
-          comments: "",
-          submitted_at: null
-        },
-        timeline,
-        internal_notes: data.status === 'in_review' || data.status === 'resolved' ? [
-          {
-            admin_id: assignedStaff._id,
-            text: `Initial investigation started for this ${data.priority} priority case.`,
-            created_at: new Date(Date.now() - 3600000)
-          }
-        ] : []
-      });
+    let totalSeeded = 0;
+    for (let j = 0; j < seededDepts.length; j++) {
+      const dept = seededDepts[j];
+      const staffList = await User.find({ role: 'staff', department_id: dept._id });
+
+      for (let k = 0; k < 15; k++) {
+        const assignedStaff = staffList[k % staffList.length];
+        const student = students[k % students.length];
+        const reference_id = genRefId();
+        
+        let category;
+        if (j === 0) category = k % 2 === 0 ? "it-service" : "financial";
+        else if (j === 1) category = k % 2 === 0 ? "facility-hostel" : "delicate";
+        else if (j === 2) category = "security";
+        else if (j === 3) category = "facility-maint";
+        else if (j === 4) category = "admin-staff";
+        else if (j === 5) category = "other";
+        else category = k % 2 === 0 ? "academic-result" : "academic-lecturer";
+
+        const title = titles[j][k];
+        const description = descriptions[j][k];
+
+        // Status cycle: 3 pending, 3 in_review, 3 resolved, 3 fixed, 3 rejected
+        let status;
+        if (k < 3) status = "pending";
+        else if (k < 6) status = "in_review";
+        else if (k < 9) status = "resolved";
+        else if (k < 12) status = "fixed";
+        else status = "rejected";
+
+        const priorities = ["normal", "high", "normal", "critical", "low"];
+        const priority = priorities[k % priorities.length];
+
+        const timeline = [
+          { type: 'system', text: 'Complaint submitted and reference ID issued.' },
+          { type: 'assigned', text: `Assigned to ${assignedStaff.name} (${dept.name}).`, user_id: assignedStaff._id }
+        ];
+
+        if (status !== 'pending') {
+          timeline.push({
+            type: 'status_change',
+            text: `Status changed to ${status.replace('_', ' ')}.`,
+            user_id: assignedStaff._id
+          });
+        }
+
+        let admin_feedback = "";
+        let satisfaction = { satisfied: null, rating: null, comments: "", submitted_at: null };
+
+        if (status === 'resolved') {
+          admin_feedback = feedBacks.resolved.admin;
+          satisfaction = {
+            satisfied: feedBacks.resolved.satisfied,
+            rating: feedBacks.resolved.rating,
+            comments: feedBacks.resolved.comments,
+            submitted_at: new Date()
+          };
+        } else if (status === 'fixed') {
+          admin_feedback = feedBacks.fixed.admin;
+          satisfaction = {
+            satisfied: feedBacks.fixed.satisfied,
+            rating: feedBacks.fixed.rating,
+            comments: feedBacks.fixed.comments,
+            submitted_at: new Date()
+          };
+        } else if (status === 'rejected') {
+          admin_feedback = feedBacks.rejected.admin;
+        }
+
+        await Complaint.create({
+          reference_id,
+          user_id: student._id,
+          assigned_staff_id: assignedStaff._id,
+          category,
+          title,
+          description,
+          anonymous: k % 4 === 0,
+          priority,
+          status,
+          admin_feedback,
+          satisfaction_feedback: satisfaction,
+          timeline,
+          internal_notes: status === 'in_review' || status === 'resolved' ? [
+            {
+              admin_id: assignedStaff._id,
+              text: `Initial investigation started for this ${priority} priority case.`,
+              created_at: new Date(Date.now() - 3600000)
+            }
+          ] : []
+        });
+        totalSeeded++;
+      }
     }
 
-    console.log(`🎉 Successfully seeded ${complaintsData.length} complaints!`);
+    console.log(`🎉 Successfully seeded ${totalSeeded} complaints!`);
     console.log('Seeding completed successfully!');
     process.exit(0);
   } catch (error) {

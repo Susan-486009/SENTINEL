@@ -280,6 +280,7 @@ function StaffBoard() {
                         <option value="in_review">In Review</option>
                         <option value="resolved">Resolved</option>
                         <option value="fixed">Fixed</option>
+                        <option value="rejected">Rejected</option>
                       </select>
                       {statusMutation.isPending && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                     </div>
