@@ -90,7 +90,17 @@ export const getComplaintById = asyncHandler(async (req, res) => {
     );
   } catch (err) {
     console.error('DEBUG getComplaintById error:', err);
-    throw err;
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message,
+      statusCode: err.statusCode,
+      stack: err.stack,
+      debug: {
+        identifier,
+        userId: req.user?.id || req.user?._id?.toString(),
+        role: req.user?.role,
+      }
+    });
   }
 
   // LOG THE VIEW ACTION FOR SURVEILLANCE
